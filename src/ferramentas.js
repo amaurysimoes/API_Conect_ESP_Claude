@@ -35,6 +35,7 @@ export function criarServidorMcp() {
       description:
         "Liga, desliga ou dá um pulso (~1 s) em um pino de saída. Use 'descricao' com o que o usuário falou (ex.: 'luz da frente'); " +
         "a ponte acha o pino pelas palavras cadastradas. Só use 'esp'+'pino' se o usuário citar o número. " +
+        "Se houver mais de um ESP e o usuário não disser qual, a resposta pede o dispositivo: pergunte \"Qual dispositivo você quer acionar?\" citando os nomes (ex.: FIRE_AHS01?), e repita o pedido com 'esp' preenchido. " +
         "Se a descrição não bater com nenhum pino, ou bater com vários, a resposta diz isso: pergunte ao usuário, não adivinhe.",
       inputSchema: {
         acao: z.enum(["ligar", "desligar", "pulso"]).describe("ligar, desligar ou pulso (aperta e solta, ex.: portão)"),
@@ -46,18 +47,32 @@ export function criarServidorMcp() {
     async ({ acao, descricao, esp, pino }) => {
       const esps = await listarEsps();
       let alvoEsp = esp, alvoPino = pino;
+      const nomes = esps.map((e) => e.nome).join(", ");
+      const perguntaDispositivo = (motivo) =>
+        texto(`${motivo} Há ${esps.length} dispositivos: ${nomes}. Pergunte ao usuário: "Qual dispositivo você quer acionar?" citando os nomes, e repita o pedido informando 'esp'.`, true);
+      const limpa = (t) => String(t).toLowerCase().replace(/[^a-z0-9]/g, "");
 
       if (descricao) {
-        const achados = achar(mapaDe(esps), descricao);
+        // Se o usuário citou o nome de um ESP na frase ("... no FIRE_AHS02"), só vale esse ESP.
+        const citados = esps.filter((e) => limpa(descricao).includes(limpa(e.nome)));
+        const permitidos = alvoEsp ? [alvoEsp] : citados.length ? citados.map((e) => e.nome) : esps.map((e) => e.nome);
+        const mapa = Object.fromEntries(Object.entries(mapaDe(esps)).filter(([n]) => permitidos.includes(n)));
+        const achados = achar(mapa, descricao);
         if (achados.length === 0) {
-          return texto(`Nenhum pino cadastrado combina com "${descricao}". Use listar_dispositivos e confirme com o usuário qual é, ou peça para ele cadastrar as palavras no painel.`, true);
+          const dica = esps.length > 1 && !citados.length && !alvoEsp
+            ? perguntaDispositivo(`Nenhum pino cadastrado combina com "${descricao}" (ou o dispositivo não ficou claro).`)
+            : texto(`Nenhum pino cadastrado combina com "${descricao}". Use listar_dispositivos e confirme com o usuário qual é, ou peça para ele cadastrar as palavras no painel.`, true);
+          return dica;
         }
         if (achados.length > 1) {
-          const opcoes = achados.map((a) => `${a.esp} pino ${a.gpio}`).join("; ");
-          return texto(`"${descricao}" combina com mais de um pino (${opcoes}). Pergunte ao usuário qual deles.`, true);
+          const esDiferentes = new Set(achados.map((a) => a.esp)).size > 1;
+          if (esDiferentes) return perguntaDispositivo(`"${descricao}" existe em mais de um dispositivo.`);
+          return texto(`"${descricao}" combina com mais de um pino (${achados.map((a) => `pino ${a.gpio}`).join("; ")}) do ${achados[0].esp}. Pergunte ao usuário qual deles.`, true);
         }
         ({ esp: alvoEsp, gpio: alvoPino } = achados[0]);
       }
+      if (!alvoEsp && esps.length === 1) alvoEsp = esps[0].nome; // só um ESP: não precisa perguntar
+      if (!alvoEsp && alvoPino !== undefined) return perguntaDispositivo(`Faltou dizer de qual dispositivo é o pino ${alvoPino}.`);
       if (!alvoEsp || alvoPino === undefined) return texto("Informe 'descricao' ou então 'esp' e 'pino'.", true);
 
       const dispositivo = esps.find((e) => e.nome === alvoEsp);
