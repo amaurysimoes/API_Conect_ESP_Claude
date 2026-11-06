@@ -96,7 +96,8 @@ http.createServer(async (req, res) => {
     if (caminho === "/mcp" || caminho.startsWith("/mcp/")) {
       if (!MCP_TOKEN) return json(res, 503, { erro: "MCP_TOKEN não definido: MCP remoto desligado." });
       const naUrl = caminho.slice(5);
-      const ok = igual(req.headers.authorization || "", `Bearer ${MCP_TOKEN}`) || (naUrl !== "" && igual(naUrl, MCP_TOKEN));
+      const bearer = (req.headers.authorization || "").match(/^bearer\s+(.+)$/i)?.[1]?.trim() ?? ""; // "Bearer"/"bearer": a palavra não diferencia maiúscula
+      const ok = (bearer !== "" && igual(bearer, MCP_TOKEN)) || (naUrl !== "" && igual(naUrl, MCP_TOKEN));
       if (!ok) return json(res, 401, { erro: "token inválido" });
       if (req.method !== "POST") return json(res, 405, { erro: "use POST" });
       // sem estado: cada chamada cria seu servidor e transporte (funciona em qualquer instância)
