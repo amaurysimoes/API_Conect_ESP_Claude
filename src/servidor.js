@@ -22,14 +22,19 @@ const PAGINA = `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ponte casa</title>
 <style>
-  body{font:15px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#222}
+  :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
+  body{font:15px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;background:var(--fundo);color:var(--texto)}
   h1{font-size:20px} h2{font-size:16px;margin:24px 0 4px}
-  .sub{color:#666;font-size:13px;margin-bottom:8px}
-  table{width:100%;border-collapse:collapse} td,th{padding:6px 8px;border-bottom:1px solid #e3e3e3;text-align:left;vertical-align:middle}
-  input{width:100%;box-sizing:border-box;padding:6px 8px;font:inherit;border:1px solid #bbb;border-radius:6px}
-  button{padding:8px 16px;font:inherit;border:0;border-radius:6px;background:#1a56db;color:#fff;cursor:pointer}
-  .on{color:#0a7d2c;font-weight:600} .off{color:#888} .bolinha{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
-  #msg{margin-left:12px;color:#0a7d2c}
+  .sub{color:var(--suave);font-size:13px;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden}
+  td,th{padding:8px 10px;border-bottom:1px solid var(--borda);text-align:left;vertical-align:middle}
+  th{color:var(--suave);font-weight:600;font-size:13px}
+  input{width:100%;box-sizing:border-box;padding:7px 9px;font:inherit;color:var(--texto);background:var(--fundo);border:1px solid var(--borda);border-radius:6px}
+  input:focus{outline:none;border-color:var(--azul)} ::placeholder{color:#5d6675}
+  button{padding:9px 18px;font:inherit;border:0;border-radius:6px;background:var(--azul);color:#fff;cursor:pointer}
+  button:hover{filter:brightness(1.1)}
+  .on{color:var(--verde);font-weight:600} .off{color:var(--suave)} .bolinha{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+  #msg{margin-left:12px;color:var(--verde)}
 </style></head><body>
 <h1>Ponte casa</h1>
 <p class="sub">Escreva, em cada pino, as palavras que você usa para falar dele, separadas por vírgula. Ex.: <b>luz frente, luz da varanda</b>. Pinos sem palavras só são acionados pelo número.</p>
@@ -41,7 +46,7 @@ async function carregar() {
   const dados = await (await fetch('/api/dados')).json();
   document.getElementById('lista').innerHTML = dados.map(e => {
     const saidas = e.pinos.filter(p => p.tipo === 'saida');
-    return '<h2>' + esc(e.nome) + '</h2><div class="sub"><span class="bolinha" style="background:' + (e.online ? '#0a7d2c' : '#c00') + '"></span>' +
+    return '<h2>' + esc(e.nome) + '</h2><div class="sub"><span class="bolinha" style="background:' + (e.online ? '#3ddc84' : '#ff5c5c') + '"></span>' +
       (e.online ? 'online' : 'offline') + ' · ' + esc(e.ip || 'sem IP') + ' · ' + esc(e.modelo || '') + '</div>' +
       '<table><tr><th>GPIO</th><th>Nome no ESP</th><th>Estado</th><th>Palavras</th></tr>' +
       saidas.map(p => '<tr><td>' + p.gpio + '</td><td>' + esc(p.nome) + '</td><td class="' + (p.estado ? 'on' : 'off') + '">' + (p.estado ? 'ligado' : 'desligado') +
