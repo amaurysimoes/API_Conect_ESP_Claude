@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ponte-casa
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/servidor.js
+    healthCheckPath: /saude
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: MCP_TOKEN
+        generateValue: true
+      - key: PAINEL_SENHA
+        generateValue: true

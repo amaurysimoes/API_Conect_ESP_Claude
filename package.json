@@ -1,0 +1,15 @@
+{
+  "name": "ponte-casa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ponte entre o Claude e os ESPs no Firebase: o painel guarda as palavras de cada pino e o MCP aciona.",
+  "scripts": {
+    "start": "node src/servidor.js",
+    "mcp": "node src/mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  }
+}
