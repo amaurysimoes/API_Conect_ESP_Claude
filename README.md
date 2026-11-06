@@ -9,7 +9,9 @@ Você   ──► /  (senha)   ──► painel: palavras salvas em esps/<nome>/
 ```
 
 - `src/servidor.js` painel + MCP remoto (Render). `src/mcp.js` MCP local por stdio. `src/ferramentas.js` as ferramentas.
-- `firmware_esp/Automacao` cópia do firmware do ESP (vem de `AUTOMACAO_IOT/firmware/Automacao`).
+- `aplicacao_esp_python/` projeto completo do programa que grava o ESP (PyQt6 + PlatformIO), com o código dos firmwares em `firmware/`. O `.exe` do Windows fica em Releases.
+- `DocumentacaoTecnica/ManualNovosDispositivos.md` passo a passo para configurar um ESP novo.
+- `firmware_esp/Automacao` cópia de referência do firmware do ESP.
 - O banco só libera o caminho `esps` (regras abertas, sem login). Por isso as palavras ficam dentro do próprio ESP.
 
 ## Subir no Render

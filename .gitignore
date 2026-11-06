@@ -1,3 +1,12 @@
 node_modules/
 .env
 *.log
+
+# aplicacao_esp_python: ambiente e arquivos gerados (o .exe vai como Release no GitHub, passa de 100 MB)
+aplicacao_esp_python/.venv/
+aplicacao_esp_python/dist/
+aplicacao_esp_python/build/
+aplicacao_esp_python/**/node_modules/
+aplicacao_esp_python/**/.pio/
+__pycache__/
+*.pyc
