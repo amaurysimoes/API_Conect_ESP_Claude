@@ -7,7 +7,7 @@ import { mapaDe, achar } from "./mapa.js";
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
 export function criarServidorMcp() {
-  const server = new McpServer({ name: "ponte-casa", version: "0.2.0" });
+  const server = new McpServer({ name: "automacao-iot-amaury", version: "0.2.0" });
 
   server.registerTool(
     "listar_dispositivos",

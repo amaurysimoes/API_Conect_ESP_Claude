@@ -1,4 +1,4 @@
-# Ponte casa
+# Automacao IOT Amaury
 
 Liga o Claude aos ESPs do Firebase Realtime Database (`amauryesp-active`). Você dá nomes aos pinos numa página
 ("luz frente") e depois pede ao Claude em conversa normal: *"liga a luz da frente de casa"*.

@@ -20,7 +20,7 @@ const igual = (a, b) => {
 
 const PAGINA = `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ponte casa</title>
+<title>Automacao IOT Amaury</title>
 <style>
   :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
   body{font:15px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;background:var(--fundo);color:var(--texto)}
@@ -36,7 +36,7 @@ const PAGINA = `<!doctype html>
   .on{color:var(--verde);font-weight:600} .off{color:var(--suave)} .bolinha{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
   #msg{margin-left:12px;color:var(--verde)}
 </style></head><body>
-<h1>Ponte casa</h1>
+<h1>Automacao IOT Amaury</h1>
 <p class="sub">Escreva, em cada pino, as palavras que você usa para falar dele, separadas por vírgula. Ex.: <b>luz frente, luz da varanda</b>. Pinos sem palavras só são acionados pelo número.</p>
 <div id="lista">Carregando…</div>
 <p><button onclick="salvar()">Salvar</button><span id="msg"></span></p>
@@ -79,7 +79,7 @@ function painelAutorizado(req, res) {
   const [tipo, cred] = (req.headers.authorization || "").split(" ");
   const senha = tipo === "Basic" ? Buffer.from(cred || "", "base64").toString().split(":").slice(1).join(":") : "";
   if (!igual(senha, PAINEL_SENHA)) {
-    res.writeHead(401, { "WWW-Authenticate": 'Basic realm="Ponte casa"' });
+    res.writeHead(401, { "WWW-Authenticate": 'Basic realm="Automacao IOT Amaury"' });
     res.end("Senha necessária");
     return false;
   }
