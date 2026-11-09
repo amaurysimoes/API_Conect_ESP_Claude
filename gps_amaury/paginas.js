@@ -21,7 +21,7 @@ const CSS = `
 `;
 
 // "/" é a página de pinos original (o menu é injetado nela por gps_amaury/http.js, sem editar o código antigo)
-const LINKS = [["/", "IOT-Automacao"], ["/enderecos", "Endereços"], ["/gps", "GPS"]];
+const LINKS = [["/", "IOT-Automacao"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
 export const CSS_MENU = `<style>
   nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
   nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
@@ -39,7 +39,7 @@ const aviso = (id, txt, erro) => { const e = document.getElementById(id); e.text
 ${script}
 </script></body></html>`;
 
-export const paginaEnderecos = () => pagina("Endereços", "/enderecos", `
+export const paginaEnderecos = () => pagina("GPS-Rotas", "/enderecos", `
 <h1>Endereços</h1>
 <p class="sub">Lugares com nome para pedir rotas ao Claude: "qual a melhor rota para a <b>casa 1</b>?". Ficam <b>cifrados</b> no Firebase: só este servidor consegue ler.</p>
 <div class="card">
