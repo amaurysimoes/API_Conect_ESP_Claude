@@ -5,7 +5,9 @@ import os
 import platform
 import socket
 import subprocess
+import threading
 import time
+from ctypes import wintypes
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -42,6 +44,108 @@ def _executar(alvo, argumentos=None):
         raise ErroAcao(f"não consegui abrir '{alvo}' (código {r}). Está instalado nesta máquina?")
 
 
+# ---------- trazer a janela para a frente ----------
+user32, dwmapi, kernel32 = ctypes.windll.user32, ctypes.windll.dwmapi, ctypes.windll.kernel32
+user32.IsWindowVisible.argtypes = [wintypes.HWND]
+user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+user32.GetWindow.argtypes = [wintypes.HWND, wintypes.UINT]
+user32.GetWindow.restype = wintypes.HWND
+user32.GetWindowLongW.argtypes = [wintypes.HWND, ctypes.c_int]
+user32.IsIconic.argtypes = [wintypes.HWND]
+user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
+user32.SetForegroundWindow.argtypes = [wintypes.HWND]
+user32.BringWindowToTop.argtypes = [wintypes.HWND]
+user32.GetForegroundWindow.restype = wintypes.HWND
+user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+user32.AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
+dwmapi.DwmGetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+_ENUM = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)
+
+
+def _janelas():
+    """Janelas de aplicativo visíveis (as que aparecem na barra de tarefas), da mais alta para a mais baixa."""
+    achadas = []
+
+    def cb(hwnd, _):
+        if (user32.IsWindowVisible(hwnd) and user32.GetWindowTextLengthW(hwnd) > 0 and not user32.GetWindow(hwnd, 4)
+                and not user32.GetWindowLongW(hwnd, -20) & 0x80):          # sem dono e não é janela de ferramenta
+            oculta = ctypes.c_int(0)
+            dwmapi.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(oculta), 4)  # 14 = "cloaked" (janela fantasma do UWP)
+            if not oculta.value:
+                achadas.append(hwnd)
+        return True
+
+    user32.EnumWindows(_ENUM(cb), 0)
+    return achadas
+
+
+def _frente(hwnd):
+    """Traz a janela para a frente e dá o foco. O Windows recusa isso para programas em segundo plano; os truques abaixo contornam."""
+    if user32.IsIconic(hwnd):
+        user32.ShowWindow(hwnd, 9)                              # SW_RESTORE
+    user32.keybd_event(0x12, 0, 0, 0)                           # aperta e solta ALT: libera o SetForegroundWindow
+    user32.keybd_event(0x12, 0, 2, 0)
+    user32.SetWindowPos(hwnd, wintypes.HWND(-1), 0, 0, 0, 0, 0x0003)   # topo, sem mexer no tamanho/posição
+    user32.SetWindowPos(hwnd, wintypes.HWND(-2), 0, 0, 0, 0, 0x0003)   # e volta ao normal (fica na frente)
+    user32.SetForegroundWindow(hwnd)
+    if user32.GetForegroundWindow() != hwnd:                    # plano B: emprestar a "entrada" da janela atual
+        fg = user32.GetForegroundWindow()
+        t_fg, t_eu = user32.GetWindowThreadProcessId(fg, None), kernel32.GetCurrentThreadId()
+        user32.AttachThreadInput(t_eu, t_fg, True)
+        user32.BringWindowToTop(hwnd)
+        user32.SetForegroundWindow(hwnd)
+        user32.AttachThreadInput(t_eu, t_fg, False)
+    return user32.GetForegroundWindow() == hwnd
+
+
+def _do_processo(hwnd, base):
+    pid = wintypes.DWORD(0)
+    user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    try:
+        return psutil.Process(pid.value).name().lower().startswith(base)
+    except psutil.Error:
+        return False
+
+
+def _abrir_na_frente(abrir, alvo=None, espera=6.0):
+    """Roda abrir() e traz para a frente a janela que aparecer (ou a do programa que já estava aberto).
+    Devolve True se a janela ficou na frente. Continua vigiando alguns segundos (telas de abertura, como a do Word)."""
+    antes = set(_janelas())
+    base = None
+    if alvo and not str(alvo).rstrip().endswith(":"):
+        base = os.path.splitext(os.path.basename(str(alvo).strip().strip('"')))[0].lower() or None
+    abrir()
+    inicio, resultado, pronto = time.time(), {"ok": False}, threading.Event()
+
+    def vigia():
+        tratadas, ultima = set(), 0.0
+        while time.time() - inicio < 14:
+            atuais = _janelas()
+            novas = [h for h in atuais if h not in antes and h not in tratadas]
+            if not novas and base and not tratadas and time.time() - inicio > 1.5:   # programa que já estava aberto
+                novas = [h for h in atuais if _do_processo(h, base)][:1]
+            for h in reversed(novas):                                                # a mais alta termina por cima
+                tratadas.add(h)
+                ok = _frente(h)
+                if not pronto.is_set():
+                    resultado["ok"] = ok
+                    pronto.set()
+                ultima = time.time()
+            if tratadas and time.time() - ultima > 3:
+                break
+            time.sleep(0.25)
+        pronto.set()
+
+    threading.Thread(target=vigia, daemon=True).start()
+    pronto.wait(espera)
+    return resultado["ok"]
+
+
+def _situacao(ok):
+    return "na frente" if ok else "aberto, mas a janela não veio para a frente (sem janela ou o Windows recusou)"
+
+
 # ---------- informações ----------
 def resumo():
     """Números curtos, também enviados ao Firebase a cada 10 s."""
@@ -65,8 +169,9 @@ def info(_params):
 # ---------- abrir ----------
 def abrir_programa(params):
     programa = _texto(params, "programa", maximo=260)
-    _executar(programa, _texto(params, "argumentos", False))
-    return f"aberto: {programa}"
+    argumentos = _texto(params, "argumentos", False)
+    ok = _abrir_na_frente(lambda: _executar(programa, argumentos), programa)
+    return f"aberto: {programa} · {_situacao(ok)}"
 
 
 def abrir_url(params):
@@ -75,24 +180,24 @@ def abrir_url(params):
         url = "https://" + url
     if urlparse(url).scheme not in ("http", "https"):
         raise ErroAcao("só endereços http/https")
-    _executar(url)
-    return f"aberto: {url}"
+    ok = _abrir_na_frente(lambda: _executar(url))
+    return f"aberto: {url} · {_situacao(ok)}"
 
 
 def abrir_pasta(params):
     caminho = _texto(params, "caminho", maximo=260)
     if not Path(caminho).is_dir():
         raise ErroAcao(f"pasta não encontrada: {caminho}")
-    os.startfile(caminho)
-    return f"pasta aberta: {caminho}"
+    ok = _abrir_na_frente(lambda: os.startfile(caminho))
+    return f"pasta aberta: {caminho} · {_situacao(ok)}"
 
 
 def abrir_arquivo(params):
     caminho = _texto(params, "caminho", maximo=260)
     if not Path(caminho).exists():
         raise ErroAcao(f"arquivo não encontrado: {caminho}")
-    os.startfile(caminho)
-    return f"aberto: {caminho}"
+    ok = _abrir_na_frente(lambda: os.startfile(caminho))
+    return f"aberto: {caminho} · {_situacao(ok)}"
 
 
 # ---------- fechar / sistema ----------

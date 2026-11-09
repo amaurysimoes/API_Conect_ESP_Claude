@@ -38,6 +38,7 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 ## 5. Ações
 `info`, `abrir_programa` (qualquer programa: nome ou caminho), `abrir_url`, `abrir_pasta`, `abrir_arquivo`,
 `fechar_programa`, `bloquear_tela`, `desligar`*, `reiniciar`*, `cancelar_desligamento` (*só com confirmação).
+O que for aberto **vem para a frente** e ganha o foco (o resultado diz "na frente").
 
 ## 6. Segurança
 - Só obedece comando com assinatura HMAC-SHA256 da `AGENTE_CHAVE`. Quem só conhece a URL do banco não consegue mandar nada.
