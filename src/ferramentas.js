@@ -4,12 +4,14 @@ import { z } from "zod";
 import { listarEsps, acionar } from "./firebase.js";
 import { mapaDe, achar } from "./mapa.js";
 import { instalarGps } from "../gps_amaury/mcpGps.js"; // módulo maps/GPS (pasta própria)
+import { instalarMaquinas } from "../agente/agente/mcpMaquinas.js"; // módulo agente/Desk (pasta própria)
 
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
 export function criarServidorMcp() {
   const server = new McpServer({ name: "automacao-iot-amaury", version: "0.2.0" });
   instalarGps(server); // soma as ferramentas de rota e o aviso do Render; não altera as de cima
+  instalarMaquinas(server); // soma as ferramentas das máquinas (agente)
 
   server.registerTool(
     "listar_dispositivos",

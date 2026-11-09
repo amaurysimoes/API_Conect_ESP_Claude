@@ -21,7 +21,7 @@ const CSS = `
 `;
 
 // "/" é a página de pinos original (o menu é injetado nela por gps_amaury/http.js, sem editar o código antigo)
-const LINKS = [["/", "IOT-Automacao"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
+const LINKS = [["/", "IOT-Automacao"], ["/desk", "Desk-Automacao_Firebase"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
 export const CSS_MENU = `<style>
   nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
   nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}

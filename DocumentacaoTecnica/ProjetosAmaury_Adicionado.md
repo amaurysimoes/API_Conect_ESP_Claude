@@ -70,6 +70,18 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 
 ---
 
+# Projeto agente:
+
+Agente leve na bandeja do Windows: o Claude (ou a aba **Desk-Automacao_Firebase**) abre programas e vê o resumo da máquina.
+
+- Pasta: `agente/` · passo a passo: `agente/Instrucoes.md`.
+- Servidor (`agente/agente`): variável `AGENTE_CHAVE` no Render.
+- PC (`agente/agente_python`): `AgenteLeve.exe`, ícone verde = conectado.
+- Claude: "qual máquina está ativa?", "abre o Excel".
+- Testar: `node agente/agente/teste.mjs`.
+
+---
+
 # Próximo projeto:
 
 _(escrever aqui quando começarmos o próximo)_

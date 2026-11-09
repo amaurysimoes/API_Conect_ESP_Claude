@@ -11,3 +11,8 @@ aplicacao_esp_python/**/.pio/
 __pycache__/
 *.pyc
 \#AutoAmaury.txt
+
+# agente leve (o .exe e o ambiente ficam só no PC)
+agente/agente_python/.venv/
+agente/agente_python/dist/
+agente/agente_python/build/
