@@ -11,7 +11,7 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 
 **Pasta:** `gps_amaury/` (código da rota; as ferramentas são registradas em `src/ferramentas.js`, no mesmo serviço do Render).
 
-**Estado:** código pronto em `gps_amaury/` e registrado no conector (ferramentas `melhor_rota` e `listar_lugares`); testado só com o Google simulado. Falta configurar as variáveis abaixo no Render. Serviço escolhido para testar: Google Routes API. Alternativa grátis e sem cartão: TomTom Routing.
+**Estado:** código pronto em `gps_amaury/` e registrado no conector (`melhor_rota`, `orientar`, `listar_lugares`); testado só com o Google simulado. Detalhes completos em `CLAUDE.md`. Serviço escolhido para testar: Google Routes API. Alternativa grátis e sem cartão: TomTom Routing.
 
 ## 1. Criar a chave de API (Google)
 
@@ -45,12 +45,14 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 - Para considerar o trânsito use `routingPreference: TRAFFIC_AWARE` e peça rotas alternativas (`computeAlternativeRoutes: true`).
 - Sem chave, para ver o mesmo trânsito: https://www.google.com/maps
 
-## 4. Como vai funcionar (plano)
+## 4. Usar
 
-- Nova ferramenta no conector: `melhor_rota(destino, origem?)`.
-- O conector **não recebe o GPS do celular**. A origem vem da frase ("de casa para o trabalho") ou de **lugares salvos** com nome (ex.: casa da Cidade Nova, casa do Centro, casa da Dr. Machado). Os endereços **não** vão para o Firebase (regras abertas) nem para o git: ficam numa variável do Render (`LUGARES_JSON`) e no `.env` local. Destinos fora da lista (ex.: Amazonas Shopping) são pesquisados pelo nome.
-- Resposta: tempo de cada rota com e sem trânsito, a recomendada, o atraso e um link do Waze para abrir a navegação.
-- Limites: o Google não vê acidente e blitz tão bem quanto o Waze, e não prevê bem trânsito de horas à frente.
+- Páginas (senha do painel): `/enderecos` (Nome, Endereço, CEP) e `/gps` (abrir no celular e compartilhar; tela ligada).
+- Ao Claude: "melhor rota para a casa do centro", "me oriente até o Amazonas Shopping", "errei o caminho".
+- Origem: o que você disser > GPS (vale 15 min) > `ORIGEM_PADRAO`.
+- Render dormindo: o Claude avisa "Aguarde 10 segundos até o render responder". Para não dormir: pinger em `/saude` a cada 10 min.
+- Testar sem gastar: `node gps_amaury/teste.mjs`.
+- Código só em `gps_amaury/`; o resto do projeto não foi alterado. Detalhes: `CLAUDE.md`.
 
 ## 5. Checklist
 
@@ -59,7 +61,10 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 - [ ] `GOOGLE_MAPS_KEY` no Render (e no `.env` local)
 - [ ] Lugares salvos definidos (casa, trabalho...)
 - [x] Ferramenta `melhor_rota` implementada (`gps_amaury/rotas.js`)
-- [ ] `ORIGEM_PADRAO`, `CIDADE_PADRAO` e `LUGARES_JSON` no Render
+- [x] Páginas `/enderecos` e `/gps`, endereços cifrados, `orientar`, trânsito por trecho (código pronto, testado simulado)
+- [ ] `CIDADE_PADRAO` (e `ORIGEM_PADRAO`, se quiser) no Render
+- [ ] Endereços cadastrados em `/enderecos`
+- [ ] Conector do Claude atualizado (ferramentas novas)
 - [ ] Testada com o Google de verdade
 - [ ] Conector do Claude atualizado
 

@@ -8,6 +8,7 @@ import { timingSafeEqual } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { criarServidorMcp } from "./ferramentas.js";
 import { listarEsps, gravarPalavras } from "./firebase.js";
+import { gpsHttp } from "../gps_amaury/http.js"; // módulo maps/GPS (pasta própria)
 
 const NA_NUVEM = Boolean(process.env.PORT);
 const PORTA = Number(process.env.PORT || process.env.PORTA || 3333);
@@ -109,6 +110,7 @@ http.createServer(async (req, res) => {
     }
 
     if (!painelAutorizado(req, res)) return;
+    if (await gpsHttp(req, res, caminho, { json, corpoJson })) return; // páginas /enderecos e /gps
 
     if (req.method === "GET" && caminho === "/") {
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });

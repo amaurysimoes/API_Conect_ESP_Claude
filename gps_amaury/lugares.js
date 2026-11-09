@@ -1,27 +1,36 @@
-// Lugares salvos com nome: "Cidade Nova", "Centro", "Dr. Machado"... -> endereço.
-// Ficam na variável LUGARES_JSON do Render (e do .env local). NUNCA no Firebase (regras abertas) nem no git.
-// Exemplo: LUGARES_JSON={"Cidade Nova":"Rua A, 100, Cidade Nova, Rio Claro - SP","Centro":"Rua B, 200, Centro, Rio Claro - SP"}
+// Lugares salvos com nome ("Casa Centro", "Trabalho"...) -> endereço.
+// Fontes: página /enderecos (cifrado no Firebase) e, opcionalmente, a variável LUGARES_JSON do Render:
+//   {"Cidade Nova":"Rua A, 100, Cidade Nova, Rio Claro - SP"}
 import { tokens } from "../src/mapa.js";
+import { listarLugaresSalvos } from "./lugaresStore.js";
 
-export function lerLugares() {
+export async function lerLugares() {
+  const lista = [];
   try {
     const o = JSON.parse(process.env.LUGARES_JSON || "{}");
-    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
-  } catch {
-    return {};
-  }
+    for (const [nome, endereco] of Object.entries(o)) if (typeof endereco === "string") lista.push({ nome, endereco, cep: "" });
+  } catch { /* JSON inválido: ignora */ }
+  try { lista.push(...(await listarLugaresSalvos())); } catch (e) { console.error("lugares salvos:", e.message); }
+  return lista;
 }
 
-export const nomesDosLugares = () => Object.keys(lerLugares());
+export const nomesDosLugares = async () => (await lerLugares()).map((l) => l.nome);
 
-// Acha o lugar salvo cujo nome aparece no texto ("casa da Cidade Nova" -> "Cidade Nova"). Devolve null se não achar.
-export function acharLugar(texto) {
+// Endereço pronto para o Google: rua + CEP (o CEP já identifica a cidade); sem CEP e sem vírgula, completa com CIDADE_PADRAO.
+export function enderecoCompleto(l) {
+  const base = [l.endereco, l.cep].filter(Boolean).join(", ");
+  const cidade = process.env.CIDADE_PADRAO;
+  return !l.cep && cidade && !l.endereco.includes(",") ? `${base}, ${cidade}` : base;
+}
+
+// "casa da Cidade Nova" -> lugar "Cidade Nova". null se não achar; { ambiguo: true } se bater com mais de um igual.
+export async function acharLugar(texto) {
   const pedido = new Set(tokens(texto));
   let melhor = null, pontos = 0, empate = false;
-  for (const [nome, endereco] of Object.entries(lerLugares())) {
-    const t = tokens(nome);
+  for (const l of await lerLugares()) {
+    const t = tokens(l.nome);
     if (!t.length || !t.every((x) => pedido.has(x))) continue;
-    if (t.length > pontos) { melhor = { nome, endereco }; pontos = t.length; empate = false; }
+    if (t.length > pontos) { melhor = l; pontos = t.length; empate = false; }
     else if (t.length === pontos) empate = true;
   }
   return empate ? { ambiguo: true } : melhor;
