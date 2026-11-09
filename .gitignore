@@ -10,3 +10,4 @@ aplicacao_esp_python/**/node_modules/
 aplicacao_esp_python/**/.pio/
 __pycache__/
 *.pyc
+#AutoAmaury.txt
