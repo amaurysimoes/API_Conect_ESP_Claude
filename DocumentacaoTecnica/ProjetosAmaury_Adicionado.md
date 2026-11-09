@@ -9,6 +9,8 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 
 **O que é:** uma ferramenta nova no conector do Claude para perguntar "qual a melhor rota para o trabalho?" e receber a rota mais rápida com o trânsito de agora, comparando as alternativas e com um link para abrir no Waze.
 
+**Pasta:** `gps_amaury/` (código da rota; as ferramentas são registradas em `src/ferramentas.js`, no mesmo serviço do Render).
+
 **Estado:** em planejamento (ainda não implementado). Serviço escolhido para testar: Google Routes API. Alternativa grátis e sem cartão: TomTom Routing.
 
 ## 1. Criar a chave de API (Google)
@@ -37,7 +39,7 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 ## 4. Como vai funcionar (plano)
 
 - Nova ferramenta no conector: `melhor_rota(destino, origem?)`.
-- O conector **não recebe o GPS do celular**. A origem vem da frase ("de casa para o trabalho") ou de **lugares salvos** (casa, trabalho...) guardados no Firebase.
+- O conector **não recebe o GPS do celular**. A origem vem da frase ("de casa para o trabalho") ou de **lugares salvos** com nome (ex.: casa da Cidade Nova, casa do Centro, casa da Dr. Machado). Os endereços **não** vão para o Firebase (regras abertas) nem para o git: ficam numa variável do Render (`LUGARES_JSON`) e no `.env` local. Destinos fora da lista (ex.: Amazonas Shopping) são pesquisados pelo nome.
 - Resposta: tempo de cada rota com e sem trânsito, a recomendada, o atraso e um link do Waze para abrir a navegação.
 - Limites: o Google não vê acidente e blitz tão bem quanto o Waze, e não prevê bem trânsito de horas à frente.
 
