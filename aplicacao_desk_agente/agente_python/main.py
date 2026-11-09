@@ -1,10 +1,10 @@
 """Agente leve: fica escondido na bandeja do Windows. Ícone verde = conectado ao Firebase, vermelho = sem conexão.
 Sem janelas nem controles (só o menu "Sair").
 
-  AgenteLeve.exe                      normal (bandeja)
-  AgenteLeve.exe --sem-bandeja        sem ícone (testes)
-  AgenteLeve.exe --config arq.json    usa outro arquivo de configuração
-  AgenteLeve.exe --iniciar-com-windows / --nao-iniciar-com-windows
+  Render_Agente.exe                      normal (bandeja)
+  Render_Agente.exe --sem-bandeja        sem ícone (testes)
+  Render_Agente.exe --config arq.json    usa outro arquivo de configuração
+  Render_Agente.exe --iniciar-com-windows / --nao-iniciar-com-windows
 """
 import argparse
 import ctypes

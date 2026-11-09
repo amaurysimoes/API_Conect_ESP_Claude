@@ -15,7 +15,7 @@ Envia um resumo da máquina (CPU, memória, disco) e obedece só comandos **assi
 Nunca cole a chave em chat nem no git.
 
 ## 2. Instalar na máquina
-**Com o .exe:** abra `agente_python\dist\AgenteLeve.exe`. Uma janelinha pede:
+**Com o .exe:** abra `agente_python\dist\Render_Agente.exe`. Uma janelinha pede:
 nome da máquina (ex.: `DEV_ENG`), broker (`AMAURY_01`) e a chave (o `MCP_TOKEN`). Salvar e iniciar. (Janela em modo escuro.)
 
 **Com Python:**
@@ -28,7 +28,7 @@ cd agente\agente_python
 Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Firebase).
 
 ## 3. Iniciar com o Windows
-`AgenteLeve.exe --iniciar-com-windows` (desfazer: `--nao-iniciar-com-windows`).
+`Render_Agente.exe --iniciar-com-windows` (desfazer: `--nao-iniciar-com-windows`).
 
 ## 4. Usar
 - **Site:** aba **Desk-Automacao_Firebase** → escolha a máquina → toque no programa (20 atalhos).
@@ -46,7 +46,7 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 
 ## 7. Arquivos
 - Configuração: `%LOCALAPPDATA%\AutomacaoIOTAmaury-Agente\config.json` · log: `agente.log` na mesma pasta.
-- Gerar o .exe: `.\build_windows.ps1` (em `agente_python`) → `dist\AgenteLeve.exe`.
+- Gerar o .exe: `.\build_windows.ps1` (em `agente_python`) → `dist\Render_Agente.exe`.
 - Testar sem gastar nada: `node aplicacao_desk_agente/agente/teste.mjs` (na pasta `api_conect`; abre e fecha o Bloco de Notas).
 
 ## 8. Problemas
