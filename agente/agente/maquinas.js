@@ -48,8 +48,8 @@ export async function listarMaquinas() {
 
 // Manda um comando assinado e espera o resultado. Devolve { ok, texto }.
 export async function enviarComando(alvo, acao, parametros = {}) {
-  const chave = process.env.AGENTE_CHAVE;
-  if (!chave) throw new Error("AGENTE_CHAVE não está definida no servidor.");
+  const chave = process.env.AGENTE_CHAVE || process.env.MCP_TOKEN; // sem AGENTE_CHAVE, assina com o MCP_TOKEN
+  if (!chave) throw new Error("Defina AGENTE_CHAVE (ou MCP_TOKEN) no servidor.");
   const id = randomBytes(6).toString("hex");
   const ts = Date.now();
   const base = `brokers/${alvo.broker}/maquinas/${alvo.maquina}`;

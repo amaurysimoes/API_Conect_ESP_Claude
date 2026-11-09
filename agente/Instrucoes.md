@@ -6,11 +6,13 @@ Envia um resumo da máquina (CPU, memória, disco) e obedece só comandos **assi
 - `agente/agente/` → lado do servidor (Render): aba **Desk-Automacao_Firebase** e ferramentas do Claude.
 - `agente/agente_python/` → o programa que roda na máquina.
 
-## 1. Chave (uma vez)
-1. Gere uma chave longa (PowerShell):
-   `-join ((48..57)+(97..122) | Get-Random -Count 40 | % {[char]$_})`
-2. Render → `ponte-casa` → **Environment** → `AGENTE_CHAVE` = a chave → Salvar.
-3. Guarde a mesma chave: o agente pede na primeira vez. Não cole em chat nem no git.
+## 1. Chave
+**Mais simples:** use o `MCP_TOKEN` que já está no Render. Não crie nada novo; na janelinha do agente (passo 2) cole esse mesmo valor.
+
+**Chave separada (opcional):** crie `AGENTE_CHAVE` no Render (Environment) com um valor longo
+(`-join ((48..57)+(97..122) | Get-Random -Count 40 | % {[char]$_})`) e use esse valor no agente.
+
+Nunca cole a chave em chat nem no git.
 
 ## 2. Instalar na máquina
 **Com o .exe:** abra `agente_python\dist\AgenteLeve.exe`. Uma janelinha pede:
@@ -52,7 +54,7 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 |---|---|
 | Ícone vermelho | sem internet ou Firebase fora |
 | Site diz "offline" | agente fechado, ou sem sinal há mais de 30 s |
-| "sem resposta" | chave diferente entre o Render e o agente |
+| "sem resposta" | chave do agente diferente da do Render (`AGENTE_CHAVE`, ou `MCP_TOKEN` se não houver) |
 | "fora da validade" | relógio do PC errado |
 | "não consegui abrir" | programa não instalado ou nome errado |
 | Render demora ~30 s | plano grátis dorme; só esperar |
