@@ -41,12 +41,12 @@ ${script}
 
 export const paginaEnderecos = () => pagina("Endereços", "/enderecos", `
 <h1>Endereços</h1>
-<p class="sub">Lugares com nome para pedir rotas ao Claude: "qual a melhor rota para a <b>casa do centro</b>?". Ficam <b>cifrados</b> no Firebase: só este servidor consegue ler.</p>
+<p class="sub">Lugares com nome para pedir rotas ao Claude: "qual a melhor rota para a <b>casa 1</b>?". Ficam <b>cifrados</b> no Firebase: só este servidor consegue ler.</p>
 <div class="card">
   <input type="hidden" id="id">
-  <label>Nome</label><input id="nome" placeholder="Casa Centro" maxlength="80">
-  <label>Endereço (rua, número, complemento)</label><input id="endereco" placeholder="Rua Dr. Machado 350 Casa A" maxlength="200">
-  <label>CEP</label><input id="cep" placeholder="69020-015" maxlength="12">
+  <label>Nome</label><input id="nome" placeholder="Nome da Casa" maxlength="80">
+  <label>Endereço (rua, número, complemento)</label><input id="endereco" placeholder="Informar o Endereço" maxlength="200">
+  <label>CEP</label><input id="cep" placeholder="Insira o CEP" maxlength="12">
   <p><button onclick="salvar()">Salvar endereço</button> <button class="sec" onclick="limpar()">Limpar</button><span id="msg" class="msg"></span></p>
 </div>
 <h2>Salvos</h2>

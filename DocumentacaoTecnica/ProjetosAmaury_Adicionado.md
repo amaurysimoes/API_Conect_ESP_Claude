@@ -36,7 +36,7 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 | `GOOGLE_MAPS_KEY` | a chave da API do Google |
 | `ORIGEM_PADRAO` | de onde você sai quando não diz (nome de um lugar salvo ou um endereço) |
 | `CIDADE_PADRAO` | ex.: `Rio Claro - SP`; completa destinos sem cidade (ex.: Amazonas Shopping) |
-| `LUGARES_JSON` | os lugares com nome, em uma linha: `{"Cidade Nova":"rua, número, bairro, cidade - UF","Centro":"..."}` |
+| `LUGARES_JSON` | os lugares com nome, em uma linha: `{"Casa 1":"rua, número, bairro, cidade - UF","Trabalho":"..."}` |
 
 ## 3. Testar a API no navegador
 

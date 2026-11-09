@@ -1,6 +1,6 @@
-// Lugares salvos com nome ("Casa Centro", "Trabalho"...) -> endereço.
+// Lugares salvos com nome ("Casa 1", "Trabalho"...) -> endereço.
 // Fontes: página /enderecos (cifrado no Firebase) e, opcionalmente, a variável LUGARES_JSON do Render:
-//   {"Cidade Nova":"Rua A, 100, Cidade Nova, Rio Claro - SP"}
+//   {"Casa 1":"Rua A, 100, Bairro, Cidade - UF"}
 import { tokens } from "../src/mapa.js";
 import { listarLugaresSalvos } from "./lugaresStore.js";
 
@@ -23,7 +23,7 @@ export function enderecoCompleto(l) {
   return !l.cep && cidade && !l.endereco.includes(",") ? `${base}, ${cidade}` : base;
 }
 
-// "casa da Cidade Nova" -> lugar "Cidade Nova". null se não achar; { ambiguo: true } se bater com mais de um igual.
+// "a casa 1" -> lugar "Casa 1". null se não achar; { ambiguo: true } se bater com mais de um igual.
 export async function acharLugar(texto) {
   const pedido = new Set(tokens(texto));
   let melhor = null, pontos = 0, empate = false;

@@ -44,7 +44,7 @@ Você (navegador, senha) ──► /  /enderecos  /gps
 ## Comportamento das ferramentas
 - `acionar`: acha o pino pelas palavras; com vários ESPs e sem ficar claro qual, manda perguntar "Qual dispositivo você quer acionar?" citando os nomes; se o ESP estiver offline avisa (o comando fica gravado e vale quando ele voltar). 1 ESP só: não pergunta.
 - Origem das rotas: 1) a que o usuário disser, 2) **GPS** (página `/gps` aberta no celular; vale 15 min), 3) `ORIGEM_PADRAO`. O conector NÃO recebe GPS sozinho. Orientação "errei o caminho": chamar `orientar` de novo (recalcula da posição atual).
-- Endereços: nome + endereço + CEP na página `/enderecos` (ex.: Casa Centro, Trabalho, Casa Cidade Nova). Destino que não é lugar salvo (ex.: Amazonas Shopping) vai pelo nome + `CIDADE_PADRAO`.
+- Endereços: nome + endereço + CEP na página `/enderecos` (ex.: Casa 1, Trabalho). Destino que não é lugar salvo (ex.: Amazonas Shopping) vai pelo nome + `CIDADE_PADRAO`.
 
 ## Variáveis do Render (Environment) — só os NOMES
 `MCP_TOKEN`, `PAINEL_SENHA` (geradas pelo Blueprint), `NODE_VERSION=20`, `GOOGLE_MAPS_KEY` (usuário já adicionou), `CIDADE_PADRAO` (ex.: "Rio Claro - SP"), `ORIGEM_PADRAO` (opcional), `LUGARES_ESP` (opcional: qual ESP hospeda os endereços cifrados), `LUGARES_CHAVE` (opcional; senão usa `MCP_TOKEN` para cifrar os endereços — **trocar a chave deixa os endereços salvos ilegíveis**), `LUGARES_JSON` (opcional, alternativa à página). Local: copiar `.env.example` para `.env`; rodar `npm run local`. `npm start` NÃO lê o `.env`.
@@ -55,7 +55,7 @@ Projeto `ProjetoAmauryExpert` (ID `gen-lang-client-0130062667`), Routes API ativ
 ## Estado em 09/11/2026
 - Feito e no ar (verificar): pinos, painel, conector funcionando no claude.ai (usuário testou "funcionou"), manuais, `melhor_rota` básica.
 - Feito em código, **testado só com banco e Google simulados** (`gps_amaury/teste.mjs` passa): páginas `/enderecos` e `/gps`, endereços cifrados, GPS como origem, `orientar`, trânsito por trecho, aviso do Render. **Falta testar com o Google de verdade** e no celular.
-- Falta o usuário: cadastrar os endereços em `/enderecos` (Casa Centro: Rua Dr. Machado 350 Casa A, CEP 69020-015 foi o exemplo dele; Trabalho; Casa Cidade Nova: Rua Itirapina 01A), definir `CIDADE_PADRAO`, abrir `/gps` no celular, atualizar o conector (ferramentas novas) e testar "qual a melhor rota para a casa do centro?".
+- Falta o usuário: cadastrar os endereços em `/enderecos` (casas e trabalho; os dados dele ficam só no Firebase cifrado, nunca em arquivos), definir `CIDADE_PADRAO`, abrir `/gps` no celular, atualizar o conector (ferramentas novas) e testar "qual a melhor rota para a casa do centro?".
 - Ideias combinadas e não feitas: ferramentas grátis de hora (fuso de São Paulo, sem API), qualidade do ar e tempo (Open-Meteo, sem chave); login no Firebase; manter o Render acordado (pinger externo em `/saude` a cada ~10 min); firmware gravar confirmação do que aplicou.
 
 ## Dicas do ambiente (Windows)

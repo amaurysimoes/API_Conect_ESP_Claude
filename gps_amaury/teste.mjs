@@ -31,18 +31,18 @@ try {
   assert.match(home, /Escreva, em cada pino/, "página de pinos original intacta");
   assert.ok(home.includes("<nav>") && home.includes(">IOT-Automacao<") && home.includes('href="/gps"'), "menu somado na página original");
   assert.equal((await (await j("GET", "/api/dados")).json()).map((e) => e.nome).join(), "FIRE_AHS01", "lista de ESPs original");
-  const r = await (await j("POST", "/api/lugares", { nome: "Casa Centro", endereco: "Rua Dr. Machado 350 Casa A", cep: "69020-015" })).json();
+  const r = await (await j("POST", "/api/lugares", { nome: "Casa Teste", endereco: "Rua Exemplo 100", cep: "00000-000" })).json();
   assert.ok(r.id);
-  assert.ok(!JSON.stringify(banco).includes("Machado"), "endereço NÃO pode estar em texto puro no Firebase");
+  assert.ok(!JSON.stringify(banco).includes("Exemplo"), "endereço NÃO pode estar em texto puro no Firebase");
   assert.ok(Object.keys(banco.esps.FIRE_AHS01.lugares_cifrados).length === 1, "guardado dentro do nó do ESP");
   assert.equal((await (await j("GET", "/api/dados")).json()).length, 1, "nenhum ESP fantasma na lista");
   const lista = await (await j("GET", "/api/lugares")).json();
-  assert.equal(lista[0].endereco, "Rua Dr. Machado 350 Casa A");
+  assert.equal(lista[0].endereco, "Rua Exemplo 100");
   assert.equal((await j("POST", "/api/posicao", { lat: "x", lng: 1 })).status, 400);
   assert.equal((await j("POST", "/api/posicao", { lat: -22.4, lng: -47.56, precisao: 12 })).status, 200);
   const mcp = await (await fetch(B + "/mcp/tok", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "listar_lugares", arguments: {} } }) })).text();
-  assert.ok(mcp.includes("Casa Centro") && mcp.includes("acabou de acordar"), "MCP lista o lugar e avisa que acordou");
+  assert.ok(mcp.includes("Casa Teste") && mcp.includes("acabou de acordar"), "MCP lista o lugar e avisa que acordou");
   const tools = await (await fetch(B + "/mcp/tok", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list" }) })).text();
   assert.ok(tools.includes("Aguarde 10 segundos até o render responder") && tools.includes('"orientar"'), "descrição com aviso do Render e ferramenta orientar");
@@ -72,12 +72,12 @@ globalThis.fetch = async (u, o) => String(u).includes("routes.googleapis.com")
 const { gravarPosicao } = await import("./posicao.js");
 const { salvarLugar } = await import("./lugaresStore.js");
 const { melhorRota, orientar } = await import("./rotas.js");
-await salvarLugar({ nome: "Casa Centro", endereco: "Rua Dr. Machado 350 Casa A", cep: "69020-015" });
-await assert.rejects(melhorRota({ destino: "casa do centro" }), /GPS/, "sem GPS nem origem padrão: pede o GPS");
+await salvarLugar({ nome: "Casa Teste", endereco: "Rua Exemplo 100", cep: "00000-000" });
+await assert.rejects(melhorRota({ destino: "casa teste" }), /GPS/, "sem GPS nem origem padrão: pede o GPS");
 gravarPosicao({ lat: -22.4, lng: -47.56, precisao: 10 });
-const txt = await orientar({ destino: "a casa do centro" });
+const txt = await orientar({ destino: "a casa teste" });
 assert.ok(enviado.origin.location, "origem = GPS");
-assert.ok(enviado.destination.address.includes("69020-015"), "destino = lugar salvo com CEP");
+assert.ok(enviado.destination.address.includes("00000-000"), "destino = lugar salvo com CEP");
 assert.match(txt, /2\. Vire à direita na Av\. Brasil.*PARADO/, "passo 2 parado");
 assert.match(txt, /3\. Vire à esquerda na Rua C.*lento/, "passo 3 lento");
 assert.match(txt, /1\. Siga na Rua A \(\d+ m\)\n|1\. Siga na Rua A \([\d.]+ km\)\n/, "passo 1 sem aviso");
