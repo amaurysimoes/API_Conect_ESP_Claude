@@ -45,14 +45,29 @@ def perguntar(cfg):
     import tkinter as tk
 
     resultado = {}
+    import ctypes
+    import recursos
+
+    FUNDO, CARD, TEXTO, SUAVE, AZUL = "#0f1115", "#171a21", "#e6e8ee", "#9aa3b2", "#4c8dff"
     raiz = tk.Tk()
     raiz.title("Agente Automacao IOT Amaury")
     raiz.resizable(False, False)
+    raiz.configure(bg=FUNDO)
+    try:
+        raiz.iconbitmap(recursos.caminho("icone.ico"))
+    except tk.TclError:
+        pass
+    try:  # barra de título escura do Windows
+        raiz.update()
+        ctypes.windll.dwmapi.DwmSetWindowAttribute(ctypes.windll.user32.GetParent(raiz.winfo_id()), 20, ctypes.byref(ctypes.c_int(1)), 4)
+    except Exception:  # noqa: BLE001
+        pass
     campos = {}
     for i, (rotulo, chave, oculto) in enumerate([("Nome desta máquina", "maquina", False), ("Broker", "broker", False),
-                                                  ("Chave (AGENTE_CHAVE do Render)", "chave", True)]):
-        tk.Label(raiz, text=rotulo, anchor="w").grid(row=i, column=0, sticky="w", padx=10, pady=6)
-        e = tk.Entry(raiz, width=38, show="*" if oculto else "")
+                                                  ("Chave (o MCP_TOKEN do Render)", "chave", True)]):
+        tk.Label(raiz, text=rotulo, anchor="w", bg=FUNDO, fg=SUAVE).grid(row=i, column=0, sticky="w", padx=10, pady=6)
+        e = tk.Entry(raiz, width=38, show="*" if oculto else "", bg=CARD, fg=TEXTO, insertbackground=TEXTO, relief="flat",
+                     highlightthickness=1, highlightbackground="#2a2f3a", highlightcolor=AZUL)
         e.insert(0, cfg.get(chave, ""))
         e.grid(row=i, column=1, padx=10, pady=6)
         campos[chave] = e
@@ -61,7 +76,8 @@ def perguntar(cfg):
         resultado.update({k: e.get().strip() for k, e in campos.items()})
         raiz.destroy()
 
-    tk.Button(raiz, text="Salvar e iniciar", command=ok).grid(row=3, column=0, columnspan=2, pady=10)
+    tk.Button(raiz, text="Salvar e iniciar", command=ok, bg=AZUL, fg="white", activebackground="#6aa2ff", activeforeground="white",
+              relief="flat", padx=16, pady=6, cursor="hand2").grid(row=3, column=0, columnspan=2, pady=12)
     raiz.protocol("WM_DELETE_WINDOW", raiz.destroy)
     raiz.mainloop()
     if not resultado:

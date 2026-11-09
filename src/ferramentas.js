@@ -4,7 +4,7 @@ import { z } from "zod";
 import { listarEsps, acionar } from "./firebase.js";
 import { mapaDe, achar } from "./mapa.js";
 import { instalarGps } from "../gps_amaury/mcpGps.js"; // módulo maps/GPS (pasta própria)
-import { instalarMaquinas } from "../agente/agente/mcpMaquinas.js"; // módulo agente/Desk (pasta própria)
+import { instalarMaquinas } from "../aplicacao_desk_agente/agente/mcpMaquinas.js"; // módulo agente/Desk (pasta própria)
 
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 

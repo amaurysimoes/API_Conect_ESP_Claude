@@ -1,6 +1,6 @@
 // Teste de ponta a ponta SEM gastar nada e sem tocar no seu Firebase:
 // Firebase falso (local) + o agente Python de verdade + o servidor assinando comandos.
-// Rodar (na pasta api_conect, com o .venv do agente_python criado): node agente/agente/teste.mjs
+// Rodar (na pasta api_conect, com o .venv do agente_python criado): node aplicacao_desk_agente/agente/teste.mjs
 // Abre e fecha o Bloco de Notas durante o teste.
 import http from "node:http";
 import { spawn } from "node:child_process";
@@ -46,7 +46,7 @@ console.log("OK catálogo: 20 programas e nomes livres");
 const pasta = mkdtempSync(join(tmpdir(), "agente-"));
 const cfg = join(pasta, "config.json");
 writeFileSync(cfg, JSON.stringify({ firebase: "http://127.0.0.1:4597", broker: "TESTE", maquina: "PC_TESTE", chave: "chave-de-teste" }));
-const agente = spawn(join(process.cwd(), "agente/agente_python/.venv/Scripts/python.exe"), ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "agente/agente_python", stdio: "ignore" });
+const agente = spawn(join(process.cwd(), "aplicacao_desk_agente/agente_python/.venv/Scripts/python.exe"), ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", stdio: "ignore" });
 const servidor = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4596" }, stdio: "ignore" });
 try {
   let m;

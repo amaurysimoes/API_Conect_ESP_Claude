@@ -1,4 +1,6 @@
 // Páginas do painel (HTML simples, sempre em modo escuro). Todas atrás da senha do painel.
+import { FAVICON } from "./favicon.js";
+
 const CSS = `
   :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
   body{font:15px system-ui,sans-serif;max-width:760px;margin:0 auto;padding:0 16px 40px;background:var(--fundo);color:var(--texto)}
@@ -30,7 +32,7 @@ export const menuHtml = (ativo) => `<nav>${LINKS.map(([h, t]) => `<a href="${h}"
 
 const pagina = (titulo, ativo, corpo, script) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${titulo} · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}</head><body>
+<title>${titulo} · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}${FAVICON}</head><body>
 ${menuHtml(ativo)}
 ${corpo}
 <script>

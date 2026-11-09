@@ -1,5 +1,6 @@
 // Aba "Desk-Automacao_Firebase": escolhe a máquina e abre programas nela. Modo escuro, mesmo menu das outras abas.
 import { menuHtml, CSS_MENU } from "../../gps_amaury/paginas.js";
+import { FAVICON } from "../../gps_amaury/favicon.js";
 
 const CSS = `
   :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
@@ -17,7 +18,7 @@ const CSS = `
 
 export const paginaDesk = () => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Desk-Automacao_Firebase · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}</head><body>
+<title>Desk-Automacao_Firebase · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}${FAVICON}</head><body>
 ${menuHtml("/desk")}
 <h1>Desk-Automacao_Firebase</h1>
 <p class="sub">Escolha a máquina e toque no programa para abrir nela. O agente da máquina precisa estar ligado (ícone verde na bandeja).</p>

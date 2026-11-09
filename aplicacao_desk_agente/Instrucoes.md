@@ -3,8 +3,8 @@
 Programa escondido na bandeja do Windows. **Ícone verde = conectado ao Firebase; vermelho = sem conexão.**
 Envia um resumo da máquina (CPU, memória, disco) e obedece só comandos **assinados** pela ponte.
 
-- `agente/agente/` → lado do servidor (Render): aba **Desk-Automacao_Firebase** e ferramentas do Claude.
-- `agente/agente_python/` → o programa que roda na máquina.
+- `aplicacao_desk_agente/agente/` → lado do servidor (Render): aba **Desk-Automacao_Firebase** e ferramentas do Claude.
+- `aplicacao_desk_agente/agente_python/` → o programa que roda na máquina.
 
 ## 1. Chave
 **Mais simples:** use o `MCP_TOKEN` que já está no Render. Não crie nada novo; na janelinha do agente (passo 2) cole esse mesmo valor.
@@ -16,7 +16,7 @@ Nunca cole a chave em chat nem no git.
 
 ## 2. Instalar na máquina
 **Com o .exe:** abra `agente_python\dist\AgenteLeve.exe`. Uma janelinha pede:
-nome da máquina (ex.: `DEV_ENG`), broker (`AMAURY_01`) e a chave. Salvar e iniciar.
+nome da máquina (ex.: `DEV_ENG`), broker (`AMAURY_01`) e a chave (o `MCP_TOKEN`). Salvar e iniciar. (Janela em modo escuro.)
 
 **Com Python:**
 ```powershell
@@ -47,7 +47,7 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 ## 7. Arquivos
 - Configuração: `%LOCALAPPDATA%\AutomacaoIOTAmaury-Agente\config.json` · log: `agente.log` na mesma pasta.
 - Gerar o .exe: `.\build_windows.ps1` (em `agente_python`) → `dist\AgenteLeve.exe`.
-- Testar sem gastar nada: `node agente/agente/teste.mjs` (na pasta `api_conect`; abre e fecha o Bloco de Notas).
+- Testar sem gastar nada: `node aplicacao_desk_agente/agente/teste.mjs` (na pasta `api_conect`; abre e fecha o Bloco de Notas).
 
 ## 8. Problemas
 | Sintoma | Causa |

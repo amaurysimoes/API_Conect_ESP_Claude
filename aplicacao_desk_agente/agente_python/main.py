@@ -15,6 +15,7 @@ import threading
 import time
 
 import config
+import recursos
 from agente import Agente
 
 NOME_REGISTRO = "AutomacaoIOTAmaury-Agente"
@@ -50,9 +51,11 @@ def bandeja(agente):
     import pystray
     from PIL import Image, ImageDraw
 
+    base = Image.open(recursos.caminho("icone.png")).convert("RGBA").resize((64, 64), Image.LANCZOS)
+
     def imagem(cor):
-        img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        ImageDraw.Draw(img).ellipse((6, 6, 58, 58), fill=cor, outline=(255, 255, 255, 255), width=4)
+        img = base.copy()
+        ImageDraw.Draw(img).ellipse((34, 34, 62, 62), fill=cor, outline=(255, 255, 255, 255), width=3)
         return img
 
     verde, vermelho = imagem((46, 204, 113, 255)), imagem((231, 76, 60, 255))

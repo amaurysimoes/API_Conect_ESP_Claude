@@ -1,6 +1,7 @@
 // Rotas HTTP do módulo maps/GPS. O servidor antigo chama gpsHttp() depois de checar a senha do painel;
 // se a rota não for daqui, devolve false e o servidor segue como sempre.
 import { paginaEnderecos, paginaGps, menuHtml, CSS_MENU } from "./paginas.js";
+import { FAVICON } from "./favicon.js";
 import { listarLugaresSalvos, salvarLugar, apagarLugar, idValido } from "./lugaresStore.js";
 import { gravarPosicao, lerPosicao } from "./posicao.js";
 
@@ -14,7 +15,7 @@ export async function gpsHttp(req, res, caminho, { json, corpoJson }) {
   if (req.method === "GET" && caminho === "/") {
     const fim = res.end.bind(res);
     res.end = (corpo, ...resto) =>
-      fim(typeof corpo === "string" ? corpo.replace("<body>", `<body>${CSS_MENU}${menuHtml("/")}`) : corpo, ...resto);
+      fim(typeof corpo === "string" ? corpo.replace("</head>", `${FAVICON}</head>`).replace("<body>", `<body>${CSS_MENU}${menuHtml("/")}`) : corpo, ...resto);
     return false;
   }
 
