@@ -15,8 +15,8 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 
 ## 1. Criar a chave de API (Google)
 
-1. Entre em https://console.cloud.google.com com a sua conta Google.
-2. Crie um projeto: seletor de projetos (topo) → **Novo projeto** → nome `automacao-iot-maps`.
+1. **Passo 1, criar o projeto:** abra https://console.cloud.google.com/projectcreate e entre com a sua conta Google (se pedir, aceite os termos).
+2. Em **Nome do projeto** escreva `automacao-iot-maps` e clique em **Criar**. Espere a notificação "projeto criado" (sino, no topo) e confira se o projeto aparece selecionado no seletor do topo.
 3. Ative o faturamento: **Faturamento** → vincule um cartão. O Google dá um crédito mensal grátis e o uso pessoal costuma ficar dentro dele. Veja os valores atuais em https://developers.google.com/maps/billing-and-pricing/pricing
 4. Ative a API: https://console.cloud.google.com/google/maps-apis → **Ativar APIs** → procure **Routes API** → **Ativar**.
 5. Crie a chave: **APIs e serviços → Credenciais → Criar credenciais → Chave de API**.
