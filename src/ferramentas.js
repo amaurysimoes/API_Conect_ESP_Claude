@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { listarEsps, acionar } from "./firebase.js";
 import { mapaDe, achar } from "./mapa.js";
+import { melhorRota, listarLugares } from "../gps_amaury/rotas.js";
 
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
@@ -88,6 +89,34 @@ export function criarServidorMcp() {
         : `ATENÇÃO: o ESP parece OFFLINE (último sinal há ${dispositivo.visto_ha_s ?? "?"}s). O comando ficou gravado e só vale quando ele voltar. Avise o usuário.`;
       return texto(`Comando "${acao}" gravado para ${alvoEsp} pino ${alvoPino} (${p.nome}). ${sinal}`);
     }
+  );
+
+  server.registerTool(
+    "melhor_rota",
+    {
+      description:
+        "Calcula a melhor rota de carro com o trânsito de agora (Google) e compara as alternativas, dizendo por onde ir. " +
+        "'destino' pode ser um lugar salvo (ex.: 'casa da Cidade Nova', 'Centro') ou qualquer lugar pelo nome (ex.: 'Amazonas Shopping'). " +
+        "'origem' é opcional; sem ela usa a origem padrão. Se a resposta disser que não sabe a origem, pergunte ao usuário. " +
+        "Responda de forma curta: por onde ir, quanto tempo leva e quanto economiza. Ofereça o link do Waze.",
+      inputSchema: {
+        destino: z.string().describe("para onde ir, ex.: 'casa do Centro' ou 'Amazonas Shopping'"),
+        origem: z.string().optional().describe("de onde sai, só se o usuário disser; senão usa a origem padrão"),
+      },
+    },
+    async ({ destino, origem }) => {
+      try {
+        return texto(await melhorRota({ origem, destino }));
+      } catch (e) {
+        return texto(String(e.message || e), true);
+      }
+    }
+  );
+
+  server.registerTool(
+    "listar_lugares",
+    { description: "Lista os nomes dos lugares salvos (ex.: casas) que podem ser usados como origem ou destino em melhor_rota. Não mostra endereços." },
+    async () => texto(JSON.stringify(listarLugares()))
   );
 
   return server;

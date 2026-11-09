@@ -11,7 +11,7 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 
 **Pasta:** `gps_amaury/` (código da rota; as ferramentas são registradas em `src/ferramentas.js`, no mesmo serviço do Render).
 
-**Estado:** em planejamento (ainda não implementado). Serviço escolhido para testar: Google Routes API. Alternativa grátis e sem cartão: TomTom Routing.
+**Estado:** código pronto em `gps_amaury/` e registrado no conector (ferramentas `melhor_rota` e `listar_lugares`); testado só com o Google simulado. Falta configurar as variáveis abaixo no Render. Serviço escolhido para testar: Google Routes API. Alternativa grátis e sem cartão: TomTom Routing.
 
 ## 1. Criar a chave de API (Google)
 
@@ -28,6 +28,15 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 - **Nunca** no código, no GitHub nem no chat.
 - No Render: `ponte-casa` → **Environment** → **Add Environment Variable** → nome `GOOGLE_MAPS_KEY`, valor = a chave.
 - No PC (teste local): linha `GOOGLE_MAPS_KEY=...` no `.env` (ele já está no `.gitignore`).
+
+## 2.1 Variáveis no Render (Environment)
+
+| Variável | Valor |
+|---|---|
+| `GOOGLE_MAPS_KEY` | a chave da API do Google |
+| `ORIGEM_PADRAO` | de onde você sai quando não diz (nome de um lugar salvo ou um endereço) |
+| `CIDADE_PADRAO` | ex.: `Rio Claro - SP`; completa destinos sem cidade (ex.: Amazonas Shopping) |
+| `LUGARES_JSON` | os lugares com nome, em uma linha: `{"Cidade Nova":"rua, número, bairro, cidade - UF","Centro":"..."}` |
 
 ## 3. Testar a API no navegador
 
@@ -49,7 +58,9 @@ Ordem: do mais antigo para o mais novo. O ESP (acionar pinos) está em `ManualNo
 - [ ] Routes API ativada e chave restrita
 - [ ] `GOOGLE_MAPS_KEY` no Render (e no `.env` local)
 - [ ] Lugares salvos definidos (casa, trabalho...)
-- [ ] Ferramenta `melhor_rota` implementada e testada
+- [x] Ferramenta `melhor_rota` implementada (`gps_amaury/rotas.js`)
+- [ ] `ORIGEM_PADRAO`, `CIDADE_PADRAO` e `LUGARES_JSON` no Render
+- [ ] Testada com o Google de verdade
 - [ ] Conector do Claude atualizado
 
 ---
