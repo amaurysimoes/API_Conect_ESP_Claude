@@ -40,7 +40,7 @@ ${script}
 </script></body></html>`;
 
 export const paginaEnderecos = () => pagina("GPS-Rotas", "/enderecos", `
-<h1>Endereços</h1>
+<h1>GPS-Rotas</h1>
 <p class="sub">Lugares com nome para pedir rotas ao Claude: "qual a melhor rota para a <b>casa 1</b>?". Ficam <b>cifrados</b> no Firebase: só este servidor consegue ler.</p>
 <div class="card">
   <input type="hidden" id="id">
