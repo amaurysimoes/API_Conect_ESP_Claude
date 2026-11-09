@@ -1,6 +1,6 @@
 // Rotas HTTP do módulo maps/GPS. O servidor antigo chama gpsHttp() depois de checar a senha do painel;
 // se a rota não for daqui, devolve false e o servidor segue como sempre.
-import { paginaEnderecos, paginaGps } from "./paginas.js";
+import { paginaEnderecos, paginaGps, menuHtml, CSS_MENU } from "./paginas.js";
 import { listarLugaresSalvos, salvarLugar, apagarLugar, idValido } from "./lugaresStore.js";
 import { gravarPosicao, lerPosicao } from "./posicao.js";
 
@@ -9,6 +9,14 @@ const limpo = (v, max) => String(v ?? "").replace(/[\u0000-\u001f]/g, " ").trim(
 export async function gpsHttp(req, res, caminho, { json, corpoJson }) {
   const html = (corpo) => { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); res.end(corpo); return true; };
   const resposta = (codigo, obj) => { json(res, codigo, obj); return true; };
+
+  // Página de pinos original: não editamos o código dela; só somamos o menu à resposta e deixamos o servidor seguir.
+  if (req.method === "GET" && caminho === "/") {
+    const fim = res.end.bind(res);
+    res.end = (corpo, ...resto) =>
+      fim(typeof corpo === "string" ? corpo.replace("<body>", `<body>${CSS_MENU}${menuHtml("/")}`) : corpo, ...resto);
+    return false;
+  }
 
   if (req.method === "GET" && caminho === "/enderecos") return html(paginaEnderecos());
   if (req.method === "GET" && caminho === "/gps") return html(paginaGps());

@@ -27,7 +27,9 @@ try {
   for (const p of ["/", "/enderecos", "/gps"]) assert.equal((await j("GET", p)).status, 200, p);
   assert.equal((await fetch(B + "/enderecos")).status, 401, "sem senha");
   // o que já existia continua igual
-  assert.match(await (await j("GET", "/")).text(), /Escreva, em cada pino/, "página de pinos original intacta");
+  const home = await (await j("GET", "/")).text();
+  assert.match(home, /Escreva, em cada pino/, "página de pinos original intacta");
+  assert.ok(home.includes("<nav>") && home.includes(">IOT-Automacao<") && home.includes('href="/gps"'), "menu somado na página original");
   assert.equal((await (await j("GET", "/api/dados")).json()).map((e) => e.nome).join(), "FIRE_AHS01", "lista de ESPs original");
   const r = await (await j("POST", "/api/lugares", { nome: "Casa Centro", endereco: "Rua Dr. Machado 350 Casa A", cep: "69020-015" })).json();
   assert.ok(r.id);

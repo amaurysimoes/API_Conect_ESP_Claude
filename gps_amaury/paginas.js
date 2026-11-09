@@ -2,8 +2,6 @@
 const CSS = `
   :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
   body{font:15px system-ui,sans-serif;max-width:760px;margin:0 auto;padding:0 16px 40px;background:var(--fundo);color:var(--texto)}
-  nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px}
-  nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
   h1{font-size:20px;margin:0 0 6px} h2{font-size:16px;margin:24px 0 4px}
   .sub{color:var(--suave);font-size:13px;margin-bottom:8px}
   table{width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden}
@@ -22,12 +20,18 @@ const CSS = `
   .linha{display:flex;gap:10px} .linha>div{flex:1}
 `;
 
-const LINKS = [["/", "Pinos"], ["/enderecos", "Endereços"], ["/gps", "GPS"]]; // "/" é a página de pinos original
+// "/" é a página de pinos original (o menu é injetado nela por gps_amaury/http.js, sem editar o código antigo)
+const LINKS = [["/", "IOT-Automacao"], ["/enderecos", "Endereços"], ["/gps", "GPS"]];
+export const CSS_MENU = `<style>
+  nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
+  nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
+</style>`;
+export const menuHtml = (ativo) => `<nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}</nav>`;
 
 const pagina = (titulo, ativo, corpo, script) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${titulo} · Automacao IOT Amaury</title><style>${CSS}</style></head><body>
-<nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}</nav>
+<title>${titulo} · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}</head><body>
+${menuHtml(ativo)}
 ${corpo}
 <script>
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
