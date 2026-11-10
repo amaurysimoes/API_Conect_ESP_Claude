@@ -40,3 +40,15 @@ C:\Android\Sdk\platform-tools\adb.exe install -r api_conect.apk
 - `Assinatura.kt` tem de dar o mesmo resultado do servidor (`maquinas.js`, `criptoApps.js`).
 - Pasta movida: apague `app/build` e `.gradle` e compile de novo.
 - No git entram código, `gradle/wrapper` e o `.apk`; ficam fora `local.properties`, `build/` e `.gradle/`.
+
+
+
+
+
+
+# Acima temos este processo de buildar o app androi, estou deixando aqui bem destacado:
+cd C:\Dev-AHS\api_conect\aplicacao_android
+$env:JAVA_HOME = 'C:\Program Files\Microsoft\jdk-21.0.11.10-hotspot'
+.\gradlew.bat testDebugUnitTest assembleDebug
+Copy-Item app\build\outputs\apk\debug\app-debug.apk api_conect.apk
+
