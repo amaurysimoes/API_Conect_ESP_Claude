@@ -120,7 +120,7 @@ class Agente:
         while not self._parar.is_set():
             try:
                 requisitar(self.url, "PATCH", f"{self.base}/status",
-                           {"online": True, "visto_em": SERVER_TS, "resumo": acoes.resumo(), "so": "Windows",
+                           {"online": True, "visto_em": SERVER_TS, "resumo": acoes.resumo(), "so": "Windows" if sys.platform == "win32" else "Linux",
                             "acoes": sorted(acoes.ACOES)})
                 self.ultimo_ok = time.time()
             except Exception as exc:  # noqa: BLE001
