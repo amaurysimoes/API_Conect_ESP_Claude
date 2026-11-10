@@ -21,7 +21,8 @@ export function instalarAndroid(server) {
         return texto(l.map((d) => {
           const r = d.resumo;
           return `${d.dispositivo}: ${d.online ? "ATIVO" : `offline, sem sinal há ${d.visto_ha_s ?? "?"} s`}` +
-            (r && d.online ? ` · ${r.modelo} · Android ${r.android} · bateria ${r.bateria}%${r.carregando ? " (carregando)" : ""} · rede ${r.rede}` : "");
+            (r && d.online ? ` · ${r.modelo} · Android ${r.android} · bateria ${r.bateria}%${r.carregando ? " (carregando)" : ""} · rede ${r.rede}` : "") +
+            (r?.faltam?.length ? ` · BLOQUEIO: falta no celular a permissão ${r.faltam.join(" e ")} (abra o Agente Android e permita)` : "");
         }).join("\n"));
       } catch (e) { return texto(String(e.message || e), true); }
     }

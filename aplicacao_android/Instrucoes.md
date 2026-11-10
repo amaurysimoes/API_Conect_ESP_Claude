@@ -12,6 +12,8 @@ Funciona do **Android 5.0 em diante**. Fase de testes.
 2. Abra o arquivo. Se pedir, permita **instalar apps de fontes desconhecidas** para o app que você usou para abrir.
 3. Instale e abra **Agente Android**.
 
+**Versão de 10/11/2026 (13:41, compilada no Linux):** assinada com outra chave. Antes de instalar, **desinstale o Agente Android antigo** (senão dá "conflito de pacote") e configure de novo.
+
 (Por cabo: `adb install -r api_conect.apk`; o `adb` está em `C:\Android\Sdk\platform-tools`.)
 
 ## 2. Configurar (só na primeira vez)
@@ -24,6 +26,8 @@ Depois o app pede 3 permissões, uma de cada vez:
 1. **Notificações** (Android 13+): só a notificação mínima do serviço.
 2. **Exibir sobre outros apps:** é o que deixa a IA **abrir apps e sites** com o app em segundo plano.
 3. **Sem restrição de bateria:** evita o Android matar o agente.
+
+O que faltar é pedido de novo **toda vez que abrir o app**, e a IA avisa "BLOQUEIO: falta a permissão ...". O app mantém o processador e o Wi-Fi acordados com a tela apagada. Tela travada com PIN/senha: nenhum app abre por cima; tire a senha se quiser abrir com ele travado.
 
 - **Toque no ícone:** abre **Meus atalhos** (sites e apps marcados).
 - **Toque longo no ícone:** trocar nome, broker e chave.

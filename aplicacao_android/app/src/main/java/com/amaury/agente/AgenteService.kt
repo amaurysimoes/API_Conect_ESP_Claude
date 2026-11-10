@@ -10,8 +10,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import org.json.JSONObject
 import kotlin.concurrent.thread
@@ -28,6 +31,8 @@ class AgenteService : Service() {
     @Volatile private var ativo = false
     private val vistos = LinkedHashSet<String>()
     private var receptorPacotes: BroadcastReceiver? = null
+    private var travaCpu: PowerManager.WakeLock? = null
+    private var travaWifi: WifiManager.WifiLock? = null
 
     override fun onBind(i: Intent?): IBinder? = null
 
@@ -37,6 +42,7 @@ class AgenteService : Service() {
         if (cfg.dispositivo.isEmpty() || cfg.chave.isEmpty()) { stopSelf(); return START_NOT_STICKY }
         fb = FirebaseRest(cfg.firebase)
         subirParaPrimeiroPlano()
+        manterAcordado()
         ativo = true
         Estado.rodando = true
         thread(name = "agente-comandos") { laçoComandos() }
@@ -50,7 +56,23 @@ class AgenteService : Service() {
         ativo = false
         Estado.rodando = false
         receptorPacotes?.let { try { unregisterReceiver(it) } catch (e: Exception) { /* já solto */ } }
+        try { travaCpu?.takeIf { it.isHeld }?.release() } catch (e: Exception) { /* já solta */ }
+        try { travaWifi?.takeIf { it.isHeld }?.release() } catch (e: Exception) { /* já solta */ }
         super.onDestroy()
+    }
+
+    /** Tela apagada: sem estas travas o Android congela o processador e o Wi-Fi, e o agente para de responder. */
+    private fun manterAcordado() {
+        try {
+            travaCpu = (getSystemService(Context.POWER_SERVICE) as PowerManager)
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "agente:cpu").apply { setReferenceCounted(false); acquire() }
+        } catch (e: Exception) { Log.w(TAG, "trava cpu: ${e.message}") }
+        try {
+            @Suppress("DEPRECATION")
+            val modo = if (Build.VERSION.SDK_INT >= 29) WifiManager.WIFI_MODE_FULL_HIGH_PERF else WifiManager.WIFI_MODE_FULL
+            travaWifi = (applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
+                .createWifiLock(modo, "agente:wifi").apply { setReferenceCounted(false); acquire() }
+        } catch (e: Exception) { Log.w(TAG, "trava wifi: ${e.message}") }
     }
 
     // ---------- notificação (primeiro plano) ----------
@@ -127,6 +149,7 @@ class AgenteService : Service() {
                 val r = Acoes.resumo(this)
                 val resumo = JSONObject().put("modelo", r.modelo).put("android", r.android).put("bateria", r.bateria)
                     .put("carregando", r.carregando).put("tela", r.telaLigada).put("rede", r.rede).put("livre_gb", r.livreGb)
+                    .put("faltam", org.json.JSONArray(permissoesQueFaltam()))
                 val corpo = JSONObject().put("online", true).put("tipo", "android")
                     .put("visto_em", JSONObject().put(".sv", "timestamp")).put("resumo", resumo)
                     .put("acoes", org.json.JSONArray(Acoes.SUPORTADAS)).toString()
@@ -137,6 +160,15 @@ class AgenteService : Service() {
             }
             try { Thread.sleep(15_000) } catch (e: InterruptedException) { break }
         }
+    }
+
+    /** O que ainda impede o agente de funcionar sem bloqueio (a IA mostra isso ao usuário). */
+    private fun permissoesQueFaltam(): List<String> {
+        val f = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) f.add("Exibir sobre outros apps")
+        if (Build.VERSION.SDK_INT >= 23 && !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName))
+            f.add("Bateria sem restrição")
+        return f
     }
 
     // ---------- lista de apps ----------

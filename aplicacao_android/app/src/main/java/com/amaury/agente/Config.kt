@@ -31,6 +31,7 @@ data class Config(val firebase: String, val broker: String, val dispositivo: Str
         // Permissões já pedidas: cada uma é pedida uma vez, para não ficar em laço se o usuário recusar.
         fun jaPediu(ctx: Context, qual: String) = ctx.getSharedPreferences(ARQ, Context.MODE_PRIVATE).getBoolean("pediu_$qual", false)
         fun marcouPedido(ctx: Context, qual: String) = ctx.getSharedPreferences(ARQ, Context.MODE_PRIVATE).edit().putBoolean("pediu_$qual", true).apply()
+        fun esquecerPedido(ctx: Context, qual: String) = ctx.getSharedPreferences(ARQ, Context.MODE_PRIVATE).edit().remove("pediu_$qual").apply()
     }
 }
 

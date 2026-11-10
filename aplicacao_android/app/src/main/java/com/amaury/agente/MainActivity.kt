@@ -54,6 +54,8 @@ class MainActivity : Activity() {
         val d = (22 * dp).toInt()
         raiz.addView(ponto, FrameLayout.LayoutParams(d, d, Gravity.BOTTOM or Gravity.END))
         setContentView(raiz)
+        // a cada abertura do app, pede de novo o que ainda falta (antes era uma vez só, para sempre)
+        Config.esquecerPedido(this, "sobrepor"); Config.esquecerPedido(this, "bateria")
     }
 
     override fun onResume() {

@@ -10,6 +10,9 @@
     <!-- deixa a IA abrir apps e sites mesmo com o agente em segundo plano (Android 10+) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- mantém o processador e o Wi-Fi acordados com a tela apagada (senão o agente congela) -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- lista completa dos apps instalados (Android 11+); o app é instalado por fora da Play Store -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
