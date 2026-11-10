@@ -64,6 +64,7 @@ O que for aberto **vem para a frente** e ganha o foco (o resultado diz "na frent
 - Configuração: `%LOCALAPPDATA%\AutomacaoIOTAmaury-Agente\config.json` · log: `agente.log` na mesma pasta.
 - Gerar o Windows: `.\build_windows.ps1` (em `agente_python`) → `dist\Windows\Render_Agente.exe`. Feche o agente antes se ele roda dessa pasta.
 - Gerar o Linux (pelo WSL no Windows): `wsl -d Ubuntu-24.04 -- bash /mnt/c/Dev-AHS/api_conect/aplicacao_desk_agente/agente_python/build_linux.sh` → `dist/Linux/Render_Agente`. O script instala o que falta no Ubuntu (`python3-tk`, `binutils`, `xdg-utils`) se você for root.
+- **O binário Linux só roda em Linux com glibc 2.38 ou mais** (compilado no Ubuntu 24.04): Ubuntu 24.04+, Debian 13+, Fedora 39+. Em Linux mais antigo dá `GLIBC_2.38 not found`: compile numa distro mais antiga (ex.: Ubuntu 22.04 com `wsl --install -d Ubuntu-22.04`) e rode o `build_linux.sh` nela.
 - Testar o Linux (sem tocar no seu Firebase): `teste_linux.py` (veja o topo do arquivo).
 - No Linux o agente faz: info, abrir programa/site/pasta/arquivo, fechar programa, bloquear tela, desligar/reiniciar e verificar caminhos. **Não** traz a janela para a frente (isso é só do Windows) e os programas do Windows (Word, Excel...) não existem lá: a resposta é "ainda não existe nesta máquina".
 - Testar sem gastar nada: `node aplicacao_desk_agente/agente/teste.mjs` (na pasta `api_conect`; abre e fecha o Bloco de Notas).
