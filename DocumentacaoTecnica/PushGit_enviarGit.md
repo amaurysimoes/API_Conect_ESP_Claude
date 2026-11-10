@@ -3,7 +3,7 @@
 ```bash
 git pull
 git add .
-git commit -m "o que mudou"
+git commit -m "Update"
 git push
 ```
 
