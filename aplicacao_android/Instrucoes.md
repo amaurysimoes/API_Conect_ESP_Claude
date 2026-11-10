@@ -4,15 +4,15 @@ App escuro e pequeno: uma janela só com o ícone. **Pontinho verde = conectado,
 Fica em segundo plano, avisa a IA o que há no celular e obedece só comandos **assinados**.
 Funciona do **Android 5.0 em diante**. Fase de testes.
 
-- `Agente_Android.apk` → o app (esta pasta).
+- `api_conect.apk` → o app (esta pasta).
 - `app/` → código do app · `servidor/` → ferramentas do Claude (Render).
 
 ## 1. Instalar
-1. Passe o `Agente_Android.apk` para o celular (cabo, nuvem, e-mail).
+1. Passe o `api_conect.apk` para o celular (cabo, nuvem, e-mail).
 2. Abra o arquivo. Se pedir, permita **instalar apps de fontes desconhecidas** para o app que você usou para abrir.
 3. Instale e abra **Agente Android**.
 
-(Por cabo: `adb install -r Agente_Android.apk`; o `adb` está em `C:\Android\Sdk\platform-tools`.)
+(Por cabo: `adb install -r api_conect.apk`; o `adb` está em `C:\Android\Sdk\platform-tools`.)
 
 ## 2. Configurar (só na primeira vez)
 Janelinha escura pede:

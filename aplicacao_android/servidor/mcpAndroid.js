@@ -75,7 +75,7 @@ export function instalarAndroid(server) {
       try {
         const alvo = await escolher(celular);
         if (!alvo.online) return texto(`O celular ${alvo.dispositivo} está offline (sem sinal há ${alvo.visto_ha_s ?? "?"} s). Avise o usuário.`, true);
-        if (Array.isArray(alvo.acoes) && !alvo.acoes.includes(acao)) return texto(`O app deste celular não suporta "${acao}" (atualize o Agente_Android.apk).`, true);
+        if (Array.isArray(alvo.acoes) && !alvo.acoes.includes(acao)) return texto(`O app deste celular não suporta "${acao}" (atualize o api_conect.apk).`, true);
         const p = {};
         if (acao === "abrir_app") { if (!app) return texto("Diga qual app.", true); p.app = app; }
         if (acao === "abrir_url") { if (!url) return texto("Diga o endereço (url).", true); p.url = url; if (navegador) p.navegador = navegador; }

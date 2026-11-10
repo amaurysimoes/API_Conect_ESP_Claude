@@ -48,9 +48,9 @@ export const ACOES_CARDS = [
   { id: "desligar", nome: "Desligar", grupo: "Sistema", perigosa: true, confirmar: "Desligar a máquina em 10 segundos?" },
   { id: "reiniciar", nome: "Reiniciar", grupo: "Sistema", perigosa: true, confirmar: "Reiniciar a máquina em 10 segundos?" },
   { id: "cancelar_desligamento", nome: "Cancelar desligamento", grupo: "Sistema", dica: "Cancela desligar/reiniciar em andamento" },
-  { id: "abrir_url", nome: "Abrir site", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "url", rotulo: "endereço do site", exemplo: "www.google.com" }] },
-  { id: "abrir_pasta", nome: "Abrir pasta", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho da pasta", exemplo: "C:\Users" }] },
-  { id: "abrir_arquivo", nome: "Abrir arquivo", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho do arquivo", exemplo: "C:\Docs\relatorio.xlsx" }] },
-  { id: "abrir_programa", nome: "Abrir qualquer programa", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "programa", rotulo: "nome ou caminho do .exe", exemplo: "winword" }, { nome: "argumentos", rotulo: "argumentos (opcional)", opcional: true }] },
+  { id: "abrir_url", salvaComo: "site", nome: "Abrir site", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "url", rotulo: "endereço do site", exemplo: "www.google.com" }] },
+  { id: "abrir_pasta", salvaComo: "pasta", nome: "Abrir pasta", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho da pasta", exemplo: "C:\Users" }] },
+  { id: "abrir_arquivo", salvaComo: "arquivo", nome: "Abrir arquivo", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho do arquivo", exemplo: "C:\Docs\relatorio.xlsx" }] },
+  { id: "abrir_programa", salvaComo: "programa", nome: "Abrir qualquer programa", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "programa", rotulo: "nome ou caminho do .exe", exemplo: "winword" }, { nome: "argumentos", rotulo: "argumentos (opcional)", opcional: true }] },
   { id: "fechar_programa", nome: "Fechar programa", grupo: "Abrir", botao: "Fechar", campos: [{ nome: "programa", rotulo: "nome do programa", exemplo: "excel" }] },
 ];

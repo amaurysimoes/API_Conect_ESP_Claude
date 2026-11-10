@@ -78,13 +78,14 @@ Agente leve na bandeja do Windows: o Claude (ou a aba **Desk-Automacao_Firebase*
 - Servidor (`aplicacao_desk_agente/agente`): variável `AGENTE_CHAVE` no Render.
 - PC (`aplicacao_desk_agente/agente_python`): `Render_Agente.exe`, ícone verde = conectado.
 - Claude: "qual máquina está ativa?", "abre o Excel".
+- Atalhos: nos cards "Abrir" use **Salvar** (nome + caminho); a IA abre pelo nome ("abre meu sistema de estoque"). Só o que está salvo a IA encontra.
 - Testar: `node aplicacao_desk_agente/agente/teste.mjs`.
 
 ---
 
 # Projeto android:
 
-App `Agente_Android.apk`: o Claude vê os apps do celular e abre apps e sites nele.
+App `api_conect.apk`: o Claude vê os apps do celular e abre apps e sites nele.
 
 - Pasta: `aplicacao_android/` · uso: `aplicacao_android/Instrucoes.md` · criar do zero: `DocumentacaoTecnica/CriacaoAppAndroid.md`.
 - Instalar o APK, informar nome, broker e chave (`MCP_TOKEN`), liberar as 3 permissões.

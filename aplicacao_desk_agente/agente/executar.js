@@ -1,12 +1,13 @@
 // Regra única para "fazer algo numa máquina": usada pelo Claude (MCP) e pela aba Desk-Automacao_Firebase.
 import { listarMaquinas, enviarComando } from "./maquinas.js";
 import { resolverPrograma } from "./catalogo.js";
+import { listarAtalhos, acharAtalho, comandoDe } from "./atalhos.js";
 
 export const ACOES = ["info", "abrir_programa", "abrir_url", "abrir_pasta", "abrir_arquivo", "fechar_programa",
-  "bloquear_tela", "desligar", "reiniciar", "cancelar_desligamento"];
+  "bloquear_tela", "desligar", "reiniciar", "cancelar_desligamento", "abrir_atalho"];
 
 // Acha a máquina pedida. Sem nome: se só uma está ativa usa ela; senão devolve a pergunta para o usuário.
-async function escolher(maquina) {
+export async function escolher(maquina) {
   const todas = await listarMaquinas();
   if (!todas.length) throw new Error("Nenhuma máquina cadastrada no Firebase.");
   if (maquina) {
@@ -21,13 +22,21 @@ async function escolher(maquina) {
     : `Nenhuma máquina está ativa agora (${todas.map((x) => `${x.maquina}: sem sinal há ${x.visto_ha_s ?? "?"} s`).join("; ")}). Avise o usuário para ligar o agente.`);
 }
 
-export async function executarNaMaquina({ maquina, acao, programa, argumentos, url, caminho, confirmado }) {
+export async function executarNaMaquina({ maquina, acao, programa, argumentos, url, caminho, confirmado, atalho }) {
   if (!ACOES.includes(acao)) throw new Error(`Ação desconhecida: ${acao}. Use: ${ACOES.join(", ")}.`);
   if ((acao === "desligar" || acao === "reiniciar") && confirmado !== true) {
     throw new Error(`"${acao}" exige confirmação: pergunte ao usuário se tem certeza e repita com confirmado=true.`);
   }
   const alvo = await escolher(maquina);
   if (!alvo.online) throw new Error(`A máquina ${alvo.maquina} está offline (sem sinal há ${alvo.visto_ha_s ?? "?"} s). Avise o usuário.`);
+
+  // Atalho salvo: vira a ação certa (site, programa, pasta ou arquivo). O agente diz se o caminho não existe nessa máquina.
+  if (acao === "abrir_atalho") {
+    const a = acharAtalho(await listarAtalhos(alvo.broker), atalho);
+    const c = comandoDe(a);
+    const r = await enviarComando(alvo, c.acao, c.params);
+    return { maquina: alvo.maquina, ok: r.ok, texto: r.ok ? `${a.nome}: ${r.texto}` : `${a.nome}: ${r.texto}` };
+  }
 
   const p = {};
   if (acao === "abrir_programa" || acao === "fechar_programa") {

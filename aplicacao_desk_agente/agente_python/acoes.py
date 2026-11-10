@@ -1,8 +1,11 @@
 """Ações que a máquina executa. Cada uma recebe os parâmetros do comando e devolve o texto do resultado.
 Só chegam aqui comandos ASSINADOS pela ponte (veja agente.py). Windows."""
 import ctypes
+import json
 import os
 import platform
+import re
+import shutil
 import socket
 import subprocess
 import threading
@@ -166,10 +169,49 @@ def info(_params):
             f"ligada há {r['ligado_h']} h")
 
 
+# ---------- existe nesta máquina? ----------
+def _parece_caminho(alvo):
+    return any(c in alvo for c in "\\/") or (len(alvo) > 1 and alvo[1] == ":")
+
+
+def _existe(alvo):
+    """True se o programa, pasta ou arquivo existe aqui. Nome solto (winword): procura no PATH e nos 'App Paths' do Windows."""
+    alvo = os.path.expandvars(str(alvo).strip().strip('"'))
+    if not alvo:
+        return False
+    if re.match(r"^[A-Za-z][A-Za-z0-9+.-]+:", alvo):          # ms-settings:, ms-teams: ... (protocolo do Windows)
+        return True
+    if _parece_caminho(alvo):
+        return Path(alvo).exists()
+    if shutil.which(alvo):
+        return True
+    import winreg
+    nome = alvo if alvo.lower().endswith(".exe") else alvo + ".exe"
+    for raiz in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+        try:
+            winreg.CloseKey(winreg.OpenKey(raiz, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" + "\\" + nome))
+            return True
+        except OSError:
+            pass
+    return False
+
+
+def verificar_caminhos(params):
+    """Diz quais dos caminhos existem nesta máquina (usado pelos atalhos salvos). Resposta: {"existe": [...], "falta": [...]}."""
+    caminhos = params.get("caminhos")
+    if not isinstance(caminhos, list) or len(caminhos) > 100:
+        raise ErroAcao("falta a lista 'caminhos'")
+    lista = [str(c) for c in caminhos if isinstance(c, str) and 0 < len(c) <= 500 and not any(ord(x) < 32 for x in c)]
+    existe = [c for c in lista if _existe(c)]
+    return json.dumps({"existe": existe, "falta": [c for c in lista if c not in existe]}, ensure_ascii=False)
+
+
 # ---------- abrir ----------
 def abrir_programa(params):
     programa = _texto(params, "programa", maximo=260)
     argumentos = _texto(params, "argumentos", False)
+    if _parece_caminho(programa) and not _existe(programa):
+        raise ErroAcao(f"ainda não existe nesta máquina: {programa} (não instalado ou caminho diferente)")
     ok = _abrir_na_frente(lambda: _executar(programa, argumentos), programa)
     return f"aberto: {programa} · {_situacao(ok)}"
 
@@ -247,4 +289,5 @@ def cancelar_desligamento(_params):
 
 
 ACOES = {f.__name__: f for f in (info, abrir_programa, abrir_url, abrir_pasta, abrir_arquivo, fechar_programa,
-                                 bloquear_tela, desligar, reiniciar, cancelar_desligamento)}
+                                 bloquear_tela, desligar, reiniciar, cancelar_desligamento,
+                                 verificar_caminhos)}

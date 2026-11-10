@@ -1,4 +1,4 @@
-// Conversa com os celulares (Agente_Android.apk) pelo Firebase. Mesmo esquema do agente do PC, em outro caminho:
+// Conversa com os celulares (api_conect.apk) pelo Firebase. Mesmo esquema do agente do PC, em outro caminho:
 //   brokers/<broker>/android/<dispositivo>/status | comandos/<id> | resultado/<id> | apps (cifrado)
 // Comandos ASSINADOS com HMAC-SHA256 (a mesma chave: AGENTE_CHAVE, ou o MCP_TOKEN se não houver).
 import { randomBytes } from "node:crypto";
@@ -75,7 +75,7 @@ export async function enviarComando(alvo, acao, parametros = {}) {
 // Acha o celular pedido. Sem nome: o único ativo; senão devolve a pergunta para o usuário.
 export async function escolher(nome) {
   const todos = await listarAndroid();
-  if (!todos.length) throw new Error("Nenhum celular cadastrado. Instale e abra o Agente_Android.apk.");
+  if (!todos.length) throw new Error("Nenhum celular cadastrado. Instale e abra o api_conect.apk.");
   if (nome) {
     const m = todos.filter((x) => x.dispositivo.toLowerCase() === String(nome).toLowerCase());
     if (m.length !== 1) throw new Error(`Celular "${nome}" ${m.length ? "existe em mais de um broker" : "não encontrado"}. Celulares: ${todos.map((x) => x.dispositivo).join(", ")}.`);

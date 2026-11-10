@@ -35,6 +35,17 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 - **Claude:** "qual máquina está ativa?", "abre o Excel na DEV_ENG", "fecha o Word", "bloqueia a tela".
   Desligar/reiniciar: o Claude pergunta antes.
 
+## 4.1 Atalhos salvos (para a IA encontrar)
+Na aba Desk, os cards **Abrir site / pasta / arquivo / qualquer programa** têm dois botões:
+- **Abrir:** abre na hora (sem salvar).
+- **Salvar:** preencha o campo, dê um **nome do atalho** e toque em Salvar. Salve quantos sites e programas quiser.
+
+Os salvos aparecem em **Meus atalhos** (toque para abrir; **Verificar nesta máquina** mostra ✓ existe / ✗ ainda não existe).
+No Claude: "abre meu sistema de estoque", "quais são minhas aplicações?", "minhas aplicações estão instaladas aqui?".
+- Programa ou pasta que não existe na máquina: a resposta diz **"ainda não existe nesta máquina"**.
+- **Pela IA, o que é seu só é encontrado se estiver salvo.** Programas conhecidos (Word, Excel, Chrome...) a IA abre pelo nome.
+- Os atalhos ficam cifrados no Firebase. Precisa do `Render_Agente.exe` novo para verificar caminhos.
+
 ## 5. Ações
 `info`, `abrir_programa` (qualquer programa: nome ou caminho), `abrir_url`, `abrir_pasta`, `abrir_arquivo`,
 `fechar_programa`, `bloquear_tela`, `desligar`*, `reiniciar`*, `cancelar_desligamento` (*só com confirmação).

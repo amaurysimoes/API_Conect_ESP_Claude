@@ -118,6 +118,49 @@ try {
   const lista = await mcp({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "listar_maquinas", arguments: {} } });
   assert.ok(lista.includes("PC_TESTE") && lista.includes("ATIVA"));
   console.log("OK servidor: aba /desk, 20 programas, menu, ferramentas do Claude e as antigas");
+  // ---- atalhos salvos (sites e programas do usuário) ----
+  const http = (m, caminho, corpo) => fetch("http://127.0.0.1:4596" + caminho, { method: m, headers: { ...auth, "Content-Type": "application/json" }, body: corpo && JSON.stringify(corpo) });
+  const salvar = async (d) => (await http("POST", "/api/desk/atalhos", { maquina: "PC_TESTE", ...d })).json();
+  assert.ok((await salvar({ tipo: "site", nome: "Meu Site", alvo: "www.exemplo.com" })).ok);
+  assert.ok((await salvar({ tipo: "programa", nome: "Ping Teste", alvo: "C:\\Windows\\System32\\PING.EXE", argumentos: "-t 127.0.0.1" })).ok);
+  assert.ok((await salvar({ tipo: "programa", nome: "Sistema Estoque", alvo: "C:\\Projetos\\estoque_que_nao_existe.exe" })).ok);
+  const refeito = await salvar({ tipo: "site", nome: "meu site", alvo: "www.exemplo.com.br" });
+  assert.ok(refeito.atualizado, "mesmo nome e tipo atualiza, não duplica");
+  assert.equal((await (await http("POST", "/api/desk/atalhos", { maquina: "PC_TESTE", tipo: "pasta", nome: "", alvo: "x" })).json()).erro, "Dê um nome ao atalho.");
+  const salvos = await (await http("GET", "/api/desk/atalhos?maquina=PC_TESTE")).json();
+  assert.equal(salvos.length, 3, "3 atalhos salvos");
+  assert.ok(!JSON.stringify(banco).includes("estoque_que_nao_existe") && !JSON.stringify(banco).includes("exemplo.com"), "atalhos NÃO podem estar em texto puro no Firebase");
+  console.log("OK atalhos salvos (cifrados), sem duplicar o mesmo nome");
+
+  const ver = await (await http("POST", "/api/desk/atalhos/verificar", { maquina: "PC_TESTE" })).json();
+  const idDe = (nome) => salvos.find((a) => a.nome === nome).id;
+  assert.equal(ver[idDe("Ping Teste")], true); assert.equal(ver[idDe("Sistema Estoque")], false); assert.equal(ver[idDe("meu site")], null);
+  console.log("OK verificar na máquina: existe / não existe ainda / site não se verifica");
+
+  const abreAtalho = async (atalho) => (await http("POST", "/api/desk/executar", { maquina: "PC_TESTE", acao: "abrir_atalho", atalho })).json();
+  const a1 = await abreAtalho("abre o ping teste");
+  assert.ok(a1.ok && a1.texto.startsWith("Ping Teste:"), JSON.stringify(a1));
+  await espera(1500);
+  assert.ok((await executarNaMaquina({ acao: "fechar_programa", programa: "ping" })).ok);
+  const a2 = await abreAtalho("sistema de estoque");
+  assert.ok(!a2.ok && a2.texto.includes("ainda não existe nesta máquina"), JSON.stringify(a2));
+  const a3 = await abreAtalho("coisa que nunca salvei");
+  assert.ok(a3.erro && a3.erro.includes("Nenhum atalho combina") && a3.erro.includes("Ping Teste"), JSON.stringify(a3));
+  console.log("OK abrir atalho pelo nome; programa que não existe: \"ainda não existe nesta máquina\"; não salvo: lista os salvos");
+
+  const tools2 = await mcp({ jsonrpc: "2.0", id: 5, method: "tools/list" });
+  assert.ok(tools2.includes('"listar_atalhos"') && tools2.includes('"abrir_atalho"'));
+  const via = await mcp({ jsonrpc: "2.0", id: 6, method: "tools/call", params: { name: "listar_atalhos", arguments: { verificar: true } } });
+  assert.ok(via.includes("Ping Teste") && via.includes("existe na máquina") && via.includes("NÃO existe ainda"), via);
+  const viaAbrir = await mcp({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "abrir_atalho", arguments: { atalho: "estoque" } } });
+  assert.ok(viaAbrir.includes("ainda não existe nesta máquina"), viaAbrir);
+  console.log("OK Claude (MCP): listar_atalhos com verificação e abrir_atalho");
+
+  assert.ok(desk.includes('data-a=\\"salvar\\"') || desk.includes("data-a=\"salvar\"") || desk.includes("data-a=\\'salvar\\'") || desk.includes("'salvar'") || desk.includes("data-a=\"salvar\""), "cards têm o botão Salvar");
+  const apagado = await (await http("DELETE", "/api/desk/atalhos/" + idDe("Ping Teste") + "?maquina=PC_TESTE")).json();
+  assert.ok(apagado.ok);
+  assert.equal((await (await http("GET", "/api/desk/atalhos?maquina=PC_TESTE")).json()).length, 2);
+  console.log("OK apagar atalho");
 } finally {
   // no Windows o python do .venv é um lançador: mata a árvore inteira para não sobrar agente rodando
   for (const proc of [agente, servidor]) spawnSync("taskkill", ["/pid", String(proc.pid), "/T", "/F"], { stdio: "ignore" });

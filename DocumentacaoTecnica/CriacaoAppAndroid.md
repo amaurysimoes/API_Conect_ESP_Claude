@@ -1,6 +1,6 @@
 # Criar o app Android do zero (sem ajuda)
 
-Resultado: `aplicacao_android/Agente_Android.apk`. Kotlin puro, **sem bibliotecas**, Android 5.0+ (minSdk 21, target 34).
+Resultado: `aplicacao_android/api_conect.apk`. Kotlin puro, **sem bibliotecas**, Android 5.0+ (minSdk 21, target 34).
 PowerShell no Windows. Instruções de uso do app: `aplicacao_android/Instrucoes.md`.
 
 ## 1. Ferramentas (uma vez)
@@ -58,7 +58,7 @@ cd aplicacao_android
 $env:JAVA_HOME = 'C:\Program Files\Microsoft\jdk-21.0.11.10-hotspot'
 C:\Android\gradle-8.7\bin\gradle.bat wrapper --gradle-version 8.7   # só 1ª vez: cria gradlew
 .\gradlew.bat testDebugUnitTest assembleDebug
-Copy-Item app\build\outputs\apk\debug\app-debug.apk Agente_Android.apk
+Copy-Item app\build\outputs\apk\debug\app-debug.apk api_conect.apk
 ```
 - A 1ª vez baixa o compilador e as bibliotecas (alguns minutos).
 - Os testes rodam no PC e conferem assinatura/criptografia com os valores gerados pelo servidor Node.
@@ -66,7 +66,7 @@ Copy-Item app\build\outputs\apk\debug\app-debug.apk Agente_Android.apk
 - Servidor: `node aplicacao_android/servidor/teste.mjs` (na pasta `api_conect`).
 
 ## 6. Instalar no celular
-Copie o `.apk` e abra, ou por cabo (depuração USB ligada): `C:\Android\Sdk\platform-tools\adb.exe install -r Agente_Android.apk`.
+Copie o `.apk` e abra, ou por cabo (depuração USB ligada): `C:\Android\Sdk\platform-tools\adb.exe install -r api_conect.apk`.
 
 ## 7. Armadilhas que já apareceram
 - Android 10+ **não deixa abrir telas do segundo plano** sem "Exibir sobre outros apps": o app pede essa permissão.
@@ -77,4 +77,4 @@ Copie o `.apk` e abra, ou por cabo (depuração USB ligada): `C:\Android\Sdk\pla
 - Se a pasta `aplicacao_android` for movida, apague `app/build` e `.gradle` e compile de novo.
 
 ## 8. Subir no git
-Entram: código, `gradle/wrapper`, `Agente_Android.apk`, instruções. Ficam de fora (`.gitignore`): `local.properties`, `build/`, `.gradle/`.
+Entram: código, `gradle/wrapper`, `api_conect.apk`, instruções. Ficam de fora (`.gitignore`): `local.properties`, `build/`, `.gradle/`.
