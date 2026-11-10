@@ -40,6 +40,7 @@ export async function listarMaquinas() {
         online: s.online === true && idade !== null && idade < ONLINE_MS,
         visto_ha_s: idade === null ? null : Math.round(idade / 1000),
         resumo: s.resumo ?? null,
+        acoes: Array.isArray(s.acoes) ? s.acoes : s.acoes && typeof s.acoes === "object" ? Object.values(s.acoes) : null, // o que o agente diz suportar (agentes antigos não informam)
       };
     }));
   }));

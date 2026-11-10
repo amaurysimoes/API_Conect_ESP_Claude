@@ -116,7 +116,8 @@ class Agente:
         while not self._parar.is_set():
             try:
                 requisitar(self.url, "PATCH", f"{self.base}/status",
-                           {"online": True, "visto_em": SERVER_TS, "resumo": acoes.resumo(), "so": "Windows"})
+                           {"online": True, "visto_em": SERVER_TS, "resumo": acoes.resumo(), "so": "Windows",
+                            "acoes": sorted(acoes.ACOES)})
                 self.ultimo_ok = time.time()
             except Exception as exc:  # noqa: BLE001
                 log.warning("Firebase (status): %s", exc)

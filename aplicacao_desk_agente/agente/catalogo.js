@@ -40,3 +40,17 @@ export function resolverPrograma(texto) {
   const livre = String(texto).trim();
   return { alvo: livre, processo: /\.exe$/i.test(livre) ? livre.split(/[\\/]/).pop() : `${livre}.exe`, nome: livre };
 }
+
+// Cards de ação da aba Desk. "id" é a ação que o agente executa; a página só mostra o que o agente da máquina diz suportar.
+export const ACOES_CARDS = [
+  { id: "info", nome: "Informações", grupo: "Sistema", dica: "CPU, memória, disco e tempo ligado" },
+  { id: "bloquear_tela", nome: "Bloquear tela", grupo: "Sistema", dica: "Bloqueia o Windows" },
+  { id: "desligar", nome: "Desligar", grupo: "Sistema", perigosa: true, confirmar: "Desligar a máquina em 10 segundos?" },
+  { id: "reiniciar", nome: "Reiniciar", grupo: "Sistema", perigosa: true, confirmar: "Reiniciar a máquina em 10 segundos?" },
+  { id: "cancelar_desligamento", nome: "Cancelar desligamento", grupo: "Sistema", dica: "Cancela desligar/reiniciar em andamento" },
+  { id: "abrir_url", nome: "Abrir site", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "url", rotulo: "endereço do site", exemplo: "www.google.com" }] },
+  { id: "abrir_pasta", nome: "Abrir pasta", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho da pasta", exemplo: "C:\Users" }] },
+  { id: "abrir_arquivo", nome: "Abrir arquivo", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "caminho", rotulo: "caminho do arquivo", exemplo: "C:\Docs\relatorio.xlsx" }] },
+  { id: "abrir_programa", nome: "Abrir qualquer programa", grupo: "Abrir", botao: "Abrir", campos: [{ nome: "programa", rotulo: "nome ou caminho do .exe", exemplo: "winword" }, { nome: "argumentos", rotulo: "argumentos (opcional)", opcional: true }] },
+  { id: "fechar_programa", nome: "Fechar programa", grupo: "Abrir", botao: "Fechar", campos: [{ nome: "programa", rotulo: "nome do programa", exemplo: "excel" }] },
+];

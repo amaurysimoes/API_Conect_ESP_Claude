@@ -1,9 +1,9 @@
 // Teste de ponta a ponta SEM gastar nada e sem tocar no seu Firebase:
 // Firebase falso (local) + o agente Python de verdade + o servidor assinando comandos.
 // Rodar (na pasta api_conect, com o .venv do agente_python criado): node aplicacao_desk_agente/agente/teste.mjs
-// Abre e fecha o Bloco de Notas durante o teste.
+// Abre e fecha uma janela de console (ping) durante o teste.
 import http from "node:http";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 
 // --- Firebase falso em memória (aceita PUT/PATCH/DELETE/GET, ?shallow=true e {".sv":"timestamp"}) ---
 const banco = {};
-const carimbo = (v) => v && typeof v === "object" ? (v[".sv"] === "timestamp" ? Date.now() : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, carimbo(x)]))) : v;
+const carimbo = (v) => Array.isArray(v) ? v.map(carimbo) : v && typeof v === "object" ? (v[".sv"] === "timestamp" ? Date.now() : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, carimbo(x)]))) : v;
 const fake = http.createServer(async (req, res) => {
   const [rota, consulta = ""] = req.url.split("?");
   const p = rota.replace(/^\/|\.json$/g, "").split("/").filter(Boolean);
@@ -53,6 +53,7 @@ try {
   for (let i = 0; i < 20 && !m?.online; i++) { await espera(500); m = (await listarMaquinas()).find((x) => x.maquina === "PC_TESTE"); }
   assert.ok(m?.online, "agente apareceu online");
   assert.equal(typeof m.resumo.cpu, "number", "resumo com CPU");
+  assert.ok(Array.isArray(m.acoes) && m.acoes.includes("desligar") && m.acoes.includes("abrir_programa"), "agente informa as ações que suporta");
   console.log(`OK agente online: ${m.maquina} · CPU ${m.resumo.cpu}% · memória ${m.resumo.memoria}%`);
 
   const info = await executarNaMaquina({ acao: "info" });
@@ -85,11 +86,12 @@ try {
   console.log("OK desligar/reiniciar exigem confirmação");
 
   // abrir e fechar de verdade
-  const abre = await executarNaMaquina({ acao: "abrir_programa", programa: "bloco de notas" });
+  // "ping -t" é um programa clássico e previsível (o Bloco de Notas do Windows 11 às vezes se fecha sozinho)
+  const abre = await executarNaMaquina({ acao: "abrir_programa", programa: "ping", argumentos: "-t 127.0.0.1" });
   assert.ok(abre.ok, abre.texto);
   console.log("OK abriu:", abre.texto);
-  await espera(2500);
-  const fecha = await executarNaMaquina({ acao: "fechar_programa", programa: "bloco de notas" });
+  await espera(2000);
+  const fecha = await executarNaMaquina({ acao: "fechar_programa", programa: "ping" });
   assert.ok(fecha.ok, fecha.texto);
   console.log("OK fechou:", fecha.texto);
   const naoExiste = await executarNaMaquina({ acao: "abrir_programa", programa: "programa_que_nao_existe_xyz" });
@@ -100,9 +102,13 @@ try {
   const auth = { Authorization: "Basic " + Buffer.from("u:s").toString("base64") };
   for (let i = 0; i < 20; i++) { try { await fetch("http://127.0.0.1:4596/saude"); break; } catch { await espera(300); } }
   const desk = await (await fetch("http://127.0.0.1:4596/desk", { headers: auth })).text();
-  assert.ok(desk.includes("Desk-Automacao_Firebase") && desk.includes("/api/desk/catalogo"));
+  assert.ok(desk.includes("Desk-Automacao_Firebase") && desk.includes("/api/desk/") && desk.includes("'catalogo'"));
   const cat = await (await fetch("http://127.0.0.1:4596/api/desk/catalogo", { headers: auth })).json();
   assert.equal(cat.length, 20);
+  const acoesCards = await (await fetch("http://127.0.0.1:4596/api/desk/acoes", { headers: auth })).json();
+  assert.ok(["info", "bloquear_tela", "desligar", "reiniciar", "cancelar_desligamento", "abrir_url", "abrir_pasta", "abrir_arquivo", "abrir_programa", "fechar_programa"].every((id) => acoesCards.some((a) => a.id === id)), "cards de todas as ações");
+  assert.ok(acoesCards.filter((a) => a.perigosa).map((a) => a.id).sort().join() === "desligar,reiniciar", "desligar/reiniciar marcados como perigosos");
+  assert.ok(desk.includes("'acoes'") && desk.includes("confirm(") && desk.includes("suporta"), "página usa os cards, pede confirmação e respeita o que o agente suporta");
   const home = await (await fetch("http://127.0.0.1:4596/", { headers: auth })).text();
   assert.ok(home.indexOf("IOT-Automacao") < home.indexOf("Desk-Automacao_Firebase"), "aba logo depois de IOT-Automacao");
   assert.match(home, /Escreva, em cada pino/, "página de pinos original intacta");
@@ -113,6 +119,8 @@ try {
   assert.ok(lista.includes("PC_TESTE") && lista.includes("ATIVA"));
   console.log("OK servidor: aba /desk, 20 programas, menu, ferramentas do Claude e as antigas");
 } finally {
-  agente.kill(); servidor.kill(); fake.close();
+  // no Windows o python do .venv é um lançador: mata a árvore inteira para não sobrar agente rodando
+  for (const proc of [agente, servidor]) spawnSync("taskkill", ["/pid", String(proc.pid), "/T", "/F"], { stdio: "ignore" });
+  fake.close();
 }
 process.exit(0);
