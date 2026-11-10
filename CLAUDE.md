@@ -48,6 +48,7 @@ Você (navegador, senha) ──► /  /enderecos  /gps
 - Assinatura: `HMAC-SHA256(AGENTE_CHAVE, id + quebra de linha + acao + quebra de linha + parametros JSON ordenado + quebra de linha + ts)`. `AGENTE_CHAVE` (ou, se não existir, o `MCP_TOKEN`) tem de ser IGUAL no Render e no agente.
 - Instruções para o usuário: `aplicacao_desk_agente/Instrucoes.md`.
 - Pendente: usuário colar o `MCP_TOKEN` (ou uma `AGENTE_CHAVE`) na janelinha do agente, instalar o `Render_Agente.exe`; testar no Render de verdade. Ideias: mais ações (volume, captura de tela, listar processos), mais atalhos na aba.
+- Pendente (09/11/2026): o nome da máquina fica salvo no `config.json` local e não acompanha a troca do nome do Windows (aconteceu: `DESKTOP-N0N1ADE` → `AMAURY-AHS`; resolvido deixando `maquina` vazio). Usuário quer criar **outro local para persistir esses dados** — por hora fica no `config.json`.
 
 ## Comportamento das ferramentas
 - `acionar`: acha o pino pelas palavras; com vários ESPs e sem ficar claro qual, manda perguntar "Qual dispositivo você quer acionar?" citando os nomes; se o ESP estiver offline avisa (o comando fica gravado e vale quando ele voltar). 1 ESP só: não pergunta.
