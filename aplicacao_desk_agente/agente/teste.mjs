@@ -46,7 +46,7 @@ console.log("OK catálogo: 20 programas e nomes livres");
 const pasta = mkdtempSync(join(tmpdir(), "agente-"));
 const cfg = join(pasta, "config.json");
 writeFileSync(cfg, JSON.stringify({ firebase: "http://127.0.0.1:4597", broker: "TESTE", maquina: "PC_TESTE", chave: "chave-de-teste" }));
-const agente = spawn(join(process.cwd(), "aplicacao_desk_agente/agente_python/.venv/Scripts/python.exe"), ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", stdio: "ignore" });
+const agente = spawn(join(process.cwd(), "aplicacao_desk_agente/agente_python/.venv/Scripts/python.exe"), ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", env: { ...process.env, AGENTE_MUTEX: "AgenteDeTeste" }, stdio: "ignore" });
 const servidor = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4596" }, stdio: "ignore" });
 try {
   let m;
@@ -119,6 +119,7 @@ try {
   assert.ok(lista.includes("PC_TESTE") && lista.includes("ATIVA"));
   console.log("OK servidor: aba /desk, 20 programas, menu, ferramentas do Claude e as antigas");
   // ---- atalhos salvos (sites e programas do usuário) ----
+  banco.brokers.OUTRO = { maquinas: { PC_OUTRO: { status: { online: false, visto_em: 1 } } } };   // 2º broker, máquina offline
   const http = (m, caminho, corpo) => fetch("http://127.0.0.1:4596" + caminho, { method: m, headers: { ...auth, "Content-Type": "application/json" }, body: corpo && JSON.stringify(corpo) });
   const salvar = async (d) => (await http("POST", "/api/desk/atalhos", { maquina: "PC_TESTE", ...d })).json();
   assert.ok((await salvar({ tipo: "site", nome: "Meu Site", alvo: "www.exemplo.com" })).ok);
@@ -129,6 +130,8 @@ try {
   assert.equal((await (await http("POST", "/api/desk/atalhos", { maquina: "PC_TESTE", tipo: "pasta", nome: "", alvo: "x" })).json()).erro, "Dê um nome ao atalho.");
   const salvos = await (await http("GET", "/api/desk/atalhos?maquina=PC_TESTE")).json();
   assert.equal(salvos.length, 3, "3 atalhos salvos");
+  assert.equal(Object.keys(banco.brokers.OUTRO.atalhos ?? {}).length, 3, "a mesma cópia vai para todos os brokers");
+  assert.equal((await (await http("GET", "/api/desk/atalhos")).json()).length, 3, "listar não depende de máquina");
   assert.ok(!JSON.stringify(banco).includes("estoque_que_nao_existe") && !JSON.stringify(banco).includes("exemplo.com"), "atalhos NÃO podem estar em texto puro no Firebase");
   console.log("OK atalhos salvos (cifrados), sem duplicar o mesmo nome");
 
@@ -160,6 +163,7 @@ try {
   const apagado = await (await http("DELETE", "/api/desk/atalhos/" + idDe("Ping Teste") + "?maquina=PC_TESTE")).json();
   assert.ok(apagado.ok);
   assert.equal((await (await http("GET", "/api/desk/atalhos?maquina=PC_TESTE")).json()).length, 2);
+  assert.equal(Object.keys(banco.brokers.OUTRO.atalhos ?? {}).length, 2, "apagar tira de todos os brokers");
   console.log("OK apagar atalho");
 } finally {
   // no Windows o python do .venv é um lançador: mata a árvore inteira para não sobrar agente rodando

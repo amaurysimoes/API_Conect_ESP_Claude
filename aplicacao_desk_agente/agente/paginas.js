@@ -56,7 +56,8 @@ async function carregar() {
   maquinas = Array.isArray(m) ? m : []; programas = Array.isArray(p) ? p : []; acoes = Array.isArray(a) ? a : [];
   const escolhida = $('maq').value;
   $('maq').innerHTML = maquinas.map(x => '<option value="' + esc(x.maquina) + '">' + esc(x.maquina) + (x.online ? ' · ativa' : ' · offline') + '</option>').join('') || '<option>Nenhuma máquina</option>';
-  if (escolhida) $('maq').value = escolhida;
+  if (escolhida && maquinas.some(x => x.maquina === escolhida)) $('maq').value = escolhida;
+  else { const ativa = maquinas.find(x => x.online); if (ativa) $('maq').value = ativa.maquina; }
   if (!atalhos.length && atual()) await carregarAtalhos(false);
   render();
 }

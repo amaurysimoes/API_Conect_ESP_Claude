@@ -32,7 +32,7 @@ export async function executarNaMaquina({ maquina, acao, programa, argumentos, u
 
   // Atalho salvo: vira a ação certa (site, programa, pasta ou arquivo). O agente diz se o caminho não existe nessa máquina.
   if (acao === "abrir_atalho") {
-    const a = acharAtalho(await listarAtalhos(alvo.broker), atalho);
+    const a = acharAtalho(await listarAtalhos(), atalho);
     const c = comandoDe(a);
     const r = await enviarComando(alvo, c.acao, c.params);
     return { maquina: alvo.maquina, ok: r.ok, texto: r.ok ? `${a.nome}: ${r.texto}` : `${a.nome}: ${r.texto}` };

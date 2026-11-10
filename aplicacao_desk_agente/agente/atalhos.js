@@ -1,4 +1,5 @@
 // Atalhos salvos: sites, programas, pastas e arquivos que o usuário escolhe (nome + caminho), para abrir pela aba Desk
+// (valem para TODAS as máquinas: a mesma cópia é gravada em todos os brokers e a leitura junta tudo, sem repetir)
 // ou pedindo ao Claude ("abre meu sistema de estoque"). Ficam no Firebase CIFRADOS (o banco é aberto):
 //   brokers/<broker>/atalhos/<id> = texto cifrado de { tipo, nome, alvo, argumentos, palavras }
 // Cifra: a mesma do módulo de endereços (LUGARES_CHAVE ou MCP_TOKEN). Registro adulterado não decifra e é ignorado.
@@ -12,8 +13,8 @@ export const TIPOS = ["site", "programa", "pasta", "arquivo"];
 export const idValido = (id) => /^[a-f0-9]{12}$/.test(String(id));
 const pasta = (broker) => `brokers/${broker}/atalhos`;
 
-async function rest(metodo, caminho, corpo) {
-  const r = await fetch(`${DB_URL}/${caminho}.json`, {
+async function rest(metodo, caminho, corpo, consulta = "") {
+  const r = await fetch(`${DB_URL}/${caminho}.json${consulta}`, {
     method: metodo,
     headers: { "Content-Type": "application/json" },
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
@@ -22,6 +23,8 @@ async function rest(metodo, caminho, corpo) {
   if (!r.ok) throw new Error(`Firebase ${metodo} /${caminho} -> ${r.status}`);
   return r.json();
 }
+
+const brokersNomes = async () => Object.keys((await rest("GET", "brokers", undefined, "?shallow=true")) || {});
 
 const limpo = (v, max) => String(v ?? "").replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max);
 
@@ -37,25 +40,28 @@ export function validar(b) {
   return { tipo, nome, alvo, argumentos, palavras };
 }
 
-export async function listarAtalhos(broker) {
-  const todos = (await rest("GET", pasta(broker))) || {};
-  const lista = [];
-  for (const [id, valor] of Object.entries(todos)) {
-    try { lista.push({ id, ...decifrar(valor) }); } catch { /* chave trocada ou registro estranho: ignora */ }
+export async function listarAtalhos() {
+  const unicos = new Map();                       // o mesmo id em vários brokers vira um só
+  for (const broker of await brokersNomes()) {
+    for (const [id, valor] of Object.entries((await rest("GET", pasta(broker))) || {})) {
+      if (unicos.has(id)) continue;
+      try { unicos.set(id, { id, ...decifrar(valor) }); } catch { /* chave trocada ou registro estranho: ignora */ }
+    }
   }
+  const lista = [...unicos.values()];
   return lista.sort((a, b) => TIPOS.indexOf(a.tipo) - TIPOS.indexOf(b.tipo) || a.nome.localeCompare(b.nome, "pt-BR"));
 }
 
-export async function salvarAtalho(broker, dados) {
+export async function salvarAtalho(dados) {
   const a = validar(dados);
   const id = dados?.id && idValido(dados.id) ? dados.id : randomBytes(6).toString("hex");
-  await rest("PUT", `${pasta(broker)}/${id}`, cifrar(a));
+  for (const broker of await brokersNomes()) await rest("PUT", `${pasta(broker)}/${id}`, cifrar(a));
   return id;
 }
 
-export async function apagarAtalho(broker, id) {
+export async function apagarAtalho(id) {
   if (!idValido(id)) throw new Error("id inválido");
-  await rest("DELETE", `${pasta(broker)}/${id}`);
+  for (const broker of await brokersNomes()) await rest("DELETE", `${pasta(broker)}/${id}`);
 }
 
 const plano = (t) => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();

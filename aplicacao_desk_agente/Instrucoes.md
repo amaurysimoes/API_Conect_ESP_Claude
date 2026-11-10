@@ -44,7 +44,8 @@ Os salvos aparecem em **Meus atalhos** (toque para abrir; **Verificar nesta máq
 No Claude: "abre meu sistema de estoque", "quais são minhas aplicações?", "minhas aplicações estão instaladas aqui?".
 - Programa ou pasta que não existe na máquina: a resposta diz **"ainda não existe nesta máquina"**.
 - **Pela IA, o que é seu só é encontrado se estiver salvo.** Programas conhecidos (Word, Excel, Chrome...) a IA abre pelo nome.
-- Os atalhos ficam cifrados no Firebase. Precisa do `Render_Agente.exe` novo para verificar caminhos.
+- Os atalhos valem para **todas as máquinas** e ficam cifrados no Firebase. Precisa do `Render_Agente.exe` novo para verificar caminhos.
+- Se o Claude não enxergar as ferramentas novas (`listar_atalhos`, `abrir_atalho`), remova e adicione o conector de novo no claude.ai e abra uma conversa nova.
 
 ## 5. Ações
 `info`, `abrir_programa` (qualquer programa: nome ou caminho), `abrir_url`, `abrir_pasta`, `abrir_arquivo`,

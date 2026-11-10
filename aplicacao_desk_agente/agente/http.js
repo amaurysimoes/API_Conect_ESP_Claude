@@ -39,24 +39,22 @@ export async function deskHttp(req, res, caminho, { json, corpoJson }) {
   if (caminho === "/api/desk/atalhos" || caminho.startsWith("/api/desk/atalhos/")) {
     try {
       if (req.method === "GET" && caminho === "/api/desk/atalhos") {
-        return resposta(200, await listarAtalhos((await maquinaDe(consulta.get("maquina"))).broker));
+        return resposta(200, await listarAtalhos());
       }
       if (req.method === "POST" && caminho === "/api/desk/atalhos") {
         const b = (await corpoJson(req)) ?? {};
-        const m = await maquinaDe(b.maquina);
         const novo = validar(b);                                   // confere tudo antes de gravar
-        const existente = (await listarAtalhos(m.broker)).find((a) => a.tipo === novo.tipo && plano(a.nome) === plano(novo.nome));
-        const id = await salvarAtalho(m.broker, { ...b, id: existente?.id });   // mesmo nome e tipo: atualiza, não duplica
+        const existente = (await listarAtalhos()).find((a) => a.tipo === novo.tipo && plano(a.nome) === plano(novo.nome));
+        const id = await salvarAtalho({ ...b, id: existente?.id });   // mesmo nome e tipo: atualiza, não duplica
         return resposta(200, { ok: true, id, atualizado: Boolean(existente) });
       }
       if (req.method === "POST" && caminho === "/api/desk/atalhos/verificar") {
         const m = await maquinaDe(((await corpoJson(req)) ?? {}).maquina);
         if (!m.online) throw new Error(`A máquina ${m.maquina} está offline (sem sinal há ${m.visto_ha_s ?? "?"} s).`);
-        return resposta(200, await verificarNaMaquina(m, await listarAtalhos(m.broker)));
+        return resposta(200, await verificarNaMaquina(m, await listarAtalhos()));
       }
       if (req.method === "DELETE") {
-        const m = await maquinaDe(consulta.get("maquina"));
-        await apagarAtalho(m.broker, caminho.slice("/api/desk/atalhos/".length));
+        await apagarAtalho(caminho.slice("/api/desk/atalhos/".length));
         return resposta(200, { ok: true });
       }
     } catch (e) {

@@ -36,7 +36,7 @@ export function instalarMaquinas(server) {
         "fechar programa, bloquear a tela, ver informações, desligar ou reiniciar. " +
         `Programas conhecidos: ${PROGRAMAS.map((p) => p.nome).join(", ")}; qualquer outro vale pelo nome ou caminho. ` +
         "Sem 'maquina': usa a única ativa, ou a resposta pede a máquina (pergunte \"Qual máquina?\" citando os nomes). " +
-        "Sites, programas, pastas e arquivos PERSONALIZADOS do usuário (os dele, que ele desenvolve ou usa) só são encontrados se ele os SALVOU: use a ação abrir_atalho (ou a ferramenta abrir_atalho); se não estiver salvo, diga que ele precisa salvar na aba Desk-Automacao_Firebase (botão Salvar). " +
+        "ANTES de dizer que não achou um site, programa, pasta ou arquivo do usuário, consulte a ferramenta listar_atalhos. Sites, programas, pastas e arquivos PERSONALIZADOS do usuário (os dele, que ele desenvolve ou usa) só são encontrados se ele os SALVOU: use a ação abrir_atalho (ou a ferramenta abrir_atalho); se não estiver salvo, diga que ele precisa salvar na aba Desk-Automacao_Firebase (botão Salvar). " +
         "desligar/reiniciar: SEMPRE pergunte antes e só então use confirmado=true.",
       inputSchema: {
         acao: z.enum(ACOES).describe("o que fazer"),
@@ -61,7 +61,8 @@ export function instalarMaquinas(server) {
     "listar_atalhos",
     {
       description:
-        "Lista os atalhos PERSONALIZADOS que o usuário salvou (sites, programas, pastas e arquivos que ele mesmo desenvolve ou usa) e, com verificar=true, " +
+        "Lista os atalhos PERSONALIZADOS que o usuário salvou (as personalizações dele: sites, programas, pastas e arquivos que ele mesmo desenvolve ou usa) e, com verificar=true, " +
+        "Use SEMPRE que ele falar de \"meus atalhos\", \"minhas personalizações\", \"meus sites\", \"minhas aplicações\" ou \"meus programas\". Não precisa de máquina ativa para listar. " +
         "confere no computador quais existem de verdade. Use para 'quais são as minhas aplicações?' ou 'minhas aplicações estão instaladas aqui?'. " +
         "Os que não existem ainda na máquina: diga que ainda não estão lá.",
       inputSchema: {
@@ -71,16 +72,16 @@ export function instalarMaquinas(server) {
     },
     async ({ maquina, verificar }) => {
       try {
-        const alvo = await escolherMaquina(maquina);
-        const lista = await listarAtalhos(alvo.broker);
+        const lista = await listarAtalhos();                     // os atalhos valem para todas as máquinas
         if (!lista.length) return texto("Não há atalhos salvos. O usuário cadastra na aba Desk-Automacao_Firebase.");
-        let achados = null;
+        let achados = null, alvo = null;
         if (verificar) {
+          alvo = await escolherMaquina(maquina);
           if (!alvo.online) return texto(`A máquina ${alvo.maquina} está offline (sem sinal há ${alvo.visto_ha_s ?? "?"} s). Avise o usuário.`, true);
           achados = await verificarNaMaquina(alvo, lista);
         }
         const marca = (a) => achados === null || achados[a.id] === null ? "" : achados[a.id] ? " ✓ existe na máquina" : " ✗ NÃO existe ainda nesta máquina";
-        return texto(`${alvo.maquina}:\n` + lista.map((a) => `- ${a.nome} [${a.tipo}] ${a.alvo}${a.argumentos ? " " + a.argumentos : ""}${marca(a)}`).join("\n"));
+        return texto((alvo ? `${alvo.maquina}:\n` : "Atalhos salvos:\n") + lista.map((a) => `- ${a.nome} [${a.tipo}] ${a.alvo}${a.argumentos ? " " + a.argumentos : ""}${marca(a)}`).join("\n"));
       } catch (e) { return texto(String(e.message || e), true); }
     }
   );

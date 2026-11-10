@@ -56,4 +56,5 @@ Se o VS Code não achar o JDK: `$env:JAVA_HOME = 'C:\Program Files\Microsoft\jdk
 | `JAVA_HOME is not set` | defina como no passo 4 |
 | 1ª compilação demora | baixa o compilador e as bibliotecas; as próximas são rápidas |
 | APK não instala por cima | desinstale o antigo no celular (assinatura de debug diferente em outro PC) |
+| O editor oferece "atualizar o Gradle" ou o `gradle-wrapper.properties` virou 9.x | **não aceite**: o plugin do app (8.5.2) é do Gradle 8.x. Volte com `git checkout -- aplicacao_android/gradle aplicacao_android/gradlew aplicacao_android/gradlew.bat` (fixo em Gradle 8.7) |
 | Mudei algo e quebrou | `.\gradlew.bat clean` e compile de novo; os testes dizem onde |

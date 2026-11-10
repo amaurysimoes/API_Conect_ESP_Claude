@@ -10,6 +10,7 @@ import argparse
 import ctypes
 import logging
 import logging.handlers
+import os
 import sys
 import threading
 import time
@@ -22,7 +23,7 @@ NOME_REGISTRO = "AutomacaoIOTAmaury-Agente"
 
 
 def uma_instancia():
-    ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\AgenteLeveAutomacaoIOTAmaury")
+    ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\" + os.environ.get("AGENTE_MUTEX", "AgenteLeveAutomacaoIOTAmaury"))   # AGENTE_MUTEX só serve para os testes rodarem ao lado do agente de verdade
     return ctypes.windll.kernel32.GetLastError() != 183  # 183 = já existe outro rodando
 
 
