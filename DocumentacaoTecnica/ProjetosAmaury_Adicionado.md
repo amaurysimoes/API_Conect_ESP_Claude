@@ -76,7 +76,7 @@ Agente leve na bandeja do Windows: o Claude (ou a aba **Desk-Automacao_Firebase*
 
 - Pasta: `aplicacao_desk_agente/` · passo a passo: `aplicacao_desk_agente/Instrucoes.md`.
 - Servidor (`aplicacao_desk_agente/agente`): variável `AGENTE_CHAVE` no Render.
-- PC (`aplicacao_desk_agente/agente_python`): `Render_Agente.exe`, ícone verde = conectado.
+- PC (`aplicacao_desk_agente/agente_python`): Windows `dist\Windows\Render_Agente.exe` e Linux `dist/Linux/Render_Agente`; ícone verde = conectado.
 - Claude: "qual máquina está ativa?", "abre o Excel".
 - Atalhos: nos cards "Abrir" use **Salvar** (nome + caminho); a IA abre pelo nome ("abre meu sistema de estoque"). Só o que está salvo a IA encontra.
 - Testar: `node aplicacao_desk_agente/agente/teste.mjs`.

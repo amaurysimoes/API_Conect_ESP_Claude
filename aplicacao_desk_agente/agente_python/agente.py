@@ -11,10 +11,14 @@ import hmac
 import json
 import logging
 import threading
+import sys
 import time
 from collections import OrderedDict
 
-import acoes
+if sys.platform == "win32":
+    import acoes
+else:
+    import acoes_linux as acoes   # mesmos nomes de ação, feitos para Linux
 from firebase_rest import SERVER_TS, requisitar
 
 log = logging.getLogger("agente")

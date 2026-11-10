@@ -15,7 +15,9 @@ Envia um resumo da máquina (CPU, memória, disco) e obedece só comandos **assi
 Nunca cole a chave em chat nem no git.
 
 ## 2. Instalar na máquina
-**Com o .exe:** abra `agente_python\dist\Render_Agente.exe`. Uma janelinha pede:
+**Windows:** abra `agente_python\dist\Windows\Render_Agente.exe`.
+**Linux:** `chmod +x agente_python/dist/Linux/Render_Agente` e rode `./Render_Agente` (precisa de `xdg-utils` para abrir sites, pastas e arquivos).
+Uma janelinha pede:
 nome da máquina (ex.: `DEV_ENG`), broker (`AMAURY_01`) e a chave (o `MCP_TOKEN`). Salvar e iniciar. (Janela em modo escuro.)
 
 **Com Python:**
@@ -28,7 +30,8 @@ cd agente\agente_python
 Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Firebase).
 
 ## 3. Iniciar com o Windows
-`Render_Agente.exe --iniciar-com-windows` (desfazer: `--nao-iniciar-com-windows`).
+`Render_Agente.exe --iniciar-com-windows` (desfazer: `--nao-iniciar-com-windows`). No Linux o mesmo comando cria o início automático da sessão (`~/.config/autostart`).
+Se mudar o `.exe` de lugar, rode o comando de novo (o Windows guarda o caminho).
 
 ## 4. Usar
 - **Site:** aba **Desk-Automacao_Firebase** → escolha a máquina → toque no card. Cards de **Sistema** (informações, bloquear, desligar*, reiniciar*, cancelar), de **Abrir** (site, pasta, arquivo, qualquer programa, fechar programa) e os 20 programas, cada um com botão "fechar". Só ficam ativos os cards que o agente da máquina suporta.
@@ -59,7 +62,10 @@ O que for aberto **vem para a frente** e ganha o foco (o resultado diz "na frent
 
 ## 7. Arquivos
 - Configuração: `%LOCALAPPDATA%\AutomacaoIOTAmaury-Agente\config.json` · log: `agente.log` na mesma pasta.
-- Gerar o .exe: `.\build_windows.ps1` (em `agente_python`) → `dist\Render_Agente.exe`.
+- Gerar o Windows: `.\build_windows.ps1` (em `agente_python`) → `dist\Windows\Render_Agente.exe`. Feche o agente antes se ele roda dessa pasta.
+- Gerar o Linux (pelo WSL no Windows): `wsl -d Ubuntu-24.04 -- bash /mnt/c/Dev-AHS/api_conect/aplicacao_desk_agente/agente_python/build_linux.sh` → `dist/Linux/Render_Agente`. O script instala o que falta no Ubuntu (`python3-tk`, `binutils`, `xdg-utils`) se você for root.
+- Testar o Linux (sem tocar no seu Firebase): `teste_linux.py` (veja o topo do arquivo).
+- No Linux o agente faz: info, abrir programa/site/pasta/arquivo, fechar programa, bloquear tela, desligar/reiniciar e verificar caminhos. **Não** traz a janela para a frente (isso é só do Windows) e os programas do Windows (Word, Excel...) não existem lá: a resposta é "ainda não existe nesta máquina".
 - Testar sem gastar nada: `node aplicacao_desk_agente/agente/teste.mjs` (na pasta `api_conect`; abre e fecha o Bloco de Notas).
 
 ## 8. Problemas

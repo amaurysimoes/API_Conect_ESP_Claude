@@ -2,6 +2,7 @@
 import json
 import os
 import socket
+import sys
 from pathlib import Path
 
 PADRAO = {
@@ -13,7 +14,11 @@ PADRAO = {
 
 
 def pasta_dados():
-    return Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AutomacaoIOTAmaury-Agente"
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home()))
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+    return base / "AutomacaoIOTAmaury-Agente"
 
 
 def arquivo(caminho=None):
@@ -42,7 +47,10 @@ def completa(cfg):
 
 def perguntar(cfg):
     """Janelinha da primeira execução. Devolve a config preenchida, ou None se o usuário fechar."""
-    import tkinter as tk
+    try:
+        import tkinter as tk
+    except ImportError:                                  # Linux sem python3-tk: pergunta no terminal
+        return _perguntar_terminal(cfg)
 
     resultado = {}
     import ctypes
@@ -83,3 +91,15 @@ def perguntar(cfg):
     if not resultado:
         return None
     return {**cfg, **resultado}
+
+
+def _perguntar_terminal(cfg):
+    """Sem janela (sem tkinter): pergunta no terminal. Sem terminal, avisa como configurar e sai."""
+    if not (sys.stdin and sys.stdin.isatty()):
+        sys.stderr.write(f"Agente sem configuração. Crie {arquivo()} com maquina, broker e chave, ou rode em um terminal.\n")
+        return None
+    def ler(rotulo, atual):
+        v = input(f"{rotulo} [{atual}]: ").strip()
+        return v or atual
+    return {**cfg, "maquina": ler("Nome desta máquina", cfg.get("maquina", "")), "broker": ler("Broker", cfg.get("broker", "")),
+            "chave": ler("Chave (o MCP_TOKEN do Render)", cfg.get("chave", ""))}

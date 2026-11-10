@@ -11,6 +11,7 @@ import ctypes
 import logging
 import logging.handlers
 import os
+import pathlib
 import sys
 import threading
 import time
@@ -22,12 +23,36 @@ from agente import Agente
 NOME_REGISTRO = "AutomacaoIOTAmaury-Agente"
 
 
+_trava_aberta = None   # Linux: o arquivo de trava precisa ficar aberto enquanto o agente roda
+
+
 def uma_instancia():
-    ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\" + os.environ.get("AGENTE_MUTEX", "AgenteLeveAutomacaoIOTAmaury"))   # AGENTE_MUTEX só serve para os testes rodarem ao lado do agente de verdade
-    return ctypes.windll.kernel32.GetLastError() != 183  # 183 = já existe outro rodando
+    nome = os.environ.get("AGENTE_MUTEX", "AgenteLeveAutomacaoIOTAmaury")   # AGENTE_MUTEX só serve para os testes rodarem ao lado do agente de verdade
+    if sys.platform == "win32":
+        ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\" + nome)
+        return ctypes.windll.kernel32.GetLastError() != 183  # 183 = já existe outro rodando
+    import fcntl
+    import tempfile
+    global _trava_aberta
+    _trava_aberta = open(os.path.join(tempfile.gettempdir(), f"{nome}.{os.getuid()}.lock"), "w")
+    try:
+        fcntl.flock(_trava_aberta, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return False
+    return True
 
 
 def iniciar_com_windows(ligar):
+    if sys.platform != "win32":                       # Linux: atalho de início automático da sessão gráfica
+        pasta = pathlib.Path.home() / ".config" / "autostart"
+        arq = pasta / "Render_Agente.desktop"
+        if ligar:
+            pasta.mkdir(parents=True, exist_ok=True)
+            exe = sys.executable if getattr(sys, "frozen", False) else f"{sys.executable} {os.path.abspath(__file__)}"
+            arq.write_text(f"[Desktop Entry]\nType=Application\nName=Render Agente\nExec={exe}\nX-GNOME-Autostart-enabled=true\n", encoding="utf-8")
+        elif arq.exists():
+            arq.unlink()
+        return
     import winreg
     chave = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
     if ligar:
@@ -105,7 +130,14 @@ def main():
             while True:
                 time.sleep(1)
         else:
-            bandeja(agente)
+            try:
+                bandeja(agente)
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:                    # sem bandeja (ex.: Linux sem ambiente gráfico): segue sem ícone
+                logging.getLogger("agente").warning("Sem bandeja (%s): rodando sem ícone", e)
+                while True:
+                    time.sleep(1)
     except KeyboardInterrupt:
         pass
     finally:
