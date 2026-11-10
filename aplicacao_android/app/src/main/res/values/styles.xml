@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Janela pequena (diálogo) e escura. Theme.Material existe desde o Android 5.0 (API 21). -->
+    <style name="AppTema" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowBackground">@color/fundo</item>
+        <item name="android:colorBackground">@color/fundo</item>
+        <item name="android:textColorPrimary">@color/texto</item>
+        <item name="android:colorAccent">@color/azul</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+</resources>

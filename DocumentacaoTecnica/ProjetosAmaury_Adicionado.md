@@ -82,6 +82,17 @@ Agente leve na bandeja do Windows: o Claude (ou a aba **Desk-Automacao_Firebase*
 
 ---
 
+# Projeto android:
+
+App `Agente_Android.apk`: o Claude vê os apps do celular e abre apps e sites nele.
+
+- Pasta: `aplicacao_android/` · uso: `aplicacao_android/Instrucoes.md` · criar do zero: `DocumentacaoTecnica/CriacaoAppAndroid.md`.
+- Instalar o APK, informar nome, broker e chave (`MCP_TOKEN`), liberar as 3 permissões.
+- Claude: "quais apps eu tenho?", "abre o WhatsApp", "abre google.com no Firefox".
+- Testar: `node aplicacao_android/servidor/teste.mjs` e `.\gradlew.bat testDebugUnitTest`.
+
+---
+
 # Próximo projeto:
 
 _(escrever aqui quando começarmos o próximo)_
