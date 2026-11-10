@@ -12,7 +12,8 @@ faltam=""
 python3 -c "import tkinter" 2>/dev/null || faltam="$faltam python3-tk"
 command -v objdump >/dev/null || faltam="$faltam binutils"
 command -v xdg-open >/dev/null || faltam="$faltam xdg-utils"
-python3 -c "import venv" 2>/dev/null || faltam="$faltam python3-venv"
+python3 -m venv /tmp/_teste_venv >/dev/null 2>&1 || faltam="$faltam python3-venv"   # no Ubuntu 22.04 o módulo existe mas falta o pacote
+rm -rf /tmp/_teste_venv
 if [ -n "$faltam" ]; then
   if [ "$(id -u)" = "0" ]; then apt-get update -qq && apt-get install -y -qq $faltam
   else echo "Faltam pacotes:$faltam  ->  sudo apt install$faltam"; exit 1; fi
