@@ -1,69 +1,61 @@
-# Agente Android — instruções de uso
+# Agente Android
 
-App escuro e pequeno: uma janela só com o ícone. **Pontinho verde = conectado, laranja = ligando, vermelho = sem conexão.**
-Fica em segundo plano, avisa a IA o que há no celular e obedece só comandos **assinados**.
-Funciona do **Android 5.0 em diante**. Fase de testes.
+Janela escura só com o ícone. **Pontinho: verde = conectado, laranja = ligando, vermelho = sem conexão.**
+Roda em segundo plano, informa os apps ao Claude e obedece só comandos assinados. Android 5.0+. Fase de testes.
 
-- `api_conect.apk` → o app (esta pasta).
-- `app/` → código do app · `servidor/` → ferramentas do Claude (Render).
+- `api_conect.apk` → o app · `app/` → código · `servidor/` → ferramentas do Claude.
 
 ## 1. Instalar
-1. Passe o `api_conect.apk` para o celular (cabo, nuvem, e-mail).
-2. Abra o arquivo. Se pedir, permita **instalar apps de fontes desconhecidas** para o app que você usou para abrir.
-3. Instale e abra **Agente Android**.
+1. Passar o `api_conect.apk` para o celular (cabo, nuvem, e-mail).
+2. Abrir o arquivo; permitir **fontes desconhecidas** se pedir.
+3. Abrir **Agente Android**.
 
-**Versão de 10/11/2026 (13:41, compilada no Linux):** assinada com outra chave. Antes de instalar, **desinstale o Agente Android antigo** (senão dá "conflito de pacote") e configure de novo.
+Versão de 10/11/2026 13:41 (assinada com outra chave): **desinstalar o app antigo antes** e configurar de novo.
+Por cabo: `C:\Android\Sdk\platform-tools\adb.exe install -r api_conect.apk`
 
-(Por cabo: `adb install -r api_conect.apk`; o `adb` está em `C:\Android\Sdk\platform-tools`.)
-
-## 2. Configurar (só na primeira vez)
-Janelinha escura pede:
-- **Nome do celular:** só letras, números, `-` e `_` (ex.: `Pixel_Amaury`).
+## 2. Configurar
+Janelinha escura:
+- **Nome do celular:** letras, números, `-`, `_` (ex.: `Pixel_Amaury`).
 - **Broker:** `AMAURY_01`.
-- **Chave:** o `MCP_TOKEN` do Render (a mesma do agente do PC). Não cole em chat nem no git.
+- **Chave:** `MCP_TOKEN` do Render. Nunca no chat nem no git.
 
-Depois o app pede 3 permissões, uma de cada vez:
-1. **Notificações** (Android 13+): só a notificação mínima do serviço.
-2. **Exibir sobre outros apps:** é o que deixa a IA **abrir apps e sites** com o app em segundo plano.
-3. **Sem restrição de bateria:** evita o Android matar o agente.
+Permissões (uma por vez):
+1. **Notificações** (Android 13+).
+2. **Exibir sobre outros apps** (abrir apps e sites em segundo plano).
+3. **Sem restrição de bateria**.
 
-O que faltar é pedido de novo **toda vez que abrir o app**, e a IA avisa "BLOQUEIO: falta a permissão ...". O app mantém o processador e o Wi-Fi acordados com a tela apagada. Tela travada com PIN/senha: nenhum app abre por cima; tire a senha se quiser abrir com ele travado.
+- O que faltar é pedido a cada abertura do app; a IA avisa "BLOQUEIO: falta a permissão ...".
+- Com a tela apagada o app mantém CPU e Wi-Fi acordados.
+- Tela travada com PIN/senha: nenhum app abre por cima.
+- **Toque no ícone:** Meus atalhos. **Toque longo:** nome, broker e chave.
 
-- **Toque no ícone:** abre **Meus atalhos** (sites e apps marcados).
-- **Toque longo no ícone:** trocar nome, broker e chave.
+## 3. Meus atalhos
+- **Sites:** nome + endereço → **Salvar site** (quantos quiser; mesmo nome troca o endereço).
+- **Apps marcados:** **Marcar os apps padrão do Android** (navegador, câmera, telefone, mensagens, configurações, contatos, galeria, relógio, agenda, e-mail, mapas, calculadora) e **Escolher outros apps…**.
+- Pela IA só se acha o que está salvo. Apps comuns abrem pelo nome; em nomes parecidos, o marcado ganha.
+- Tudo vai cifrado para o Firebase.
 
-## 2.1 Meus atalhos (para o Claude achar pelo nome)
-Toque no ícone. Tela escura com:
-- **Sites:** nome + endereço → **Salvar site**. Salve quantos quiser (5 ou mais). Mesmo nome troca o endereço.
-- **Apps marcados:** **Marcar os apps padrão do Android** (navegador, câmera, telefone, mensagens, configurações, contatos, galeria, relógio, agenda, e-mail, mapas, calculadora) e **Escolher outros apps…** (os do sistema aparecem primeiro, com "(padrão)").
-
-**Pelo Claude, o que é seu só é encontrado se estiver salvo aqui.** Apps comuns ele abre pelo nome mesmo sem marcar; se dois apps têm nome parecido (ex.: duas câmeras), o **marcado** ganha.
-Tudo vai cifrado para o Firebase.
-
-## 3. Usar (no Claude)
+## 4. Claude
 - "Meu celular está ativo?" · "Quais apps eu tenho?" · "Tenho o Spotify?" · "Quais navegadores tenho?"
-- "Abre o WhatsApp no celular" · "Abre o site google.com no Firefox" · "Volta para a tela inicial"
-- "Quais sites eu salvei?" · "Abre o meu banco" · "Abre meu sistema de estoque" · "Quais são meus apps marcados?"
-- Com mais de um celular, o Claude pergunta "Qual celular?".
+- "Abre o WhatsApp" · "Abre google.com no Firefox" · "Volta para a tela inicial"
+- "Quais sites eu salvei?" · "Abre o meu banco" · "Quais são meus apps marcados?"
+- Vários celulares: o Claude pergunta "Qual celular?".
 
-## 4. Ações
-`info`, `listar_apps` (atualiza a lista), `abrir_app` (pelo nome ou pacote), `abrir_url` (com navegador à escolha), `voltar_inicio`, `listar_atalhos`, `abrir_atalho` (site salvo ou app marcado).
-A lista de apps vai **cifrada** para o Firebase (o banco é aberto): só o servidor lê.
+Ações: `info`, `listar_apps`, `abrir_app`, `abrir_url`, `voltar_inicio`, `listar_atalhos`, `abrir_atalho`.
 
 ## 5. Problemas
 | Sintoma | Causa |
 |---|---|
-| Pontinho vermelho | sem internet, ou chave/broker errados (toque longo no ícone) |
-| Claude diz "offline" | app fechado à força ou o fabricante limitou a bateria (Xiaomi/Samsung/Huawei: libere o app em "Bateria" e "Início automático") |
-| "falta a permissão Exibir sobre outros apps" | permitir em Configurações → Apps → Agente Android |
+| Pontinho vermelho | sem internet, ou chave/broker errados |
+| Claude diz "offline" | app fechado ou bateria limitada (Xiaomi/Samsung/Huawei: liberar em "Bateria" e "Início automático") |
+| "falta a permissão Exibir sobre outros apps" | Configurações → Apps → Agente Android |
 | "sem resposta" | chave diferente da do Render |
 | "fora da validade" | relógio do celular errado |
-| Render demora ~30 s | plano grátis dorme; só esperar |
+| Render demora ~30 s | plano grátis acordando |
 
-## 6. Limites desta fase
-- **Ainda não foi testado em aparelho de verdade** (só no PC: assinatura, criptografia e leitura dos comandos conferem com o servidor). Se algo falhar no celular, me diga o modelo e a versão do Android.
-- Não fecha apps, não bloqueia a tela e não usa Android sem a permissão de sobrepor (limite do Android).
+## 6. Limites
+- Não testado em aparelho real: só no PC (assinatura, criptografia e comandos conferem com o servidor).
+- Não fecha apps nem bloqueia a tela.
 
-## 7. Refazer ou ajustar o app
-- Criar do zero: `DocumentacaoTecnica/CriacaoAppAndroid.md`.
-- Alterar, compilar, Android Studio e VS Code: `Kotlin.md` (esta pasta).
+## 7. Refazer e ajustar
+`DocumentacaoTecnica/CriacaoAppAndroid.md` · `Kotlin.md`
