@@ -31,7 +31,7 @@ Feche o `AgenteIOT` antigo nessa máquina (os dois usam o mesmo caminho do Fireb
 `Render_Agente.exe --iniciar-com-windows` (desfazer: `--nao-iniciar-com-windows`).
 
 ## 4. Usar
-- **Site:** aba **Desk-Automacao_Firebase** → escolha a máquina → toque no programa (20 atalhos).
+- **Site:** aba **Desk-Automacao_Firebase** → escolha a máquina → toque no card. Cards de **Sistema** (informações, bloquear, desligar*, reiniciar*, cancelar), de **Abrir** (site, pasta, arquivo, qualquer programa, fechar programa) e os 20 programas, cada um com botão "fechar". Só ficam ativos os cards que o agente da máquina suporta.
 - **Claude:** "qual máquina está ativa?", "abre o Excel na DEV_ENG", "fecha o Word", "bloqueia a tela".
   Desligar/reiniciar: o Claude pergunta antes.
 
