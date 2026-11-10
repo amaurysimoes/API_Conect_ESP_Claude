@@ -53,6 +53,16 @@ export async function lerApps(alvo) {
   return { em: dados.em, apps: dados.apps ?? [] };
 }
 
+// Atalhos salvos no celular (tela "Meus atalhos"): sites [{n, u}] e apps marcados [pacote]. Também cifrados.
+export async function lerAtalhos(alvo) {
+  const k = chave();
+  if (!k) throw new Error("Defina AGENTE_CHAVE (ou MCP_TOKEN) no servidor.");
+  const no = await rest("GET", `brokers/${alvo.broker}/android/${alvo.dispositivo}/atalhos`);
+  if (!no?.dados) return { sites: [], apps: [] };
+  const d = JSON.parse(decifrar(no.dados, k));
+  return { sites: d.sites ?? [], apps: d.apps ?? [] };
+}
+
 export async function enviarComando(alvo, acao, parametros = {}) {
   const k = chave();
   if (!k) throw new Error("Defina AGENTE_CHAVE (ou MCP_TOKEN) no servidor.");

@@ -21,7 +21,8 @@ object BuscaApps {
     fun norm(s: String): String =
         Normalizer.normalize(s, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase().trim()
 
-    fun achar(apps: List<AppInfo>, consulta: String): Resultado {
+    /** [preferidos] = pacotes marcados pelo usuário: se o empate tiver exatamente um marcado, é ele. */
+    fun achar(apps: List<AppInfo>, consulta: String, preferidos: Set<String> = emptySet()): Resultado {
         val q = norm(consulta)
         if (q.isEmpty()) return Resultado.Nenhum
         val niveis: List<(AppInfo) -> Boolean> = listOf(
@@ -32,7 +33,10 @@ object BuscaApps {
         for (regra in niveis) {
             val achados = apps.filter(regra)
             if (achados.size == 1) return Resultado.Achou(achados[0])
-            if (achados.size > 1) return Resultado.Varios(achados)
+            if (achados.size > 1) {
+                val marcados = achados.filter { it.pacote in preferidos }
+                return if (marcados.size == 1) Resultado.Achou(marcados[0]) else Resultado.Varios(achados)
+            }
         }
         return Resultado.Nenhum
     }

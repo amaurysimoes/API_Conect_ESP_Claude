@@ -37,11 +37,20 @@ const APPS = [
   { n: "Firefox", p: "org.mozilla.firefox", s: false, b: true, v: "121" },
   { n: "Câmera", p: "com.sec.camera", s: true, b: false, v: "1" },
 ];
+const ATALHOS = {
+  sites: [
+    { n: "Banco", u: "https://www.meubanco.com.br" }, { n: "Google", u: "https://www.google.com" },
+    { n: "Notícias", u: "https://g1.globo.com" }, { n: "Meu Sistema de Estoque", u: "https://estoque.empresa.com.br/painel" },
+    { n: "YouTube", u: "https://www.youtube.com" },
+  ],
+  apps: ["com.android.chrome", "com.sec.camera"],
+};
 const celular = () => banco.brokers.TESTE.android.PIXEL_TESTE;
 banco.brokers = { TESTE: { android: { PIXEL_TESTE: {
-  status: { online: true, tipo: "android", visto_em: Date.now(), acoes: ["info", "listar_apps", "abrir_app", "abrir_url", "voltar_inicio"],
+  status: { online: true, tipo: "android", visto_em: Date.now(), acoes: ["info", "listar_apps", "abrir_app", "abrir_url", "voltar_inicio", "listar_atalhos", "abrir_atalho"],
     resumo: { modelo: "Google Pixel", android: "14 (API 34)", bateria: 80, carregando: false, tela: true, rede: "WIFI", livre_gb: 20.5 } },
   apps: { v: 1, dados: cifrar(JSON.stringify({ em: Date.now(), apps: APPS }), CHAVE) },
+  atalhos: { v: 1, dados: cifrar(JSON.stringify(ATALHOS), CHAVE) },
 } } } };
 let vivo = true;
 const batimento = setInterval(() => { celular().status.visto_em = Date.now(); }, 1000);
@@ -52,7 +61,9 @@ const obedece = (async () => {
       if (c.assinatura !== assinar(CHAVE, id, c.acao, c.parametros, c.ts)) continue;   // não responde a quem não tem a chave
       const nome = c.parametros.app && APPS.find((a) => a.n.toLowerCase().includes(String(c.parametros.app).toLowerCase()));
       celular().resultado ??= {};
-      celular().resultado[id] = c.acao === "abrir_app" ? (nome ? { ok: true, texto: `aberto: ${nome.n}` } : { ok: false, texto: "nenhum app parecido" })
+      const site = c.acao === "abrir_atalho" && ATALHOS.sites.find((x) => x.n.toLowerCase().includes(String(c.parametros.atalho).toLowerCase()));
+      celular().resultado[id] = c.acao === "abrir_atalho" ? (site ? { ok: true, texto: `aberto no navegador padrão: ${site.u}` } : { ok: false, texto: "nenhum atalho salvo parecido" })
+        : c.acao === "abrir_app" ? (nome ? { ok: true, texto: `aberto: ${nome.n}` } : { ok: false, texto: "nenhum app parecido" })
         : c.acao === "abrir_url" ? { ok: true, texto: `aberto no ${c.parametros.navegador || "navegador padrão"}: ${c.parametros.url}` }
           : { ok: true, texto: c.acao };
     }
@@ -90,6 +101,20 @@ try {
   assert.ok(url.includes("aberto no firefox: www.exemplo.com"), url);
   assert.ok((await chama("listar_android", {})).includes("PIXEL_TESTE: ATIVO"));
   console.log("OK Claude (MCP): listar, apps (busca e navegadores), abrir url no navegador escolhido");
+
+  // ---- atalhos: sites salvos (5) e apps marcados no celular ----
+  const atalhos = await chama("atalhos_android", {});
+  assert.ok(atalhos.includes("Sites salvos (5)") && atalhos.includes("Meu Sistema de Estoque: https://estoque.empresa.com.br/painel"), atalhos);
+  assert.ok(atalhos.includes("Apps marcados (2)") && atalhos.includes("Chrome") && atalhos.includes("Câmera"), atalhos);
+  const marcados = await chama("apps_android", { tipo: "marcados" });
+  assert.ok(marcados.includes("Chrome (com.android.chrome)") && marcados.includes("[marcado]") && !marcados.includes("WhatsApp"), marcados);
+  const abreBanco = await chama("executar_no_android", { acao: "abrir_atalho", atalho: "banco" });
+  assert.ok(abreBanco.includes("aberto no navegador padrão: https://www.meubanco.com.br"), abreBanco);
+  const naoSalvo = await chama("executar_no_android", { acao: "abrir_atalho", atalho: "spotify" });
+  assert.ok(naoSalvo.includes("nenhum atalho salvo parecido"), naoSalvo);
+  assert.ok(!JSON.stringify(banco).includes("meubanco") && !JSON.stringify(banco).includes("estoque.empresa"), "sites salvos NÃO podem estar em texto puro no Firebase");
+  assert.ok((await mcp({ jsonrpc: "2.0", id: 9, method: "tools/list" })).includes('"atalhos_android"'));
+  console.log("OK atalhos do celular: 5 sites + apps marcados (cifrados), abrir por nome, não salvo avisa");
 
   // celular sem sinal: o servidor avisa e não manda nada
   clearInterval(batimento); celular().status.visto_em = Date.now() - 5 * 60_000;

@@ -89,6 +89,7 @@ App `api_conect.apk`: o Claude vê os apps do celular e abre apps e sites nele.
 
 - Pasta: `aplicacao_android/` · uso: `aplicacao_android/Instrucoes.md` · criar do zero: `DocumentacaoTecnica/CriacaoAppAndroid.md`.
 - Instalar o APK, informar nome, broker e chave (`MCP_TOKEN`), liberar as 3 permissões.
+- Toque no ícone: **Meus atalhos** (salvar sites; marcar apps, inclusive os padrão do Android). Editar o app: `aplicacao_android/Kotlin.md`.
 - Claude: "quais apps eu tenho?", "abre o WhatsApp", "abre google.com no Firefox".
 - Testar: `node aplicacao_android/servidor/teste.mjs` e `.\gradlew.bat testDebugUnitTest`.
 

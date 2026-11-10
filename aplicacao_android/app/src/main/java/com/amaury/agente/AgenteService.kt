@@ -41,7 +41,7 @@ class AgenteService : Service() {
         Estado.rodando = true
         thread(name = "agente-comandos") { laçoComandos() }
         thread(name = "agente-status") { laçoStatus() }
-        thread(name = "agente-apps") { publicarApps() }
+        thread(name = "agente-apps") { publicarApps(); Atalhos.publicar(this) }
         escutarPacotes()
         return START_STICKY
     }

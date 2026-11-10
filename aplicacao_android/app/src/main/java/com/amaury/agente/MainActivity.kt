@@ -46,7 +46,8 @@ class MainActivity : Activity() {
         val icone = ImageView(this).apply {
             setImageResource(R.drawable.icone)
             scaleType = ImageView.ScaleType.FIT_CENTER
-            setOnLongClickListener { configurar(false); true }
+            setOnClickListener { startActivity(Intent(this@MainActivity, AtalhosActivity::class.java)) }   // toque: Meus atalhos
+            setOnLongClickListener { configurar(false); true }                                          // toque longo: configuração
         }
         raiz.addView(icone, FrameLayout.LayoutParams(tamanho, tamanho, Gravity.CENTER))
         ponto = View(this).apply { background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setStroke((2 * dp).toInt(), Color.WHITE) } }

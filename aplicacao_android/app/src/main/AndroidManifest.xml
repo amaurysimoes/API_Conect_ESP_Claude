@@ -41,6 +41,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AtalhosActivity"
+            android:exported="false"
+            android:theme="@style/AppTemaTela" />
+
         <service
             android:name=".AgenteService"
             android:exported="false"

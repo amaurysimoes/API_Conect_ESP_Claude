@@ -8,4 +8,11 @@
         <item name="android:colorAccent">@color/azul</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
+    <!-- Tela cheia escura (Meus atalhos) -->
+    <style name="AppTemaTela" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fundo</item>
+        <item name="android:colorBackground">@color/fundo</item>
+        <item name="android:textColorPrimary">@color/texto</item>
+        <item name="android:colorAccent">@color/azul</item>
+    </style>
 </resources>

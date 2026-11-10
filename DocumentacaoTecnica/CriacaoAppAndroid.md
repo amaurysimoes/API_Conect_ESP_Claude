@@ -1,7 +1,7 @@
 # Criar o app Android do zero (sem ajuda)
 
 Resultado: `aplicacao_android/api_conect.apk`. Kotlin puro, **sem bibliotecas**, Android 5.0+ (minSdk 21, target 34).
-PowerShell no Windows. Instruções de uso do app: `aplicacao_android/Instrucoes.md`.
+PowerShell no Windows. Instruções de uso do app: `aplicacao_android/Instrucoes.md` · editar e compilar no Android Studio/VS Code: `aplicacao_android/Kotlin.md`.
 
 ## 1. Ferramentas (uma vez)
 Precisa do **JDK 17 ou maior** (`java -version`; aqui o 21). Pasta para tudo: `C:\Android`.
@@ -45,12 +45,13 @@ Versões: Gradle 8.7 · plugin Android 8.5.2 · Kotlin 1.9.24. Em `local.propert
 | `AgenteService.kt` | serviço em primeiro plano: ouve comandos, grava `status` a cada 15 s e a lista de apps; liga no boot |
 | `MainActivity.kt` | janelinha escura só com o ícone + pontinho de status; configuração e permissões |
 | `Config.kt` | dados salvos no celular |
+| `Atalhos.kt` · `AtalhosActivity.kt` · `Padroes.kt` | tela Meus atalhos: sites salvos, apps marcados e descoberta dos apps padrão do Android (cifrados no Firebase) |
 | `servidor/*.js` | `listar_android`, `apps_android`, `executar_no_android` para o Claude |
 
 Caminho no Firebase: `brokers/<broker>/android/<celular>/{status,comandos,resultado,apps}`.
 
 ## 4. Ícone
-Fonte: `img/circuito-azul.svg` → `img/icone.png` (veja `CLAUDE.md`). Gerar os tamanhos do app com Pillow (`mipmap-*`: ícone, primeiro plano adaptativo; `drawable-*/ic_stat.png`: silhueta branca da notificação; `drawable-nodpi/icone.png`).
+Fonte: `img/circuito-azul.svg` → `img/icone.png` (veja `CLAUDE.md`). Gerar todos os tamanhos do app com `aplicacao_desk_agente\agente_python\.venv\Scripts\python.exe img\gerar_icones.py` (usa Pillow; cria `mipmap-*`, `drawable-*/ic_stat.png` e `drawable-nodpi/icone.png`).
 
 ## 5. Compilar e testar
 ```powershell

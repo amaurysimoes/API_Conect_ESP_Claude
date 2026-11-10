@@ -21,7 +21,7 @@ data class Resultado(val ok: Boolean, val texto: String)
 
 /** O que o celular sabe fazer quando mandamos. O nome de cada ação é o mesmo que o servidor usa. */
 object Acoes {
-    val SUPORTADAS = listOf("info", "listar_apps", "abrir_app", "abrir_url", "voltar_inicio")
+    val SUPORTADAS = listOf("info", "listar_apps", "abrir_app", "abrir_url", "voltar_inicio", "listar_atalhos", "abrir_atalho")
 
     fun executar(ctx: Context, acao: String, p: Map<String, Any?>): Resultado = try {
         when (acao) {
@@ -30,6 +30,8 @@ object Acoes {
             "abrir_app" -> abrirApp(ctx, texto(p, "app"))
             "abrir_url" -> abrirUrl(ctx, texto(p, "url"), p["navegador"]?.toString()?.trim().orEmpty())
             "voltar_inicio" -> voltarInicio(ctx)
+            "listar_atalhos" -> listarAtalhos(ctx)
+            "abrir_atalho" -> abrirAtalho(ctx, texto(p, "atalho"))
             else -> Resultado(false, "ação desconhecida: $acao")
         }
     } catch (e: IllegalArgumentException) {
@@ -85,15 +87,44 @@ object Acoes {
 
     private fun abrirApp(ctx: Context, consulta: String): Resultado {
         if (semPermissaoDeAbrir(ctx)) return Resultado(false, AVISO_PERMISSAO)
-        return when (val r = BuscaApps.achar(apps(ctx), consulta)) {
+        return when (val r = BuscaApps.achar(apps(ctx), consulta, Atalhos.ler(ctx).apps)) {
             is BuscaApps.Resultado.Nenhum -> Resultado(false, "nenhum app parecido com \"$consulta\" (use listar_apps)")
             is BuscaApps.Resultado.Varios -> Resultado(false, "\"$consulta\" combina com vários: ${r.apps.take(6).joinToString(", ") { it.nome }}. Diga qual.")
-            is BuscaApps.Resultado.Achou -> {
-                val i = ctx.packageManager.getLaunchIntentForPackage(r.app.pacote)
-                    ?: return Resultado(false, "${r.app.nome} não pode ser aberto")
-                ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                Resultado(true, "aberto: ${r.app.nome}")
-            }
+            is BuscaApps.Resultado.Achou -> abrirPacote(ctx, r.app)
+        }
+    }
+
+    private fun abrirPacote(ctx: Context, app: AppInfo): Resultado {
+        val i = ctx.packageManager.getLaunchIntentForPackage(app.pacote) ?: return Resultado(false, "${app.nome} não pode ser aberto")
+        ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        return Resultado(true, "aberto: ${app.nome}")
+    }
+
+    // ---------- atalhos salvos pelo usuário (sites e apps marcados) ----------
+    private fun listarAtalhos(ctx: Context): Resultado {
+        val meus = Atalhos.ler(ctx)
+        Atalhos.publicar(ctx)
+        val marcados = apps(ctx).filter { it.pacote in meus.apps }
+        val sites = if (meus.sites.isEmpty()) "nenhum" else meus.sites.joinToString("; ") { "${it.nome} (${it.url})" }
+        val appsTxt = if (marcados.isEmpty()) "nenhum" else marcados.joinToString(", ") { it.nome }
+        return Resultado(true, "Sites: $sites. Apps marcados: $appsTxt")
+    }
+
+    /** Abre um site salvo ou um app marcado pelo nome. Só acha o que o usuário salvou na tela Meus atalhos. */
+    private fun abrirAtalho(ctx: Context, nome: String): Resultado {
+        val meus = Atalhos.ler(ctx)
+        val sites = Atalhos.acharSites(meus.sites, nome)
+        val achadoApps = BuscaApps.achar(apps(ctx).filter { it.pacote in meus.apps }, nome)
+        val candidatos = sites.map { "site ${it.nome}" } + when (achadoApps) {
+            is BuscaApps.Resultado.Achou -> listOf("app ${achadoApps.app.nome}")
+            is BuscaApps.Resultado.Varios -> achadoApps.apps.map { "app ${it.nome}" }
+            BuscaApps.Resultado.Nenhum -> emptyList()
+        }
+        return when {
+            candidatos.isEmpty() -> Resultado(false, "nenhum atalho salvo parecido com \"$nome\". Salve na tela Meus atalhos do app (toque no ícone).")
+            candidatos.size > 1 -> Resultado(false, "\"$nome\" combina com mais de um atalho: ${candidatos.joinToString(", ")}. Diga qual.")
+            sites.size == 1 -> abrirUrl(ctx, sites[0].url, "")
+            else -> abrirPacote(ctx, (achadoApps as BuscaApps.Resultado.Achou).app)
         }
     }
 
