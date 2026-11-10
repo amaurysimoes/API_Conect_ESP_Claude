@@ -33,6 +33,7 @@ export const TOPICOS = [
     "usar": [
       "Conecte o ESP32 e escolha a porta.",
       "Informe o nome do ESP, o modelo, o Wi-Fi e a senha. Marque se a placa tem display.",
+      "Tipo de rede: Comum (WPA2/WPA3, casa: só nome e senha) ou Corporativa (EAP/PEAP, fábrica: também o usuário). Se o ESP não conectar, o display mostra o motivo (ex.: WiFi senha errada?, WiFi rede nao achada).",
       "Monte a lista de pinos: + ADICIONAR PINO ou TODOS OS PINOS LIVRES. Cada pino é Saída (ON/OFF) ou Entrada (switch).",
       "Clique em ⚡ Gravar no ESP. Ao ligar, o ESP aparece sozinho no site, na página Automação.",
       "Arquivo → Editar Automações ESP: escolha um arquivo do firmware (abre na pasta firmware; se não achar, em C:\\) e edite o código (o texto aparece com cores e números de linha, como no VS Code). SALVAR grava no arquivo; CANCELAR fecha sem gravar o que não foi salvo.",

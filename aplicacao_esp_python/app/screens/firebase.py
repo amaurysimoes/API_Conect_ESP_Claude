@@ -4,8 +4,8 @@ import shutil
 from pathlib import Path
 
 from PyQt6.QtCore import QProcess, QProcessEnvironment, Qt
-from PyQt6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout, QHeaderView,
-                             QLabel, QLineEdit, QPlainTextEdit, QSpinBox, QTableWidget, QTableWidgetItem,
+from PyQt6.QtWidgets import (QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout, QHeaderView,
+                             QLabel, QLineEdit, QPlainTextEdit, QProgressBar, QSpinBox, QTableWidget, QTableWidgetItem,
                              QVBoxLayout, QWidget)
 
 from ..paths import resource_path
@@ -31,7 +31,7 @@ def reserved(display):
 SUGGESTED = [26, 27, 25, 33, 32, 23, 19, 18, 17, 16, 14, 13, 4]
 
 DEFAULT_CONFIG = {
-    "nome": "esp01", "modelo": "ESP32", "ssid": "", "senha": "", "host": DEFAULT_HOST, "auth": "",
+    "nome": "esp01", "modelo": "ESP32", "ssid": "", "senha": "", "eap": False, "usuario": "", "host": DEFAULT_HOST, "auth": "",
     "display": True, "vcc_pino": 34, "vcc_div": 2.0,
     "pinos": [{"gpio": 26, "nome": "Rele 1", "tipo": "SAIDA", "invertido": False},
               {"gpio": 27, "nome": "Chave 1", "tipo": "ENTRADA", "invertido": True}],
@@ -45,6 +45,8 @@ HEADER = """#pragma once
 
 #define WIFI_SSID  "{ssid}"
 #define WIFI_SENHA "{senha}"
+#define WIFI_EAP   {eap}   // 0 = comum (WPA2/WPA3), 1 = corporativa PEAP (fábrica)
+#define WIFI_USUARIO "{usuario}"
 
 #define FIREBASE_HOST "{host}"
 #define FIREBASE_AUTH "{auth}"
@@ -85,6 +87,7 @@ def build_header(cfg):
                       for p in cfg["pinos"])
     return HEADER.format(
         nome=c_str(cfg["nome"]), modelo=c_str(cfg["modelo"]), ssid=c_str(cfg["ssid"]), senha=c_str(cfg["senha"]),
+        eap=1 if cfg["eap"] else 0, usuario=c_str(cfg["usuario"] if cfg["eap"] else ""),
         host=c_str(cfg["host"]), auth=c_str(cfg["auth"]), display=1 if cfg["display"] else 0, pinos=pinos,
         vcc_pino=cfg["vcc_pino"], vcc_div=f'{cfg["vcc_div"]:.3f}')
 
@@ -95,6 +98,8 @@ def validate(cfg):
         return "Nome do ESP: só letras, números, - e _ (sem espaço)."
     if not cfg["ssid"]:
         return "Informe o nome do Wi-Fi (SSID)."
+    if cfg["eap"] and not cfg["usuario"]:
+        return "Rede corporativa (EAP): informe o usuário."
     if not cfg["host"] or "/" in cfg["host"] or " " in cfg["host"]:
         return "Host do Firebase inválido (só o domínio, sem https://)."
     if not cfg["pinos"]:
@@ -179,15 +184,33 @@ class FirebaseScreen(BackgroundMixin, QWidget):
         self.modelo = QLineEdit(placeholderText="Modelo (ex: ESP32)")
         self.ssid = QLineEdit(placeholderText="Nome do Wi-Fi (SSID)")
         self.senha = QLineEdit(placeholderText="Senha do Wi-Fi", echoMode=QLineEdit.EchoMode.Password)
+        # Mesmo seletor do Repetidor: Comum (WPA2/WPA3, casa) x Corporativa (EAP/PEAP, fábrica).
+        self.kind_plain = QCheckBox("Comum (WPA2/WPA3)")
+        self.kind_eap = QCheckBox("Corporativa (EAP)")
+        self.kind_plain.setChecked(True)
+        group = QButtonGroup(self)  # exclusivo: sempre uma das duas marcada
+        kind_row = QHBoxLayout()
+        for cb in (self.kind_plain, self.kind_eap):
+            group.addButton(cb)
+            kind_row.addWidget(cb)
+        kind_row.addStretch()
+        self.usuario = QLineEdit(placeholderText="Usuário da rede corporativa (ex: producao)")
+        self.kind_eap.toggled.connect(self.usuario.setVisible)
         self.display = QCheckBox("Placa com display OLED (só mostra informações)")
         show = QCheckBox("Mostrar senhas")
         show.toggled.connect(lambda on: [f.setEchoMode(QLineEdit.EchoMode.Normal if on else QLineEdit.EchoMode.Password)
                                          for f in (self.senha,)])
-        for a, b in ((self.nome, self.modelo), (self.ssid, self.senha)):
-            row = QHBoxLayout()
-            row.addWidget(a, 1)
-            row.addWidget(b, 1)
-            lay.addLayout(row)
+        row = QHBoxLayout()
+        row.addWidget(self.nome, 1)
+        row.addWidget(self.modelo, 1)
+        lay.addLayout(row)
+        lay.addLayout(kind_row)
+        row = QHBoxLayout()
+        row.addWidget(self.ssid, 1)
+        row.addWidget(self.usuario, 1)
+        row.addWidget(self.senha, 1)
+        lay.addLayout(row)
+        self.usuario.setVisible(False)
         row = QHBoxLayout()
         row.addWidget(self.display)
         row.addStretch()
@@ -263,7 +286,12 @@ class FirebaseScreen(BackgroundMixin, QWidget):
         self.log.setObjectName("log")
         self.log.setMaximumBlockCount(1000)
         self.log.setMaximumHeight(120)
+        # Progresso da gravação: etapa + porcentagem (quando o PlatformIO informa; senão barra "ocupada").
+        self.progress = QProgressBar(textVisible=True)
+        self.progress.setFixedHeight(18)
+        self.progress.setVisible(False)
         lay.addWidget(self.status)
+        lay.addWidget(self.progress)
         lay.addWidget(self.log)
         return box
 
@@ -335,7 +363,8 @@ class FirebaseScreen(BackgroundMixin, QWidget):
                           "tipo": self.table.cellWidget(r, 2).currentData(),
                           "invertido": self.table.cellWidget(r, 3).findChild(QCheckBox).isChecked()})
         return {"nome": self.nome.text().strip(), "modelo": self.modelo.text().strip() or "ESP32",
-                "ssid": self.ssid.text().strip(), "senha": self.senha.text(), "host": DEFAULT_HOST,
+                "ssid": self.ssid.text().strip(), "senha": self.senha.text(),
+                "eap": self.kind_eap.isChecked(), "usuario": self.usuario.text().strip(), "host": DEFAULT_HOST,
                 "auth": "", "display": self.display.isChecked(),
                 "vcc_pino": self.vcc_pino.value(), "vcc_div": self.vcc_div.value(), "pinos": pinos}
 
@@ -344,6 +373,9 @@ class FirebaseScreen(BackgroundMixin, QWidget):
         self.modelo.setText(cfg["modelo"])
         self.ssid.setText(cfg["ssid"])
         self.senha.setText(cfg["senha"])
+        (self.kind_eap if cfg["eap"] else self.kind_plain).setChecked(True)
+        self.usuario.setText(cfg["usuario"])
+        self.usuario.setVisible(cfg["eap"])
         self.display.setChecked(cfg["display"])
         self.vcc_pino.setValue(cfg["vcc_pino"])
         self.vcc_div.setValue(cfg["vcc_div"])
@@ -371,6 +403,32 @@ class FirebaseScreen(BackgroundMixin, QWidget):
     # ---------- gravação ----------
     def _write(self, msg):
         self.log.appendPlainText(msg)
+
+    def _set_progress(self, etapa, pct=None):
+        """pct None = etapa sem porcentagem (barra ocupada)."""
+        if pct is None:
+            self.progress.setRange(0, 0)
+        else:
+            self.progress.setRange(0, 100)
+            self.progress.setValue(pct)
+        self.progress.setFormat(etapa + (" %p%" if pct is not None else ""))
+        self.progress.setVisible(True)
+
+    def _progress_from(self, line):
+        """Lê a etapa e a porcentagem de uma linha do PlatformIO."""
+        m = re.search(r"(\d{1,3})\s?%", line)
+        pct = min(int(m.group(1)), 100) if m else None
+        if line.startswith("Writing at"):
+            self._set_progress("Gravando na placa", pct)
+        elif "Downloading" in line or "Installing" in line:
+            self._set_progress("Baixando o toolchain (só a 1ª vez)", pct)
+        elif "Unpacking" in line:
+            self._set_progress("Instalando o toolchain (só a 1ª vez)", pct)
+        elif line.startswith(("Compiling", "Archiving", "Linking", "Building")):
+            self._compiled += line.startswith("Compiling")
+            self._set_progress(f"Compilando ({self._compiled} arquivos)")
+        elif line.startswith(("Connecting", "Serial port")):
+            self._set_progress("Conectando na placa")
 
     def _set_result(self, text, color=None):
         self.status.setText(text)
@@ -420,6 +478,8 @@ class FirebaseScreen(BackgroundMixin, QWidget):
         if SHORT_CORE_DIR and SHORT_CORE_DIR.exists():
             env.insert("PLATFORMIO_CORE_DIR", str(SHORT_CORE_DIR))
         self._shown_writing = False
+        self._compiled = 0
+        self._set_progress("Preparando")
         self._proc = QProcess(self)
         self._proc.setProcessEnvironment(env)
         self._proc.setWorkingDirectory(str(BUILD_DIR))
@@ -437,6 +497,7 @@ class FirebaseScreen(BackgroundMixin, QWidget):
             line = line.strip()
             if not line or line.startswith("***") or "Warning" in line:
                 continue
+            self._progress_from(line)
             if line.startswith("Writing at"):
                 if not self._shown_writing:
                     self._shown_writing = True
@@ -449,6 +510,7 @@ class FirebaseScreen(BackgroundMixin, QWidget):
         if proc is None:
             return
         proc.deleteLater()
+        self.progress.setVisible(False)
         if code == 0:
             self._write("\nCarga ESP Concluído!")
             self._set_result("✔ Carga ESP Concluído!", SUCCESS)
