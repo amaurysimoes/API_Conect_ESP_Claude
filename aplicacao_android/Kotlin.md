@@ -1,6 +1,6 @@
 # Kotlin: desenvolver e ajustar o app Android
 
-O app é **Kotlin** (1.9), sem bibliotecas de terceiros. Gradle 8.7 · plugin Android 8.5.2 · minSdk 21 (Android 5.0) · target 34.
+O app é **Kotlin** (1.9), sem bibliotecas de terceiros. Gradle 9.7.1 (wrapper do projeto) · plugin Android 8.5.2 · minSdk 21 (Android 5.0) · target 34.
 Criar do zero: `DocumentacaoTecnica/CriacaoAppAndroid.md` · usar o app: `Instrucoes.md`.
 
 ## 1. Android Studio (editor oficial)
@@ -56,5 +56,5 @@ Se o VS Code não achar o JDK: `$env:JAVA_HOME = 'C:\Program Files\Microsoft\jdk
 | `JAVA_HOME is not set` | defina como no passo 4 |
 | 1ª compilação demora | baixa o compilador e as bibliotecas; as próximas são rápidas |
 | APK não instala por cima | desinstale o antigo no celular (assinatura de debug diferente em outro PC) |
-| O editor oferece "atualizar o Gradle" ou o `gradle-wrapper.properties` virou 9.x | **não aceite**: o plugin do app (8.5.2) é do Gradle 8.x. Volte com `git checkout -- aplicacao_android/gradle aplicacao_android/gradlew aplicacao_android/gradlew.bat` (fixo em Gradle 8.7) |
+| O editor oferece "atualizar o Gradle" | O projeto já está no **Gradle 9.7.1** (atualizado em 10/11/2026 e testado: compila e passa os 23 testes; o 8.7 antigo também funcionava). Se uma versão futura quebrar, volte com `git checkout -- aplicacao_android/gradle aplicacao_android/gradlew aplicacao_android/gradlew.bat` |
 | Mudei algo e quebrou | `.\gradlew.bat clean` e compile de novo; os testes dizem onde |

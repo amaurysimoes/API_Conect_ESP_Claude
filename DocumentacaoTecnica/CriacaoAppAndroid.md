@@ -32,7 +32,7 @@ app/src/main/res/  (values, mipmap-*, drawable-*)
 app/src/test/java/com/amaury/agente/AgenteTest.kt
 servidor/  (módulo Node: ferramentas do Claude)
 ```
-Versões: Gradle 8.7 · plugin Android 8.5.2 · Kotlin 1.9.24. Em `local.properties` use **barras normais** (`C:/Android/Sdk`): com `\` o caminho quebra.
+Versões: Gradle 9.7.1 no wrapper (criado com o 8.7 e atualizado pelo editor; os dois compilam) · plugin Android 8.5.2 · Kotlin 1.9.24. Em `local.properties` use **barras normais** (`C:/Android/Sdk`): com `\` o caminho quebra.
 
 ## 3. O que cada arquivo faz
 | Arquivo | Função |
