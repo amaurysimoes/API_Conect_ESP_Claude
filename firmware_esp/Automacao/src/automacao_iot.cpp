@@ -9,12 +9,22 @@
 //   esps/<nome>/visto_em                    horário do servidor do último contato (heartbeat)
 // Tudo que muda de um ESP para outro (nome, Wi-Fi, pinos, Vcc) fica em automacao_config.h.
 // O display OLED só mostra informações (nunca é usado para outra coisa).
+// Wi-Fi: rede comum WPA2 e WPA3 (casa) ou corporativa PEAP (fábrica, WIFI_EAP 1), igual ao Repetidor.
 #include <Arduino.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include "esp_eap_client.h"
 #include "automacao_config.h"
+
+#ifndef WIFI_EAP  // automacao_config.h gerado por versão antiga do app: rede comum
+#define WIFI_EAP 0
+#endif
+#ifndef WIFI_USUARIO
+#define WIFI_USUARIO ""
+#endif
 
 #if TEM_DISPLAY
 #include <Wire.h>
@@ -26,7 +36,7 @@ Adafruit_SSD1306 display(128, 64, &Wire, -1);
 const unsigned long INTERVALO_SAIDAS_MS = 1000;     // consulta dos comandos no Firebase
 const unsigned long INTERVALO_HEARTBEAT_MS = 10000;  // Vcc + visto_em
 const unsigned long INTERVALO_REGISTRO_MS = 5000;    // nova tentativa de cadastro
-const unsigned long REDE_TENTAR_MS = 15000;
+const unsigned long REDE_TENTAR_MS = WIFI_EAP ? 40000 : 15000;  // EAP faz handshake com servidor RADIUS: demora mais
 const unsigned long DEBOUNCE_MS = 30;
 const unsigned long SEM_RESPOSTA_REINICIA_MS = 90000;  // 90 s sem nenhuma resposta do Firebase: reinicia
 const unsigned long PULSO_MS = 1000;                // duração do botão "Pulso" da página
@@ -49,6 +59,7 @@ int ultimoCodigo = 0;               // último código HTTP (negativo = falha de
 unsigned long ultimoOkMs = 0;       // última requisição ao Firebase que deu certo
 bool firebaseOk = false;
 float vccVolts = -1;
+volatile uint8_t motivoQueda = 0;   // último motivo de queda do Wi-Fi (0 = nenhum)
 unsigned long ultimoRegistroMs = 0, ultimasSaidasMs = 0, ultimoHeartbeatMs = 0, ultimaRedeMs = 0, ultimaTelaMs = 0;
 
 // ---------- display ----------
@@ -73,8 +84,29 @@ String cortar(const String& s, size_t max = 21) {
   return s.length() > max ? s.substring(0, max) : s;
 }
 
+// Motivo curto (cabe no display) de o Wi-Fi não conectar.
+const char* motivoCurto(uint8_t r) {
+  switch (r) {
+    case 2: case 202: return "senha recusada";
+    case 15: case 204: return "senha errada?";
+    case 23: return "usuario/senha EAP";
+    case 200: return "sinal fraco";
+    case 201: return "rede nao achada";
+    case 203: return "AP recusou";
+    default: return "sem rede";
+  }
+}
+
+void aoEventoWiFi(WiFiEvent_t evento, WiFiEventInfo_t info) {
+  if (evento == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
+    motivoQueda = info.wifi_sta_disconnected.reason;
+    Serial.printf("WiFi caiu/recusou: motivo %u (%s)\n", motivoQueda, motivoCurto(motivoQueda));
+  }
+}
+
 void atualizarTela() {
-  String wifi = WiFi.status() == WL_CONNECTED ? "WiFi " + String(WiFi.RSSI()) + "dBm" : "WiFi sem rede";
+  String wifi = WiFi.status() == WL_CONNECTED ? "WiFi " + String(WiFi.RSSI()) + "dBm"
+                                              : String("WiFi ") + motivoCurto(motivoQueda);
   String fb = !registrado ? "Firebase conectando" : (firebaseOk ? "Firebase OK" : "Firebase ERRO " + String(ultimoCodigo));
   String vcc = vccVolts >= 0 ? "Vcc: " + String(vccVolts, 2) + "V" : "Vcc: --";
   tela(cortar(NOME_DISPOSITIVO), cortar(wifi), cortar(fb), cortar(vcc), cortar(ultimaAcao));
@@ -132,6 +164,14 @@ void iniciarPinos() {
       estadoLogico[i] = candidato[i] = lerEntrada(i);
       candidatoDesde[i] = millis();
     }
+  }
+  // GPIO 5 fora da lista: sai de fábrica com pull-up ligado (pino de boot) e acende de leve um LED nele.
+  // Segura em nível baixo (desligado), como no Repetidor.
+  bool usa5 = false;
+  for (int i = 0; i < N_PINOS; i++) usa5 |= pinoAtivo[i] && PINOS[i].gpio == 5;
+  if (!usa5) {
+    pinMode(5, OUTPUT);
+    digitalWrite(5, LOW);
   }
 }
 
@@ -228,6 +268,16 @@ void lerSaidas() {
       continue;
     }
     JsonVariant v = no["estado"];
+    // Campo ainda não existe no Firebase: cria "estado": false e "pulso": false (só se faltarem) para acionar direto
+    // pelo console do Firebase. Nunca sobrescreve um valor já gravado.
+    if (v.isNull() || no["pulso"].isNull()) {
+      JsonDocument falta;
+      if (v.isNull()) falta["estado"] = false;
+      if (no["pulso"].isNull()) falta["pulso"] = false;
+      String corpo;
+      serializeJson(falta, corpo);
+      requisitar("PATCH", "pinos/" + String(PINOS[i].gpio), corpo);
+    }
     bool quer = v.is<bool>() ? v.as<bool>() : false;
     if (quer != estadoLogico[i]) {
       aplicarSaida(i, quer);
@@ -277,7 +327,27 @@ void heartbeat() {
 
 // ---------- principal ----------
 void conectarWiFi() {
-  WiFi.begin(WIFI_SSID, String(WIFI_SENHA).length() ? WIFI_SENHA : nullptr);
+#if WIFI_EAP
+  // Corporativa (PEAP), igual ao Repetidor: usuário = identidade.
+  esp_eap_client_set_identity((const uint8_t*)WIFI_USUARIO, strlen(WIFI_USUARIO));
+  esp_eap_client_set_username((const uint8_t*)WIFI_USUARIO, strlen(WIFI_USUARIO));
+  esp_eap_client_set_password((const uint8_t*)WIFI_SENHA, strlen(WIFI_SENHA));
+  esp_wifi_sta_enterprise_enable();
+  WiFi.begin(WIFI_SSID);
+#else
+  // Comum: aceita WPA2, WPA2/WPA3 e WPA3 (PMF suportado, não obrigatório; SAE nos dois métodos). Sem senha = aberta.
+  wifi_config_t c = {};
+  strncpy((char*)c.sta.ssid, WIFI_SSID, sizeof(c.sta.ssid));
+  strncpy((char*)c.sta.password, WIFI_SENHA, sizeof(c.sta.password));
+  c.sta.threshold.authmode = strlen(WIFI_SENHA) ? WIFI_AUTH_WPA2_PSK : WIFI_AUTH_OPEN;
+  c.sta.pmf_cfg.capable = true;
+  c.sta.pmf_cfg.required = false;
+  c.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
+  c.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;      // vários pontos de acesso com o mesmo nome:
+  c.sta.sort_method = WIFI_CONNECT_AP_BY_SIGNAL;  // conecta no de sinal mais forte
+  esp_wifi_set_config(WIFI_IF_STA, &c);
+  esp_wifi_connect();
+#endif
   ultimaRedeMs = millis();
 }
 
@@ -294,6 +364,7 @@ void setup() {
 #endif
   tela(cortar(NOME_DISPOSITIVO), "Iniciando...");
   cliente.setInsecure();  // sem validar o certificado: dispensa guardar a CA no ESP (a regra do banco é que protege)
+  WiFi.onEvent(aoEventoWiFi);
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
   conectarWiFi();
