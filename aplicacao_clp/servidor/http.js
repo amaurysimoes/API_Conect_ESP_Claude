@@ -2,7 +2,7 @@
 // se a rota não for daqui, devolve false e o servidor segue como sempre.
 import { paginaClp } from "./paginas.js";
 import { listarMaquinas } from "../../aplicacao_desk_agente/agente/maquinas.js";
-import { lerConfig, gravarConfig, comandoClp, paramsConexao, temClp, MODOS } from "./clp.js";
+import { lerConfig, gravarConfig, comandoClp, paramsConexao, paramsEstado, temClp, MODOS } from "./clp.js";
 
 const ACOES = ["identificar", "conectar", "desconectar", "estado", "bit", "zerar"];
 
@@ -40,8 +40,12 @@ export async function clpHttp(req, res, caminho, { json, corpoJson }) {
       if (!ACOES.includes(b.acao)) throw new Error(`Ação desconhecida: ${b.acao}. Use: ${ACOES.join(", ")}.`);
       const m = await maquinaDe(b.maquina);
       let params = {};
-      if (b.acao === "identificar") params = { ip: String((await lerConfig(m)).ip) };
-      if (b.acao === "conectar") params = paramsConexao(await lerConfig(m));
+      if (b.acao === "identificar" || b.acao === "conectar" || b.acao === "estado") {
+        const cfg = await lerConfig(m);
+        if (b.acao === "conectar") params = paramsConexao(cfg);
+        else if (b.acao === "identificar") params = cfg.protocolo === "tcp_ip" ? paramsConexao(cfg) : { ip: String(cfg.ip) };
+        else params = paramsEstado(cfg);
+      }
       if (b.acao === "bit") {
         if (!Number.isInteger(b.bit)) throw new Error("Falta o número do bit.");
         if (b.modo !== undefined && !MODOS.includes(b.modo)) throw new Error(`Ação inválida: ${b.modo}.`);

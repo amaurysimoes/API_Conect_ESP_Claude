@@ -439,8 +439,8 @@ class Scanner:
                 self._log(msg)
 
                 def perder():
+                    self._ao_perder(msg)     # primeiro registra o motivo; só depois a conexão aparece como desconectada
                     self._limpar(True)
-                    self._ao_perder(msg)
                 threading.Thread(target=perder, daemon=True).start()
                 break
 

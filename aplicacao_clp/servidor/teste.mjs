@@ -36,6 +36,7 @@ const iniciarAgente = (clp) => {
   return spawn(py, ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", env: { ...process.env, AGENTE_MUTEX: "AgenteDeTesteClp" }, stdio: "ignore" });
 };
 const adaptador = spawn(py, ["clp_adaptador_falso.py", "44818", "24819"], { cwd: "aplicacao_desk_agente/agente_python", stdio: "ignore" });
+const modbus = spawn(py, ["clp_modbus_falso.py", "25020"], { cwd: "aplicacao_desk_agente/agente_python", stdio: "ignore" });
 const servidor = spawn("node", ["iot_automacao_esp/servidor.js"], { env: { ...process.env, PORTA: "4586" }, stdio: "ignore" });
 let agente = iniciarAgente(false);
 
@@ -69,7 +70,7 @@ try {
 
   // ---- aba, menu e instruções ----
   const pag = await (await req("GET", "/clp")).text();
-  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Só funciona com CLP que fale EtherNet/IP", "Delta", "Mitsubishi FX3U", "nem com o módulo ENET", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade"]) {
+  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Duas formas de conectar", "Delta", "Mitsubishi FX3U", "protocolo MC (MELSEC)", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade", "Instruções de Seleção", "TCP/IP (memórias M, Modbus TCP)", "Valores Padrão TCP/IP (Delta)", "Endereço base da memória M", "Tipo de conexão"]) {
     assert.ok(pag.includes(trecho), "a página/instruções têm: " + trecho);
   }
   const home = await (await req("GET", "/")).text();
@@ -154,8 +155,42 @@ try {
   assert.ok(fim.ok);
   assert.ok(!JSON.stringify(banco).includes("chave-de-teste"), "a chave nunca vai para o Firebase");
   console.log("OK zerar saídas e desconectar");
+  // ---- TCP/IP (Modbus TCP) nas memórias M ----
+  const ruimProto = await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { ip: "127.0.0.1", protocolo: "ftp" } });
+  assert.equal(ruimProto.status, 400, "tipo de conexão inválido recusado");
+  const cfgTcp = await (await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: {
+    protocolo: "tcp_ip", ip: "127.0.0.1", porta: 25020, unidade: 1, base_m: 2048, primeiro_bit: 0, qtd_m: 64,
+    pontos: [{ numero: 3, nome: "Aciona Sensor1", modo: "set" }, { numero: 5, nome: "Esteira M", modo: "alternar" }, { numero: 7, nome: "Luz", modo: "pulso", pulso_ms: 300 }, { numero: 20, nome: "Ja ligada", modo: "reset" }] } })).json();
+  assert.equal(cfgTcp.protocolo, "tcp_ip"); assert.equal(cfgTcp.base_m, 2048); assert.equal(cfgTcp.qtd_m, 64);
+  const idTcp = await exec("identificar");
+  assert.ok(idTcp.ok && idTcp.texto.includes("Modbus TCP") && idTcp.texto.includes("M0 = OFF"), JSON.stringify(idTcp));
+  const cTcp = await exec("conectar");
+  assert.ok(cTcp.ok && cTcp.texto.includes("Conectado por TCP/IP"), JSON.stringify(cTcp));
+  let eTcp = JSON.parse((await exec("estado")).texto);
+  assert.ok(eTcp.conectado && eTcp.protocolo === "tcp_ip" && eTcp.quantidade === 64, "estado TCP/IP: " + JSON.stringify(eTcp));
+  assert.ok(Buffer.from(eTcp.memorias, "hex")[2] & 0x10, "M20 (já ligada no CLP) aparece ligada");
+  const set3 = await exec("bit", { bit: 3, modo: "set" });
+  assert.ok(set3.ok && set3.texto.includes("M3 = ON"), JSON.stringify(set3));
+  eTcp = JSON.parse((await exec("estado")).texto);
+  assert.ok(Buffer.from(eTcp.memorias, "hex")[0] & 0x08, "M3 ligada lida de volta do CLP");
+  const zTcp = await exec("zerar");
+  assert.ok(!zTcp.ok && zTcp.texto.includes("zerar todas"), "zerar não existe no TCP/IP: " + JSON.stringify(zTcp));
+  const listaTcp = await ferramenta("listar_clp", {});
+  assert.ok(listaTcp.includes("TCP/IP (Modbus TCP)") && listaTcp.includes("CONECTADO") && listaTcp.includes("memória M3") && listaTcp.includes("LIGADA") && listaTcp.includes("Esteira M"), listaTcp);
+  const viaClaudeTcp = await ferramenta("acionar_clp", { ponto: "esteira m" });
+  assert.ok(viaClaudeTcp.includes("M5 = ON (alternar)") && !viaClaudeTcp.includes("isError\":true"), viaClaudeTcp);
+  const pulsoTcp = await ferramenta("acionar_clp", { ponto: "luz" });
+  assert.ok(pulsoTcp.includes("M7: pulso de 300 ms"), pulsoTcp);
+  const foraTcp = await ferramenta("acionar_clp", { ponto: "5000", acao: "set" });
+  assert.ok(foraTcp.includes("endereço de memória inexistente"), foraTcp);
+  await exec("desconectar");
+  const autoTcp = await ferramenta("acionar_clp", { ponto: "aciona sensor1" });
+  assert.ok(autoTcp.includes("conectou ao CLP primeiro") && autoTcp.includes("M3 = ON (set)"), autoTcp);
+  assert.ok((await exec("desconectar")).ok);
+  console.log("OK TCP/IP (Modbus TCP): config, identificar, conectar, estado das memórias, set/alternar/pulso, zerar recusado, Claude liga memória e conecta sozinho");
+
 } finally {
-  for (const proc of [agente, adaptador, servidor]) matar(proc);
+  for (const proc of [agente, adaptador, modbus, servidor]) matar(proc);
   fake.close();
 }
 process.exit(0);

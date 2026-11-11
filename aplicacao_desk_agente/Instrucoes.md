@@ -52,7 +52,7 @@ Windows: o que abre vem para a frente. Linux: sem isso; programas do Windows nã
 - Firewall do PC: liberar `TCP 44818` e `UDP 2222`.
 - Usar: aba **Conexao Socket-TCP/IP** → botão **Instruções**. Detalhes: `DocumentacaoTecnica/ProjetosAmaury_Adicionado.md` (Projeto CLP).
 - Opcional no `config.json`: `"clp_faixa": [512, 767]` limita os bits que a rede pode acionar.
-- Só funciona com CLP que fale EtherNet/IP. FX3U não fala.
+- Dois tipos na aba (seletor **Tipo de conexão**): EtherNet/IP (CLP com EDS) ou TCP/IP (Modbus TCP nas memórias M). FX3U não fala EtherNet/IP.
 - Teste (CLP simulado): `.venv\Scripts\python.exe teste_clp.py` em `agente_python`.
 
 ## 8. Segurança

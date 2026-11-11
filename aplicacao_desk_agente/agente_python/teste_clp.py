@@ -8,6 +8,7 @@ import time
 import acoes_clp
 import clp_eip
 from clp_adaptador_falso import AdaptadorFalso
+from clp_modbus_falso import ModbusFalso
 
 ok = 0
 
@@ -34,11 +35,16 @@ def estado():
     return json.loads(acoes_clp.clp_estado({}))
 
 
+def bit0(b, h):
+    return clp_eip.testar_bit(bytes.fromhex(h), b, 0)
+
+
 def bit(b, h):
     return clp_eip.testar_bit(bytes.fromhex(h), b, 512)
 
 
 adap = AdaptadorFalso(24818, 24819, forcadas=bytes([0x00, 0x08])).iniciar()
+mb = ModbusFalso(25020).iniciar()
 cfg = {"clp_ativo": False}
 acoes_clp.iniciar(cfg, None)
 acoes_clp.config.salvar = lambda *a, **k: None   # o teste não grava o config.json de verdade
@@ -109,9 +115,65 @@ try:
     e = estado()
     confere(e["conectado"] is False and "Conexão perdida" in e["perdida"], "equipamento some: " + e["perdida"])
 
+
+    # ---------------- TCP/IP (Modbus TCP) nas memórias M ----------------
+    tcp = {"protocolo": "tcp_ip", "ip": "127.0.0.1", "porta": 25020, "unidade": 1, "base_m": 2048, "primeiro_bit": 0, "qtd_m": 64}
+    ident = acoes_clp.clp_identificar(tcp)
+    confere("Modbus TCP" in ident and "M0 = OFF" in ident, "TCP/IP Identificar: " + ident)
+    erro(acoes_clp.clp_identificar, {**tcp, "base_m": 100}, "endereço de memória inexistente")
+    erro(acoes_clp.clp_identificar, {**tcp, "porta": 25999}, "Sem resposta")
+    erro(acoes_clp.clp_conectar, {**tcp, "protocolo": "x"}, "protocolo desconhecido")
+    erro(acoes_clp.clp_conectar, {**tcp, "base_m": 100}, "endereço de memória inexistente")
+    confere(estado()["conectado"] is False, "TCP/IP: falha ao conectar deixa desconectado")
+    r = acoes_clp.clp_conectar(tcp)
+    confere("Conectado por TCP/IP" in r and "M0 a M63" in r and "2048" in r, "TCP/IP Conectar: " + r)
+    e = estado()
+    confere(e["conectado"] and e["protocolo"] == "tcp_ip" and e["quantidade"] == 64, "TCP/IP estado: " + str({k: e[k] for k in ("protocolo", "quantidade")}))
+    confere(bit0(20, e["memorias"]) and not bit0(0, e["memorias"]), "memória M20 (já ligada no CLP) aparece ligada")
+    t = acoes_clp.clp_bit({"bit": 3, "modo": "set"})
+    confere("M3 = ON" in t and mb.bobinas.get(2048 + 3) is True, "set M3 escreve a bobina 2051 no CLP: " + t)
+    t = acoes_clp.clp_bit({"bit": 3, "modo": "reset"})
+    confere("M3 = OFF" in t and mb.bobinas.get(2051) is False, "reset M3")
+    t = acoes_clp.clp_bit({"bit": 5})
+    confere("ON (alternar)" in t and mb.bobinas.get(2053) is True, "alternar liga M5")
+    t = acoes_clp.clp_bit({"bit": 5})
+    confere("OFF (alternar)" in t and mb.bobinas.get(2053) is False, "alternar desliga M5")
+    antes = len(mb.escritas)
+    t0 = time.time()
+    t = acoes_clp.clp_bit({"bit": 7, "modo": "pulso", "pulso_ms": 400})
+    confere(0.35 < time.time() - t0 < 1.5 and mb.escritas[antes:] == [(2055, True), (2055, False)], "pulso de 400 ms: liga e desliga a bobina")
+    erro(acoes_clp.clp_bit, {"bit": 5000, "modo": "set"}, "endereço de memória inexistente")
+    erro(acoes_clp.clp_bit, {"bit": 70000, "modo": "set"}, "passa de 65535")
+    erro(acoes_clp.clp_zerar, {}, "não existe 'zerar todas'")
+    cfg["clp_faixa"] = [0, 10]
+    erro(acoes_clp.clp_bit, {"bit": 30, "modo": "set"}, "faixa liberada")
+    del cfg["clp_faixa"]
+    acoes_clp.clp_desconectar({})
+    confere(estado()["conectado"] is False, "TCP/IP desconectar")
+    # trocar de EtherNet/IP para TCP/IP sem sobrar conexão (equipamento EtherNet/IP novo, o anterior foi desligado)
+    adap2 = AdaptadorFalso(24818, 24819).iniciar()
+    acoes_clp.clp_conectar(base)
+    confere(estado()["protocolo"] == "ethernet_ip", "conectou por EtherNet/IP")
+    acoes_clp.clp_conectar(tcp)
+    confere(estado()["protocolo"] == "tcp_ip", "trocar de EtherNet/IP para TCP/IP fecha a anterior")
+    mb.parar()
+    for _ in range(40):
+        time.sleep(0.25)
+        try:
+            acoes_clp.clp_bit({"bit": 9, "modo": "set"})
+        except acoes_clp.ErroAcao:
+            break
+    e = estado()
+    confere(e["conectado"] is False and e["perdida"], "TCP/IP: CLP some -> conexão perdida: " + str(e["perdida"]))
+
     acoes_clp.definir_ativo(False)
     confere(acoes_clp.nomes_acoes() == [], "desmarcar o checkbox esconde as ações")
 finally:
     acoes_clp.encerrar()
     adap.parar()
+    mb.parar()
+    try:
+        adap2.parar()
+    except NameError:
+        pass
 print(f"\n{ok} verificações passaram.")

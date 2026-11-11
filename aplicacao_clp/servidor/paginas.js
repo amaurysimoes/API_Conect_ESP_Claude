@@ -45,12 +45,14 @@ const INSTRUCOES = `
 <p>Liga, desliga e pulsa bits de um CLP (ou robô) por <b>EtherNet/IP</b>, a partir do Render ou do Claude. O agente do PC fica na rede do CLP (cabo RJ45) e na internet (Wi-Fi); o Render manda os comandos assinados pelo Firebase.</p>
 
 <div class="caixa alerta">
-<b>Só funciona com CLP que fale EtherNet/IP.</b>
+<b>Duas formas de conectar (escolha em "Tipo de conexão"; veja "Instruções de Seleção"):</b>
 <ul>
-<li><b>Delta:</b> só os modelos com EtherNet/IP funcionam. Informe o modelo para confirmar. Se o EDS dele tiver outras assemblies, é só trocar os campos (instância de configuração, O→T e T→O).</li>
-<li><b>Mitsubishi FX3U:</b> não fala EtherNet/IP, nem com o módulo ENET (esse módulo usa MC/Modbus). Comprando o FX3U para testar em casa, ele não vai conectar por este caminho.</li>
+<li><b>EtherNet/IP:</b> troca blocos de I/O (assemblies). Só funciona com CLP que fale EtherNet/IP e você precisa dos números do EDS dele.</li>
+<li><b>TCP/IP (Modbus TCP):</b> liga e desliga direto as <b>memórias M</b> do CLP, sem EDS. O CLP precisa ter Modbus TCP (porta 502).</li>
+<li><b>Delta:</b> informe o modelo para confirmar qual das duas ele aceita. Se o EDS tiver outras assemblies, troque os campos.</li>
+<li><b>Mitsubishi FX3U:</b> não fala EtherNet/IP. Com o módulo ENET ele usa o protocolo MC (MELSEC), que esta aba não tem; só serviria se o módulo tiver Modbus TCP (confira o manual do módulo).</li>
 <li>Para testar em casa por EtherNet/IP, o equipamento tem de ser um <b>adapter EtherNet/IP</b>.</li>
-<li>O código foi testado no PC com um adapter <b>simulado</b>. Com CLP real <b>ainda não foi testado</b>: a conexão real fica por sua conta.</li>
+<li>Testado no PC com equipamentos <b>simulados</b> (EtherNet/IP e Modbus TCP). Com CLP real, só a conexão EtherNet/IP do seu Delta foi tentada (recusou a instância 150: os números do EDS dele são outros).</li>
 </ul>
 </div>
 
@@ -137,7 +139,50 @@ const INSTRUCOES_AJUSTES = `
 <tr><td><b>Valores Padrão CLP (Universal)</b></td><td>Ponto de partida mais aceito: primeiro bit <code>0</code>, bytes <code>8 / 8</code>, RPI <code>50</code>, instâncias <code>1 / 150 / 100</code>, CLP→PC em ponto-a-ponto (multicast <b>desligado</b>).</td></tr>
 </table>
 <div class="caixa alerta"><p><b>Não existe um padrão universal de verdade:</b> cada CLP define os dele no EDS. Os "universais" são só um ponto de partida seguro (mais lento e sem multicast). Se a conexão for recusada, a mensagem de erro diz qual valor trocar.</p></div>
+<h3>TCP/IP (Modbus TCP): campos</h3>
+<ul>
+<li><b>Porta Modbus TCP (502):</b> porta do CLP para Modbus TCP.</li>
+<li><b>ID da unidade (1):</b> endereço Modbus do CLP (também chamado de station ou slave). Quase sempre 1.</li>
+<li><b>Endereço base da memória M (2048):</b> o endereço Modbus onde está a memória M0. Endereço da memória = base + número. <b>Delta DVP:</b> M0 = <code>0800H</code> = <code>2048</code>. M1536 em diante ficam em outro trecho do mapa (<code>B000H</code> = 45056): use base <code>43520</code> para essas. Outras linhas Delta (AS etc.): veja a tabela Modbus do manual do seu modelo.</li>
+<li><b>Primeira memória M / Quantidade:</b> a faixa que a tela lê para mostrar o estado (ex.: M0 e 64 memórias = M0 a M63).</li>
+</ul>
+<p>O botão <b>Valores Padrão TCP/IP (Delta)</b> coloca <code>502 / 1 / 2048 / M0 / 64</code>. Só vale para Delta DVP: confira o manual do seu modelo.</p>
 <p>Depois de tocar num botão, os valores já ficam salvos. O <b>Primeiro bit</b> muda junto: os bits da lista têm de estar dentro da nova faixa.</p>
+</div>`;
+
+const INSTRUCOES_SELECAO = `
+<button class="fecha" id="fechar3" type="button">Fechar</button>
+<div class="dlg">
+<h1>Instruções de Seleção</h1>
+<p>Escolha em <b>Tipo de conexão</b> como o PC vai falar com o CLP. Os dois funcionam pela rede (cabo RJ45), mas de formas diferentes.</p>
+<table>
+<tr><th></th><th>EtherNet/IP</th><th>TCP/IP (Modbus TCP)</th></tr>
+<tr><td><b>O que acessa</b></td><td>A <b>área de I/O</b> do CLP (blocos de bytes, as "assemblies").</td><td>Direto as <b>memórias M</b> (bobinas) do CLP.</td></tr>
+<tr><td><b>Precisa de</b></td><td>CLP como adapter EtherNet/IP, EDS (instâncias e bytes) e os bits ligados no programa do CLP.</td><td>Modbus TCP habilitado no CLP (porta 502) e o endereço Modbus da memória M0.</td></tr>
+<tr><td><b>Troca de dados</b></td><td>Cíclica, a cada RPI (ex.: 50 ms), com conexão mantida.</td><td>Sob demanda: lê e escreve quando você aciona.</td></tr>
+<tr><td><b>Registradores (D)</b></td><td>Não.</td><td>Não: só memórias de bit (M).</td></tr>
+<tr><td><b>Ações</b></td><td>alternar, pulso, set, reset, zerar todas.</td><td>alternar, pulso, set, reset (sem "zerar todas": não apaga as memórias do CLP).</td></tr>
+</table>
+
+<h3>Qual escolher</h3>
+<ul>
+<li><b>Seu CLP usa memórias M</b> (como o Delta): escolha <b>TCP/IP</b>.</li>
+<li>Seu CLP é um equipamento EtherNet/IP com EDS (robô, módulo de I/O): escolha <b>EtherNet/IP</b>.</li>
+<li>Deu <code>0x012A</code> / <code>0x0117</code> (instância inválida) no EtherNet/IP: as instâncias não batem com o EDS. Confira o EDS ou use <b>TCP/IP</b>.</li>
+<li>Não sabe qual o CLP aceita? Use <b>Identificar</b>: no TCP/IP ele diz se o CLP respondeu em Modbus TCP e lê a primeira memória.</li>
+</ul>
+
+<h3>Passo a passo do TCP/IP</h3>
+<ol>
+<li>No CLP, habilite o Modbus TCP na porta Ethernet (porta 502) e anote o endereço Modbus de M0 no manual.</li>
+<li>Em <b>Tipo de conexão</b>, escolha <b>TCP/IP (memórias M, Modbus TCP)</b>.</li>
+<li>Toque em <b>Valores Padrão TCP/IP (Delta)</b> (ou preencha os campos), coloque o <b>IP do CLP</b> e toque em <b>Identificar</b>.</li>
+<li>Toque em <b>Conectar</b>, adicione a faixa (ex.: 0 a 7), dê o <b>Nome da Memoria</b> e escolha a ação.</li>
+<li>Teste primeiro numa memória que <b>não</b> controle nada importante.</li>
+</ol>
+
+<div class="caixa alerta"><p><b>Endereço base errado:</b> o CLP responde "endereço de memória inexistente". Confira o campo <b>Endereço base da memória M</b>. Memória errada = você liga outra coisa: confirme no manual antes de acionar.</p></div>
+<div class="caixa ruim"><p><b>Não é dispositivo de segurança.</b> Não use para portão, fechadura, alarme ou emergência. O comando passa pela internet e leva 1 a 4 s.</p></div>
 </div>`;
 
 export const paginaClp = () => `<!doctype html>
@@ -145,9 +190,11 @@ export const paginaClp = () => `<!doctype html>
 <title>Conexao Socket-TCP/IP · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}${FAVICON}</head><body>
 ${menuHtml("/clp")}
 <div class="topo"><h1>Conexao Socket-TCP/IP</h1><button id="instr" type="button" class="principal">Instruções</button></div>
-<p class="sub">Liga e desliga bits de um CLP (ou robô) por EtherNet/IP, pela máquina com o agente. Não é dispositivo de segurança.</p>
+<p class="sub">Liga e desliga bits (EtherNet/IP) ou memórias M (TCP/IP) de um CLP, pela máquina com o agente. Não é dispositivo de segurança.</p>
 <dialog id="dlg">${INSTRUCOES}</dialog>
 <dialog id="dlg2">${INSTRUCOES_AJUSTES}</dialog>
+<dialog id="dlg3">${INSTRUCOES_SELECAO}</dialog>
+<style>#pontos.tcp [data-led=in]{display:none}</style>
 
 <div class="card">
   <select id="maq"></select>
@@ -157,11 +204,20 @@ ${menuHtml("/clp")}
 
 <div class="card" id="cxcard">
   <h2>Conexão com o CLP</h2>
+  <div class="linha" style="margin-bottom:10px;align-items:flex-end">
+    <div style="flex:1;min-width:250px"><label>Tipo de conexão</label>
+      <select id="protocolo">
+        <option value="ethernet_ip">EtherNet/IP (área de I/O do CLP)</option>
+        <option value="tcp_ip">TCP/IP (memórias M, Modbus TCP)</option>
+      </select></div>
+    <button id="sel_info" type="button">Instruções de Seleção</button>
+  </div>
   <div class="campos" id="campos"></div>
-  <p class="linha" style="margin:10px 0 0"><label style="margin:0"><input type="checkbox" id="multicast"> CLP→PC em multicast</label></p>
+  <p class="linha" id="linha_multicast" style="margin:10px 0 0"><label style="margin:0"><input type="checkbox" id="multicast"> CLP→PC em multicast</label></p>
   <div class="linha" style="margin-top:10px">
     <button id="pad_robo" type="button">Valores Padrão Robô</button>
     <button id="pad_clp" type="button">Valores Padrão CLP (Universal)</button>
+    <button id="pad_tcp" type="button">Valores Padrão TCP/IP (Delta)</button>
     <button id="pad_info" type="button">Instruções de Ajustes Padrão</button>
   </div>
   <div class="linha" style="margin-top:10px">
@@ -174,7 +230,7 @@ ${menuHtml("/clp")}
 </div>
 
 <div class="card" id="bitcard">
-  <h2>Bits <span class="sub" style="font-weight:400">· <span class="led on"></span> saída do PC &nbsp; <span class="led in on"></span> vindo do CLP</span></h2>
+  <h2><span id="tit_bits">Bits</span> <span class="sub" style="font-weight:400" id="legenda"></span></h2>
   <div class="linha" style="margin-bottom:10px">
     <div style="width:110px"><label>De</label><input id="de" type="number" min="0"></div>
     <div style="width:110px"><label>Até</label><input id="ate" type="number" min="0"></div>
@@ -187,17 +243,25 @@ ${menuHtml("/clp")}
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const CAMPOS = [
+const CAMPOS_EIP = [
   ['ip', 'IP do CLP', 'text', 'ex.: 192.168.0.7'], ['ip_local', 'IP deste PC (vazio = detecta)', 'text', 'ex.: 192.168.0.120'],
   ['primeiro_bit', 'Primeiro bit', 'number', ''], ['ot_size', 'Bytes PC→CLP', 'number', ''], ['to_size', 'Bytes CLP→PC', 'number', ''],
   ['rpi_ms', 'RPI (ms)', 'number', ''], ['inst_cfg', 'Instância de configuração', 'number', ''],
   ['inst_ot', 'Instância O→T (PC→CLP)', 'number', ''], ['inst_to', 'Instância T→O (CLP→PC)', 'number', ''],
+];
+const CAMPOS_TCP = [
+  ['ip', 'IP do CLP', 'text', 'ex.: 192.168.0.10'], ['ip_local', 'IP deste PC (vazio = detecta)', 'text', 'ex.: 192.168.0.112'],
+  ['porta', 'Porta Modbus TCP', 'number', ''], ['unidade', 'ID da unidade (Modbus)', 'number', ''],
+  ['base_m', 'Endereço base da memória M (Delta DVP: 2048)', 'number', ''],
+  ['primeiro_bit', 'Primeira memória M (número)', 'number', ''], ['qtd_m', 'Quantidade de memórias lidas', 'number', ''],
 ];
 const MODOS = [['pulso', 'pulso'], ['alternar', 'alternar'], ['set', 'set (liga)'], ['reset', 'reset (desliga)']];
 let maquinas = [], cfg = null, est = null, maqAtual = '', ocupado = false, tSalvar = null;
 
 const atual = () => maquinas.find(m => m.maquina === $('maq').value);
 const pronta = () => { const m = atual(); return Boolean(m && m.online && m.clp); };
+const tcp = () => Boolean(cfg && cfg.protocolo === 'tcp_ip');
+const campos = () => tcp() ? CAMPOS_TCP : CAMPOS_EIP;
 function aviso(t, cls) { const r = $('res'); r.className = 'sub ' + (cls || ''); r.textContent = t; }
 
 async function api(url, opc) {
@@ -227,23 +291,31 @@ async function trocarMaquina() {
 }
 
 function desenhar() {
-  $('campos').innerHTML = CAMPOS.map(c => '<div><label>' + c[1] + '</label><input id="c_' + c[0] + '" type="' + c[2] + '" placeholder="' + esc(c[3]) + '" value="' + esc(cfg ? cfg[c[0]] : '') + '"></div>').join('');
+  const t = tcp();
+  $('protocolo').value = cfg ? cfg.protocolo : 'ethernet_ip';
+  $('campos').innerHTML = campos().map(c => '<div><label>' + c[1] + '</label><input id="c_' + c[0] + '" type="' + c[2] + '" placeholder="' + esc(c[3]) + '" value="' + esc(cfg ? cfg[c[0]] : '') + '"></div>').join('');
   $('multicast').checked = cfg ? Boolean(cfg.multicast) : true;
+  $('linha_multicast').style.display = t ? 'none' : '';
+  $('pad_robo').style.display = t ? 'none' : ''; $('pad_clp').style.display = t ? 'none' : ''; $('pad_tcp').style.display = t ? '' : 'none';
+  $('bzero').style.display = t ? 'none' : '';
+  $('tit_bits').textContent = t ? 'Memórias (M)' : 'Bits';
+  $('legenda').innerHTML = t ? '· <span class="led on"></span> memória ligada no CLP' : '· <span class="led on"></span> saída do PC &nbsp; <span class="led in on"></span> vindo do CLP';
   if (cfg) { $('de').value = cfg.primeiro_bit; $('ate').value = cfg.primeiro_bit + 7; }
   desenharPontos();
 }
 
 function desenharPontos() {
   const lista = cfg ? Object.values(cfg.pontos).sort((a, b) => a.numero - b.numero) : [];
+  $('pontos').className = 'grade' + (tcp() ? ' tcp' : '');
   $('pontos').innerHTML = lista.map(p =>
-    '<div class="mini" data-n="' + p.numero + '"><div class="linha"><span class="n">' + p.numero + '</span>' +
-    '<span class="led" data-led="out" title="saída do PC"></span><span class="led in" data-led="in" title="vindo do CLP"></span>' +
+    '<div class="mini" data-n="' + p.numero + '"><div class="linha"><span class="n">' + (tcp() ? 'M' : '') + p.numero + '</span>' +
+    '<span class="led" data-led="out" title="' + (tcp() ? 'memória ligada no CLP' : 'saída do PC') + '"></span><span class="led in" data-led="in" title="vindo do CLP"></span>' +
     '<button type="button" class="x" data-a="remover" title="Tirar da lista">tirar</button></div>' +
     '<input data-f="nome" placeholder="Nome da Memoria" maxlength="40" value="' + esc(p.nome) + '">' +
     '<div class="linha"><select data-f="modo" style="flex:1">' + MODOS.map(m => '<option value="' + m[0] + '"' + (p.modo === m[0] ? ' selected' : '') + '>' + m[1] + '</option>').join('') + '</select>' +
     '<input data-f="pulso_ms" type="number" min="10" max="5000" style="width:78px" title="duração do pulso (ms)" value="' + p.pulso_ms + '"></div>' +
     '<button type="button" class="principal" data-a="acionar">Acionar</button></div>').join('') ||
-    '<p class="sub">Nenhum bit na lista. Use "Adicionar faixa" (ex.: 512 a 519).</p>';
+    '<p class="sub">' + (tcp() ? 'Nenhuma memória na lista. Use "Adicionar faixa" (ex.: 0 a 7).' : 'Nenhum bit na lista. Use "Adicionar faixa" (ex.: 512 a 519).') + '</p>';
   pintar();
 }
 
@@ -251,28 +323,29 @@ const bytes = hex => (hex.match(/../g) || []).map(h => parseInt(h, 16));
 const ligado = (dados, bit, primeiro) => { const i = bit - primeiro; return i >= 0 && (i >> 3) < dados.length && (dados[i >> 3] & (1 << (i & 7))) !== 0; };
 
 function pintar() {
-  const m = atual(), conectado = Boolean(est && est.conectado);
+  const m = atual(), conectado = Boolean(est && est.conectado), estTcp = Boolean(est && est.protocolo === 'tcp_ip');
   $('info').innerHTML = !m ? 'Nenhuma máquina cadastrada.' :
     '<span class="bolinha" style="background:' + (m.online ? '#3ddc84' : '#ff5c5c') + '"></span>' + (m.online ? 'ativa' : 'offline (sem sinal há ' + esc(m.visto_ha_s ?? '?') + ' s)') +
     (m.online && !m.clp ? ' · <span class="aviso">marque "Ativar Conexao CLP: EtherNet/IP" no menu do ícone do agente (bandeja)</span>' : '') +
     (pronta() ? ' · conexão CLP ligada no agente' : '');
   $('conn').innerHTML = !pronta() ? '' : conectado
-    ? '<span class="ok">conectado a ' + esc(est.ip) + '</span> · enviados ' + est.tx + ' · recebidos ' + est.rx
+    ? '<span class="ok">conectado a ' + esc(est.ip) + ' por ' + (estTcp ? 'TCP/IP' : 'EtherNet/IP') + '</span>' + (estTcp ? '' : ' · enviados ' + est.tx + ' · recebidos ' + est.rx) +
+      (estTcp !== tcp() ? ' · <span class="aviso">o tipo escolhido na tela é outro: toque em Conectar para trocar</span>' : '')
     : 'desconectado' + (est && est.perdida ? ' · <span class="erro">' + esc(est.perdida) + '</span>' : '');
   for (const id of ['bident', 'bsalvar']) $(id).disabled = !m;
-  $('bident').disabled = !pronta(); $('bconn').disabled = !pronta() || conectado; $('bdesc').disabled = !pronta() || !conectado; $('bzero').disabled = !conectado;
+  $('bident').disabled = !pronta(); $('bconn').disabled = !pronta() || conectado; $('bdesc').disabled = !pronta() || !conectado; $('bzero').disabled = !conectado || estTcp;
   document.querySelectorAll('#pontos .mini').forEach(el => {
     const n = Number(el.dataset.n);
-    el.querySelector('[data-led=out]').classList.toggle('on', conectado && ligado(bytes(est.saida), n, est.primeiro_bit));
-    el.querySelector('[data-led=in]').classList.toggle('on', conectado && ligado(bytes(est.entrada), n, est.primeiro_bit));
+    el.querySelector('[data-led=out]').classList.toggle('on', conectado && (estTcp ? ligado(bytes(est.memorias), n, est.primeiro_bit) : ligado(bytes(est.saida), n, est.primeiro_bit)));
+    el.querySelector('[data-led=in]').classList.toggle('on', conectado && !estTcp && ligado(bytes(est.entrada), n, est.primeiro_bit));
     el.querySelector('[data-a=acionar]').disabled = !conectado;
   });
 }
 
 function lerForm() {
   if (!cfg) return;
-  for (const c of CAMPOS) { const v = $('c_' + c[0]).value.trim(); cfg[c[0]] = c[2] === 'number' ? (v === '' ? '' : Number(v)) : v; }
-  cfg.multicast = $('multicast').checked;
+  for (const c of campos()) { const el = $('c_' + c[0]); if (!el) continue; const v = el.value.trim(); cfg[c[0]] = c[2] === 'number' ? (v === '' ? '' : Number(v)) : v; }
+  if (!tcp()) cfg.multicast = $('multicast').checked;
 }
 async function salvar() {
   if (!cfg) return;
@@ -299,26 +372,37 @@ async function acao(nome, extra, quando) {
   await atualizar();
 }
 
-// valores padrão: robô Epson (EDS EPSN0901) ou ponto de partida mais aceito por CLPs em geral
+// valores padrão: robô Epson (EDS EPSN0901), ponto de partida para CLPs EtherNet/IP em geral, e Delta DVP por TCP/IP
 const PADROES = {
   robo: { primeiro_bit: 512, ot_size: 32, to_size: 32, rpi_ms: 20, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: true },
   clp: { primeiro_bit: 0, ot_size: 8, to_size: 8, rpi_ms: 50, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: false },
+  tcp: { porta: 502, unidade: 1, base_m: 2048, primeiro_bit: 0, qtd_m: 64 },
 };
+const NOMES_PADRAO = { robo: 'Valores Padrão Robô', clp: 'Valores Padrão CLP (Universal)', tcp: 'Valores Padrão TCP/IP (Delta)' };
 function aplicarPadrao(tipo) {
   if (!cfg) return aviso('Escolha uma máquina primeiro.', 'erro');
   const v = PADROES[tipo];
-  for (const k of Object.keys(v)) { if (k !== 'multicast') $('c_' + k).value = v[k]; }
-  $('multicast').checked = v.multicast;
+  for (const k of Object.keys(v)) { if (k !== 'multicast' && $('c_' + k)) $('c_' + k).value = v[k]; }
+  if ('multicast' in v) $('multicast').checked = v.multicast;
   $('de').value = v.primeiro_bit; $('ate').value = v.primeiro_bit + 7;
   lerForm(); salvarLogo();
-  aviso((tipo === 'robo' ? 'Valores Padrão Robô' : 'Valores Padrão CLP (Universal)') + ' aplicados e salvos. Se o CLP estiver conectado, desconecte e conecte de novo.', 'ok');
+  aviso(NOMES_PADRAO[tipo] + ' aplicados e salvos. Se o CLP estiver conectado, desconecte e conecte de novo.', 'ok');
 }
+function fecharAoClicar(id, botao) { $(id).addEventListener('click', e => { if (e.target === $(id) || e.target.id === botao) $(id).close(); }); }
 $('pad_robo').addEventListener('click', () => aplicarPadrao('robo'));
 $('pad_clp').addEventListener('click', () => aplicarPadrao('clp'));
+$('pad_tcp').addEventListener('click', () => aplicarPadrao('tcp'));
 $('pad_info').addEventListener('click', () => $('dlg2').showModal());
-$('dlg2').addEventListener('click', e => { if (e.target === $('dlg2') || e.target.id === 'fechar2') $('dlg2').close(); });
+$('sel_info').addEventListener('click', () => $('dlg3').showModal());
+fecharAoClicar('dlg2', 'fechar2'); fecharAoClicar('dlg3', 'fechar3'); fecharAoClicar('dlg', 'fechar');
 $('instr').addEventListener('click', () => $('dlg').showModal());
-$('dlg').addEventListener('click', e => { if (e.target === $('dlg') || e.target.id === 'fechar') $('dlg').close(); });
+$('protocolo').addEventListener('change', () => {
+  if (!cfg) return;
+  lerForm(); cfg.protocolo = $('protocolo').value; est = null;
+  desenhar(); salvarLogo();
+  aviso('Tipo de conexão: ' + (tcp() ? 'TCP/IP (memórias M, Modbus TCP)' : 'EtherNet/IP') + '. Confira os campos e toque em Conectar.', 'ok');
+  atualizar();
+});
 $('maq').addEventListener('change', trocarMaquina);
 $('bident').addEventListener('click', () => acao('identificar', null, 'Perguntando ao equipamento…'));
 $('bconn').addEventListener('click', () => acao('conectar', null, 'Conectando…'));
@@ -329,9 +413,9 @@ $('badd').addEventListener('click', () => {
   if (!cfg) return;
   const de = Number($('de').value), ate = Number($('ate').value);
   if (!Number.isInteger(de) || !Number.isInteger(ate) || de < 0 || ate < de) return aviso('Faixa inválida.', 'erro');
-  if (ate - de > 255) return aviso('No máximo 256 bits por vez.', 'erro');
+  if (ate - de > 255) return aviso('No máximo 256 por vez.', 'erro');
   for (let n = de; n <= ate; n++) if (!cfg.pontos[n]) cfg.pontos[n] = { numero: n, nome: '', modo: 'pulso', pulso_ms: 500 };
-  desenharPontos(); salvarLogo(); aviso('Bits ' + de + ' a ' + ate + ' adicionados.', 'ok');
+  desenharPontos(); salvarLogo(); aviso((tcp() ? 'Memórias ' : 'Bits ') + de + ' a ' + ate + ' adicionadas.', 'ok');
 });
 $('pontos').addEventListener('change', e => {
   const f = e.target.dataset.f, el = e.target.closest('.mini');

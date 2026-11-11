@@ -5,7 +5,9 @@ import { DB_URL } from "../../iot_automacao_esp/firebase.js";
 import { listarMaquinas, enviarComando } from "../../aplicacao_desk_agente/agente/maquinas.js";
 
 export const MODOS = ["alternar", "pulso", "set", "reset"];
+export const PROTOCOLOS = ["ethernet_ip", "tcp_ip"];   // EtherNet/IP (área de I/O) ou TCP/IP = Modbus TCP nas memórias M
 export const PADRAO = {
+  protocolo: "ethernet_ip", porta: 502, unidade: 1, base_m: 2048, qtd_m: 64,
   ip: "", ip_local: "", primeiro_bit: 512, ot_size: 32, to_size: 32, rpi_ms: 20, multicast: true,
   inst_cfg: 1, inst_ot: 150, inst_to: 100, pontos: {},
 };
@@ -35,6 +37,8 @@ export function validarConfig(b = {}) {
   for (const [rotulo, v] of [["IP do CLP", ip], ["IP deste PC", ipLocal]]) {
     if (v && (!ipv4.test(v) || v.split(".").some((x) => Number(x) > 255))) throw new Error(`${rotulo} inválido: ${v}`);
   }
+  const protocolo = b.protocolo ?? PADRAO.protocolo;
+  if (!PROTOCOLOS.includes(protocolo)) throw new Error(`Tipo de conexão inválido: ${protocolo}.`);
   const primeiro = inteiro(b.primeiro_bit, "Primeiro bit", 0, 1_000_000, PADRAO.primeiro_bit);
   const pontos = {};
   const lista = Array.isArray(b.pontos) ? b.pontos : Object.values(b.pontos ?? {});
@@ -49,6 +53,8 @@ export function validarConfig(b = {}) {
     pontos[numero] = { numero, nome, modo, pulso_ms: inteiro(p.pulso_ms, "Pulso (ms)", 10, 5000, 500) };
   }
   return {
+    protocolo, porta: inteiro(b.porta, "Porta", 1, 65535, PADRAO.porta), unidade: inteiro(b.unidade, "ID da unidade", 0, 255, PADRAO.unidade),
+    base_m: inteiro(b.base_m, "Endereço base da memória M", 0, 65535, PADRAO.base_m), qtd_m: inteiro(b.qtd_m, "Quantidade de memórias", 1, 2000, PADRAO.qtd_m),
     ip, ip_local: ipLocal, primeiro_bit: primeiro,
     ot_size: inteiro(b.ot_size, "Bytes PC→CLP", 0, 256, PADRAO.ot_size), to_size: inteiro(b.to_size, "Bytes CLP→PC", 0, 256, PADRAO.to_size),
     rpi_ms: inteiro(b.rpi_ms, "RPI (ms)", 1, 3200, PADRAO.rpi_ms), multicast: b.multicast === undefined ? PADRAO.multicast : Boolean(b.multicast),
@@ -96,17 +102,22 @@ export async function comandoClp(m, acao, params = {}) {
 }
 
 export function paramsConexao(cfg) {
-  const { ip, ip_local, primeiro_bit, ot_size, to_size, rpi_ms, multicast, inst_cfg, inst_ot, inst_to } = cfg;
+  const { protocolo, ip, ip_local, primeiro_bit, ot_size, to_size, rpi_ms, multicast, inst_cfg, inst_ot, inst_to, porta, unidade, base_m, qtd_m } = cfg;
   if (!ip) throw new Error("Falta o IP do CLP (preencha na aba Conexao Socket-TCP/IP e salve).");
-  return { ip, ip_local, primeiro_bit, ot_size, to_size, rpi_ms, multicast, inst_cfg, inst_ot, inst_to };
+  if (protocolo === "tcp_ip") return { protocolo, ip, ip_local, porta, unidade, base_m, primeiro_bit, qtd_m };
+  return { protocolo: "ethernet_ip", ip, ip_local, primeiro_bit, ot_size, to_size, rpi_ms, multicast, inst_cfg, inst_ot, inst_to };
 }
+// parâmetros do "estado": no TCP/IP o agente lê só a faixa de memórias configurada
+export const paramsEstado = (cfg) => (cfg.protocolo === "tcp_ip" ? { inicio: cfg.primeiro_bit, quantidade: cfg.qtd_m } : {});
 
 // Lê o estado ao vivo: { conectado, primeiro_bit, saida:[bytes], entrada:[bytes], ... }
-export async function lerEstado(m) {
-  const r = await comandoClp(m, "estado");
+export async function lerEstado(m, params = {}) {
+  const r = await comandoClp(m, "estado", params);
   if (!r.ok) throw new Error(r.texto);
   const e = JSON.parse(r.texto);
-  return e.conectado ? { ...e, saida: Buffer.from(e.saida, "hex"), entrada: Buffer.from(e.entrada, "hex") } : e;
+  if (!e.conectado) return e;
+  return e.protocolo === "tcp_ip" ? { ...e, memorias: Buffer.from(e.memorias, "hex") }
+    : { ...e, saida: Buffer.from(e.saida, "hex"), entrada: Buffer.from(e.entrada, "hex") };
 }
 export const bitLigado = (dados, bit, primeiro) => {
   const i = bit - primeiro;
