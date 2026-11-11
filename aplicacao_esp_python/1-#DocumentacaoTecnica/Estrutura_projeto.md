@@ -1,4 +1,4 @@
-# Estrutura do projeto — AUTOMACAO_IOT-AHS
+# Estrutura do projeto — Automacao_IOT-ESP
 
 Passo a passo para montar o projeto do zero: o que instalar, como ficam as pastas e como rodar e compilar.
 **Não traz o código**: ele está nos próprios arquivos do projeto. Gerado por `tools/gerar_estrutura.py`
@@ -6,17 +6,14 @@ Passo a passo para montar o projeto do zero: o que instalar, como ficam as pasta
 
 ## O que é
 
-**AUTOMACAO_IOT-AHS** reúne quatro partes:
+**Automacao_IOT-ESP** reúne três partes:
 
-1. **App desktop (PyQt6)**: janela principal só com a barra de menu **Arquivo | Automação IOT Site | Broker IOT |
-   Informações do Sistema**. Formulários: Repetidor ESP32, Automação Firebase, Broker MQTT IOT, Broker Fire IOT,
-   Automação IOT Fire (e-mails agendados), Gerenciar IOT Broker, editor de código dos firmwares, e os cards
+1. **App desktop (PyQt6)**: janela principal só com a barra de menu **Arquivo | Automação IOT Site |
+   Informações do Sistema**. Formulários: Repetidor ESP32, Automação Firebase, editor de código dos firmwares, e os cards
    Site Gerenciamento IOT, Listar Real Time Database e Informações do Sistema.
 2. **Firmware ESP32** (PlatformIO): `Repetidor` (repetidor Wi-Fi com NAT, display OLED) e `Automacao`
    (aciona pinos e lê switches pelo Firebase).
 3. **Site** (`fire_page/`, Vite + React) publicado no Firebase Hosting: https://amauryesp-active.web.app
-4. **Agente IOT** (`iot_FireMQtt_agente/`): roda em cada máquina (Windows/Linux), executa comandos permitidos
-   (Firebase ou MQTT) e os planos agendados (e-mail pelo Gmail).
 
 Projeto Firebase: `amauryesp-active` (Realtime Database `https://amauryesp-active-default-rtdb.firebaseio.com`).
 
@@ -48,13 +45,11 @@ python -m venv .venv
 ```
 AUTOMACAO_IOT/
 ├── CLAUDE.md
-├── main.py  e os atalhos: RepetidorESP.py, AutomacaoFirebase.py, AutomacaoSiteFire.py,
-│            BrokerMQttIOT.py, BrokerFire.py, GerenciarBrokerIOT.py, AutomacaoIOTFire.py
+├── main.py  e os atalhos: RepetidorESP.py, AutomacaoFirebase.py, AutomacaoSiteFire.py
 ├── requirements.txt
 ├── build_windows.ps1 / build_linux.sh          (executáveis do app)
 ├── 1-#DocumentacaoTecnica/                      (Preferencias_projeto.md, Estrutura_projeto.md,
-│                                                 Criar_firepage.md, Publicar_firepage.md, Agente_IOT.md,
-│                                                 Configurar_e-mail_Automacao_IOT_Fire.md)
+│                                                 Criar_firepage.md, Publicar_firepage.md)
 ├── assets/            icone_ia.ico, icone_ia.png, check.png, background_iot.jpg, background_iot_l.jpg
 ├── app/               theme, widgets, main_window, info_card, painel_card, code_editor, ...
 │   └── screens/       um arquivo por formulário
@@ -62,7 +57,6 @@ AUTOMACAO_IOT/
 │   ├── Repetidor/     platformio.ini, include/, src/repetidor.cpp
 │   └── Automacao/     platformio.ini, include/, src/automacao_iot.cpp
 ├── fire_page/         site: package.json, vite.config.js, firebase.json, index.html, public/, src/
-├── iot_FireMQtt_agente/  agente.py, agente_core/, enviar_comando.py, requirements.txt, build_*
 └── tools/             gerar_estrutura.py, gerar_topicos_site.py, gerar_criar_firepage.py
 ```
 
@@ -73,7 +67,6 @@ A lista de arquivos e o que cada um faz está no Passo 6.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt pyinstaller
-.\.venv\Scripts\python.exe -m pip install -r iot_FireMQtt_agente\requirements.txt
 cd fire_page
 npm install
 cd ..
@@ -95,32 +88,20 @@ cd ..
 - `RepetidorESP.py` — Roda só o formulário Repetidor ESP32.
 - `AutomacaoFirebase.py` — Roda só o formulário Automação Firebase.
 - `AutomacaoSiteFire.py` — Roda só o Site Gerenciamento IOT.
-- `BrokerMQttIOT.py` — Roda só o Broker MQTT IOT.
-- `BrokerFire.py` — Roda só o Broker Fire IOT.
-- `GerenciarBrokerIOT.py` — Roda só o Gerenciar IOT Broker.
-- `AutomacaoIOTFire.py` — Roda só a Automação IOT Fire (planos agendados).
 - `app/paths.py` — Acha arquivos empacotados (dentro do executável) ou no disco; ícone do programa.
 - `app/theme.py` — Tema Dark (padrão) / Light, cores neon e o stylesheet global.
 - `app/widgets.py` — Card, botões neon, botão de tema e o fundo (background) responsivo por tema.
-- `app/main_window.py` — Janela principal: barra de menu neon; TODOS os formulários abrem como card dentro dela, um por vez. Menus: Arquivo | Automação IOT Site | Broker IOT | Informações do Sistema.
+- `app/main_window.py` — Janela principal: barra de menu neon; TODOS os formulários abrem como card dentro dela, um por vez. Menus: Arquivo | Automação IOT Site | Informações do Sistema.
 - `app/info_card.py` — Card neon 'Informações do Sistema' (TOPICOS: o que cada coisa é, para que serve, como usar). Sempre o último card.
 - `app/painel_card.py` — Card neon sobre a janela principal, com X próprio: é onde TODOS os formulários abrem (barra de rolagem se não couber; pergunta se há algo não salvo).
 - `app/code_editor.py` — Caixa de texto com visual de VS Code (números de linha, cores de sintaxe C/C++, JSON, INI).
 - `app/firebase_rest.py` — Acesso ao Realtime Database por REST (sem SDK), com execução em thread.
-- `app/comandos.py` — Lista de comandos dos agentes e como montá-los.
-- `app/mqtt_gateway.py` — Gateway Firebase <-> broker MQTT local.
 - `app/serial_link.py` — Comunicação serial com o ESP32 (linhas com TAB).
 - `app/screens/firebase.py` — Formulário Automação Firebase: gera o automacao_config.h e grava o firmware Automação.
 - `app/screens/repetidor.py` — Formulário Repetidor ESP32: porta, redes, tipo/usuário/senha, ativar/parar.
 - `app/screens/flash_dialog.py` — Card 'Gravar firmware (.cpp)': compila e grava via PlatformIO.
 - `app/screens/site_fire.py` — Site Gerenciamento IOT: mostra https://amauryesp-active.web.app/ (QtWebEngine).
 - `app/screens/listar_rtdb.py` — Listar Real Time Database: esps e brokers ao vivo (streaming do Firebase).
-- `app/screens/broker_mqtt.py` — Broker MQTT IOT: broker MQTT embutido (amqtt) + gateway para o Firebase.
-- `app/screens/broker_fire.py` — Broker Fire IOT: cadastra este PC como broker Firebase e lista os brokers.
-- `app/screens/comandos_dialog.py` — Cardzinho de comandos de um broker (máquina, comando, EXECUTAR).
-- `app/screens/gerenciar_brokers.py` — Gerenciar IOT Broker: lista, renomeia e apaga brokers (apagar exige senha).
-- `app/screens/automacao_fire.py` — Automação IOT Fire: cria planos (enviar e-mail em data/hora) salvos no Firebase.
-- `app/screens/nova_automacao_esp.py` — Nova Automação ESP_Firebase (reservado, em branco por enquanto).
 - `app/screens/editar_automacoes_esp.py` — Editar Automações ESP: editor de código de um arquivo (abre em firmware/), SALVAR/CANCELAR.
 - `firmware/Repetidor/platformio.ini` — Projeto PlatformIO do repetidor (pioarduino / Arduino-ESP32 3.x).
 - `firmware/Repetidor/include/repetidor_config.h` — Liga/desliga o display e define os pinos do OLED.
@@ -134,14 +115,8 @@ cd ..
 - `fire_page/firebase.json` — Site: configuração do Firebase Hosting.
 - `fire_page/index.html` — Site: HTML base (ícone, título).
 - `fire_page/src/*.jsx / *.js / styles.css` — Site: páginas (Início, Automação, Brokers, Gerenciar, Informações), ícones, comandos, estilo neon. topicos.js é GERADO.
-- `iot_FireMQtt_agente/agente.py` — Agente IOT: ponto de entrada (tela na bandeja, --sem-tela, --simular).
-- `iot_FireMQtt_agente/agente_core/` — Agente: config, acoes (lista branca), nucleo, canal_mqtt, canal_firebase, agendador (e-mail), tela.
-- `iot_FireMQtt_agente/enviar_comando.py` — Manda um comando a um agente (teste e linha de comando).
-- `iot_FireMQtt_agente/requirements.txt` — Dependências do agente.
-- `iot_FireMQtt_agente/build_windows.ps1` — Gera o AgenteIOT.exe.
-- `iot_FireMQtt_agente/build_linux.sh` — Gera o AgenteIOT para Linux.
-- `build_windows.ps1` — Gera o AUTOMACAO_IOT-AHS.exe.
-- `build_linux.sh` — Gera o AUTOMACAO_IOT-AHS para Linux.
+- `build_windows.ps1` — Gera o Automacao_IOT-ESP.exe.
+- `build_linux.sh` — Gera o Automacao_IOT-ESP para Linux.
 - `tools/` — gerar_estrutura.py (este documento), gerar_topicos_site.py, gerar_criar_firepage.py.
 
 
@@ -152,14 +127,6 @@ cd ..
 ```powershell
 .\.venv\Scripts\python.exe main.py
 ```
-
-**Agente** (tela na bandeja do Windows; clique no ícone para abrir):
-
-```powershell
-.\.venv\Scripts\python.exe iot_FireMQtt_agente\agente.py
-```
-
-Passo a passo do agente: `Agente_IOT.md`. Do e-mail agendado: `Configurar_e-mail_Automacao_IOT_Fire.md`.
 
 **Site em desenvolvimento**: `cd fire_page` e `npm run dev`.
 
@@ -195,7 +162,7 @@ Passo 4. O estado atual e o histórico estão em `Preferencias_projeto.md` (seç
 
 ## Criar os executáveis (Windows e Linux)
 
-Sempre gerar **os quatro**: app e agente, cada um para Windows e Linux. O PyInstaller não faz build cruzado:
+Sempre gerar **os dois**: o app para Windows e para Linux. O PyInstaller não faz build cruzado:
 o Windows é gerado no Windows e o Linux no Linux (no Windows, pelo WSL). Os scripts não dependem do nome da pasta.
 Antes de gerar o site: `tools\gerar_estrutura.py` (gera o `topicos.js` do card Informações do Sistema).
 
@@ -205,8 +172,7 @@ Se o programa estiver aberto, **renomeie o .exe antes** (o Windows deixa renomea
 na raiz do projeto:
 
 ```powershell
-.\build_windows.ps1                          # dist\windows\AUTOMACAO_IOT-AHS.exe
-.\iot_FireMQtt_agente\build_windows.ps1      # iot_FireMQtt_agente\dist\windows\AgenteIOT.exe
+.\build_windows.ps1                          # dist\windows\Automacao_IOT-ESP.exe
 ```
 
 ### Linux
@@ -214,16 +180,15 @@ na raiz do projeto:
 No Linux, na raiz do projeto:
 
 ```bash
-chmod +x build_linux.sh iot_FireMQtt_agente/build_linux.sh
-./build_linux.sh                             # dist/linux/AUTOMACAO_IOT-AHS
-./iot_FireMQtt_agente/build_linux.sh         # iot_FireMQtt_agente/dist/linux/AgenteIOT
+chmod +x build_linux.sh
+./build_linux.sh                             # dist/linux/Automacao_IOT-ESP
 ```
 
 No Windows, pelo WSL (copia o projeto sem a .venv, gera os dois e traz os binários de volta). No PowerShell, na raiz:
 
 ```powershell
 $src = (wsl wslpath -a ($PWD.Path -replace '\\','/')).Trim()   # caminho da pasta no WSL
-wsl -d Ubuntu-24.04 -- bash -lc "rm -rf ~/rep_build && mkdir ~/rep_build && cd $src && tar --exclude=.venv --exclude=dist --exclude=build --exclude=__pycache__ --exclude=.pio --exclude=.venv-linux --exclude=node_modules -cf - . | tar -xf - -C ~/rep_build && cd ~/rep_build && sed -i 's/\r$//' build_linux.sh iot_FireMQtt_agente/build_linux.sh && bash build_linux.sh && bash iot_FireMQtt_agente/build_linux.sh && mkdir -p $src/dist/linux $src/iot_FireMQtt_agente/dist/linux && cp dist/linux/AUTOMACAO_IOT-AHS $src/dist/linux/ && cp iot_FireMQtt_agente/dist/linux/AgenteIOT $src/iot_FireMQtt_agente/dist/linux/"
+wsl -d Ubuntu-24.04 -- bash -lc "rm -rf ~/rep_build && mkdir ~/rep_build && cd $src && tar --exclude=.venv --exclude=dist --exclude=build --exclude=__pycache__ --exclude=.pio --exclude=.venv-linux --exclude=node_modules -cf - . | tar -xf - -C ~/rep_build && cd ~/rep_build && sed -i 's/\r$//' build_linux.sh iot_FireMQtt_agente/build_linux.sh && bash build_linux.sh && bash iot_FireMQtt_agente/build_linux.sh && mkdir -p $src/dist/linux $src/iot_FireMQtt_agente/dist/linux && cp dist/linux/Automacao_IOT-ESP $src/dist/linux/ && cp iot_FireMQtt_agente/dist/linux/AgenteIOT $src/iot_FireMQtt_agente/dist/linux/"
 ```
 
 Para rodar no Linux: instale `libxcb-cursor0` (Qt) e coloque o usuário no grupo da serial

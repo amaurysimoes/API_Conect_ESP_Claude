@@ -12,7 +12,7 @@ class PainelCard(QFrame):
     """Card neon sobre a janela principal (mesmo modelo do card de Informações), com um X que fecha SÓ este card.
 
     O conteúdo (um formulário) é criado ao abrir. Ao fechar é destruído (o formulário encerra o que estava fazendo),
-    exceto com `manter=True` (formulários que têm trabalho em andamento, como os brokers e a gravação do firmware):
+    exceto com `manter=True` (formulários que têm trabalho em andamento, como a gravação do firmware):
     aí o card só se esconde e o formulário continua vivo; ele é encerrado de verdade ao sair do programa."""
 
     def __init__(self, parent, titulo, fabrica, manter=False):

@@ -390,19 +390,16 @@ export const TOPICOS = [
       "Tipo de rede: Comum (WPA2/WPA3, casa: só nome e senha) ou Corporativa (EAP/PEAP, fábrica: também o usuário). Se o ESP não conectar, o display mostra o motivo (ex.: WiFi senha errada?, WiFi rede nao achada).",
       "Monte a lista de pinos: + ADICIONAR PINO ou TODOS OS PINOS LIVRES. Cada pino é Saída (ON/OFF) ou Entrada (switch).",
       "Clique em ⚡ Gravar no ESP. Ao ligar, o ESP aparece sozinho no site, na página Automação.",
-      "Arquivo → Editar Automações ESP: escolha um arquivo do firmware (abre na pasta firmware; se não achar, em C:\\) e edite o código (o texto aparece com cores e números de linha, como no VS Code). SALVAR grava no arquivo; CANCELAR fecha sem gravar o que não foi salvo.",
-      "Arquivo → Nova Automação ESP_Firebase: reservado, em branco por enquanto."
+      "Arquivo → Editar Automações ESP: escolha um arquivo do firmware (abre na pasta firmware; se não achar, em C:\\) e edite o código (o texto aparece com cores e números de linha, como no VS Code). SALVAR grava no arquivo; CANCELAR fecha sem gravar o que não foi salvo."
     ]
   },
   {
     "titulo": "4. Site",
     "onde": "https://amauryesp-active.web.app",
-    "que": "Página na internet com o Início e as páginas Automação, Brokers IOT, Gerenciar Brokers IOT e Informações do Sistema.",
-    "serve": "Acionar os ESPs e mandar comandos às máquinas sem abrir este programa, de qualquer lugar.",
+    "que": "Página na internet para acionar os ESPs.",
+    "serve": "Acionar os ESPs sem abrir este programa, de qualquer lugar.",
     "usar": [
       "Automação: clique num ESP online e use Ligar ou Pulso em cada pino.",
-      "Brokers IOT: dois grupos. <b>Broker Firebase</b> (internet: a máquina pode estar em qualquer rede) e <b>Broker MQTT</b> (rede local: a máquina precisa estar na mesma rede do broker). Clique num broker, escolha a máquina e o comando e clique em EXECUTAR. O broker aparece online quando está ativo ou quando alguma máquina dele está online.",
-      "Gerenciar Brokers IOT: veja todos os brokers criados e apague os que não quer mais (dois cliques).",
       "Informações do Sistema: este mesmo guia, sempre como o último card.",
       "Para atualizar o site depois de mudar algo: veja o passo a passo Publicar_firepage.md."
     ]
@@ -419,87 +416,24 @@ export const TOPICOS = [
     ]
   },
   {
-    "titulo": "6. Broker MQTT IOT",
-    "onde": "menu Broker IOT → Broker MQTT IOT",
-    "que": "Um broker MQTT que roda dentro deste programa, para a rede local.",
-    "serve": "Máquinas da mesma rede (ou sem internet) recebem comandos direto. Ele também entrega ao MQTT os comandos que o site manda pelo Firebase: por isso precisa ficar ativo na rede.",
-    "usar": [
-      "Informe o nome, a porta (padrão 1883), o usuário e a senha das máquinas.",
-      "Clique em ATIVAR BROKER MQTT e deixe o programa aberto. Se o Windows perguntar do Firewall, permita redes privadas.",
-      "A lista mostra as máquinas conectadas. PARAR BROKER MQTT desliga."
-    ]
-  },
-  {
-    "titulo": "7. Broker Fire IOT",
-    "onde": "menu Broker IOT → Broker Fire IOT",
-    "que": "Cadastra este computador como broker no Firebase e lista os brokers Firebase, os da internet (online/offline). Os brokers MQTT, da rede local, ficam no Broker MQTT IOT e no site.",
-    "serve": "Mandar comandos às máquinas por qualquer rede, pela internet.",
-    "usar": [
-      "Dê um nome e clique em ATIVAR BROKER FIRE.",
-      "Clique num broker da lista: abre o card de comandos.",
-      "Escolha a máquina e o comando e clique em EXECUTAR. Um clique é um comando, executado uma vez."
-    ]
-  },
-  {
-    "titulo": "8. Gerenciar IOT Broker",
-    "onde": "menu Broker IOT → Gerenciar IOT Broker (e no site: Gerenciar Brokers IOT)",
-    "que": "Lista todos os brokers criados, Firebase e MQTT.",
-    "serve": "Ver o que existe, trocar o nome e apagar o que não precisa mais (com senha). Apagar remove o broker, as máquinas e a fila de comandos dele.",
-    "usar": [
-      "Abra o menu Broker IOT → Gerenciar IOT Broker. A lista mostra o tipo (Firebase ou MQTT), o IP, quantas máquinas e se está online.",
-      "EDITAR NOME (botão azul): troca o nome do broker. Depois, escolha o nome novo no agente e no app.",
-      "APAGAR BROKER (botão vermelho): só apaga se você digitar a senha no campo \"Senha para apagar\".",
-      "No site é igual: Gerenciar Brokers IOT, botões Editar e Apagar.",
-      "Restos sem tipo aparecem como \"sem tipo (resto de máquina)\": são de uma máquina que ainda escreve ali; apague para limpar."
-    ]
-  },
-  {
-    "titulo": "9. Automação IOT Fire",
-    "onde": "menu Broker IOT → Automação IOT Fire",
-    "que": "Cria planos que o agente da máquina executa sozinho na hora marcada. Por enquanto: enviar e-mail. O plano fica salvo no Firebase.",
-    "serve": "Mandar e-mails automáticos numa data e hora (uma vez, todo dia ou em dias da semana), com destinatários, título e texto à sua escolha.",
-    "usar": [
-      "Antes, no Agente IOT (canal Firebase), cadastre em \"Contas de e-mail\" o Gmail e a senha de app que vão enviar. Pode cadastrar várias contas; as senhas ficam só na máquina do agente e o agente precisa ficar ligado.",
-      "Abra Automação IOT Fire, escolha o broker e a máquina, escolha a conta que envia, preencha nome, quando, destinatários, título e texto e clique em SALVAR PLANO.",
-      "Clique num plano da lista para editar; ATIVAR / DESATIVAR e APAGAR PLANO ficam acima do formulário.",
-      "A lista mostra o resultado da última execução (OK ou o erro). Máquina desligada: o e-mail sai se o atraso for de até 10 minutos; depois disso o horário é pulado."
-    ]
-  },
-  {
-    "titulo": "10. Agente IOT",
-    "onde": "programa à parte: iot_FireMQtt_agente\\dist\\windows\\AgenteIOT.exe (Linux: dist/linux/AgenteIOT)",
-    "que": "Programa instalado em cada máquina (Windows ou Linux) que será controlada.",
-    "serve": "Executa o que chega do broker, só ações permitidas: abrir o Explorer (pasta opcional), abrir um programa cadastrado, abrir um site, bloquear a tela, informações do sistema, desligar e reiniciar (pedem confirmação). No canal Firebase também executa os planos da Automação IOT Fire (e-mails agendados).",
-    "usar": [
-      "Abra o agente, dê o nome da máquina e escolha o broker: Firebase ou MQTT. Clique em INICIAR AGENTE.",
-      "Marque \"Iniciar sozinho\" para ele ligar junto com o programa.",
-      "Depois de configurado, o agente abre escondido: só o ícone ao lado do relógio. Clique no ícone para abrir; ao minimizar, ele volta a se esconder. Botão direito no ícone: Abrir ou Sair (Sair para o agente).",
-      "Sites: digite www.gmail.com e o https:// entra sozinho.",
-      "No MQTT também vale texto simples, por exemplo: <i>explorer</i>, <i>info</i>, <i>bloquear</i>, <i>url www.site.com</i>.",
-      "Cada comando executa uma vez; comando com mais de 30 s é ignorado.",
-      "Linux: rode na sessão gráfica (precisa de libxcb-cursor0) e cadastre os programas permitidos no config.json.",
-      "Passo a passo completo: Agente_IOT.md."
-    ]
-  },
-  {
-    "titulo": "11. Tema e documentos",
+    "titulo": "6. Tema e documentos",
     "onde": "botão Light/Dark e pasta 1-#DocumentacaoTecnica",
     "que": "O botão do canto troca entre escuro e claro. A pasta de documentação guarda tudo o que foi feito.",
     "serve": "Consultar o histórico e refazer o projeto passo a passo.",
     "usar": [
       "Preferencias_projeto.md: histórico e onde estamos.",
-      "Estrutura_projeto.md: o código de todos os arquivos.",
-      "Criar_firepage.md, Publicar_firepage.md e Agente_IOT.md: site e agente."
+      "Estrutura_projeto.md: passo a passo para recriar o projeto.",
+      "Criar_firepage.md e Publicar_firepage.md: o site."
     ]
   },
   {
-    "titulo": "12. Informações do Sistema",
+    "titulo": "7. Informações do Sistema",
     "onde": "menu Informações do Sistema (programa) e último card do Início (site)",
     "que": "Este guia.",
     "serve": "Saber o que cada coisa é e como usar. Fica sempre como o último card do programa e do site, e é atualizado a cada função nova.",
     "usar": [
       "No programa, só fecha no X do card.",
-      "No programa, todos os formulários abrem assim, como card dentro da janela principal, um por vez: abrir outro fecha o atual (os brokers e a gravação do firmware continuam rodando em segundo plano).",
+      "No programa, todos os formulários abrem assim, como card dentro da janela principal, um por vez: abrir outro fecha o atual (a gravação do firmware continua rodando em segundo plano).",
       "No site, o X volta ao Início."
     ]
   }
