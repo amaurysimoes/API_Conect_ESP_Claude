@@ -236,7 +236,8 @@ ${menuHtml("/clp")}
   <div class="linha" style="margin-bottom:10px">
     <div style="width:110px"><label>De</label><input id="de" type="number" min="0"></div>
     <div style="width:110px"><label>Até</label><input id="ate" type="number" min="0"></div>
-    <button id="badd" type="button" style="margin-top:17px">Adicionar faixa</button>
+    <button id="badd" type="button" style="margin-top:17px" title="Acrescenta as memórias de De até Até à lista">Adicionar faixa</button>
+    <button id="bupd" type="button" class="principal" style="margin-top:17px" title="Deixa na lista SÓ as memórias de De até Até">Atualizar faixa</button>
     <button id="bzero" type="button" style="margin-top:17px">Zerar todas as saídas</button>
   </div>
   <div class="grade" id="pontos"></div>
@@ -429,13 +430,46 @@ $('bconn').addEventListener('click', () => acao('conectar', null, 'Conectando…
 $('bdesc').addEventListener('click', () => acao('desconectar'));
 $('bzero').addEventListener('click', () => acao('zerar'));
 $('bsalvar').addEventListener('click', async () => { try { await salvar(); aviso('Configuração salva.', 'ok'); } catch (e) { aviso(e.message, 'erro'); } });
+// No TCP/IP o estado (bolinhas) é lido na faixa "primeira memória + quantidade": mantém essa faixa cobrindo tudo o que está na lista
+function sincronizarLeitura() {
+  if (!cfg || !tcp()) return;
+  const nums = Object.keys(cfg.pontos).map(Number);
+  if (!nums.length) return;
+  const menor = Math.min(...nums), maior = Math.max(...nums);
+  cfg.primeiro_bit = menor; cfg.qtd_m = Math.min(2000, maior - menor + 1);
+  if ($('c_primeiro_bit')) $('c_primeiro_bit').value = cfg.primeiro_bit;
+  if ($('c_qtd_m')) $('c_qtd_m').value = cfg.qtd_m;
+}
+async function salvarEAtualizar() {
+  try { await salvar(); } catch (e) { return aviso(e.message, 'erro'); }
+  await atualizar();
+}
+function lerFaixa() {
+  const de = Number($('de').value), ate = Number($('ate').value);
+  if (!Number.isInteger(de) || !Number.isInteger(ate) || de < 0 || ate < de) { aviso('Faixa inválida.', 'erro'); return null; }
+  if (ate - de > 255) { aviso('No máximo 256 por vez.', 'erro'); return null; }
+  return { de, ate };
+}
+const novoPonto = n => ({ numero: n, nome: '', modo: 'pulso', pulso_ms: 500 });
 $('badd').addEventListener('click', () => {
   if (!cfg) return;
-  const de = Number($('de').value), ate = Number($('ate').value);
-  if (!Number.isInteger(de) || !Number.isInteger(ate) || de < 0 || ate < de) return aviso('Faixa inválida.', 'erro');
-  if (ate - de > 255) return aviso('No máximo 256 por vez.', 'erro');
-  for (let n = de; n <= ate; n++) if (!cfg.pontos[n]) cfg.pontos[n] = { numero: n, nome: '', modo: 'pulso', pulso_ms: 500 };
-  desenharPontos(); salvarLogo(); aviso((tcp() ? 'Memórias ' : 'Bits ') + de + ' a ' + ate + ' adicionadas.', 'ok');
+  const f = lerFaixa(); if (!f) return;
+  for (let n = f.de; n <= f.ate; n++) if (!cfg.pontos[n]) cfg.pontos[n] = novoPonto(n);
+  sincronizarLeitura(); desenharPontos(); salvarEAtualizar();
+  aviso((tcp() ? 'Memórias ' : 'Bits ') + f.de + ' a ' + f.ate + ' adicionadas.', 'ok');
+});
+// Atualizar faixa: a lista passa a ter SÓ De..Até (nomes e ações das que já existiam são mantidos)
+$('bupd').addEventListener('click', () => {
+  if (!cfg) return;
+  const f = lerFaixa(); if (!f) return;
+  const sai = Object.values(cfg.pontos).filter(p => p.numero < f.de || p.numero > f.ate);
+  const comNome = sai.filter(p => p.nome).length;
+  if (comNome && !confirm('Isso tira da lista ' + sai.length + ' ' + (tcp() ? 'memórias' : 'bits') + ', ' + comNome + ' com nome. Continuar?')) return;
+  const novos = {};
+  for (let n = f.de; n <= f.ate; n++) novos[n] = cfg.pontos[n] || novoPonto(n);
+  cfg.pontos = novos;
+  sincronizarLeitura(); desenharPontos(); salvarEAtualizar();
+  aviso('Lista atualizada: ' + (tcp() ? 'memórias ' : 'bits ') + f.de + ' a ' + f.ate + '.', 'ok');
 });
 $('pontos').addEventListener('change', e => {
   const f = e.target.dataset.f, el = e.target.closest('.mini');
@@ -448,7 +482,7 @@ $('pontos').addEventListener('click', e => {
   const b = e.target.closest('[data-a]'), el = e.target.closest('.mini');
   if (!b || !el || !cfg) return;
   const p = cfg.pontos[el.dataset.n];
-  if (b.dataset.a === 'remover') { delete cfg.pontos[p.numero]; desenharPontos(); return salvarLogo(); }
+  if (b.dataset.a === 'remover') { delete cfg.pontos[p.numero]; sincronizarLeitura(); desenharPontos(); return salvarLogo(); }
   if (b.dataset.a === 'acionar') return acionar(p);
 });
 
