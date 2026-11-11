@@ -143,10 +143,11 @@ const INSTRUCOES_AJUSTES = `
 <ul>
 <li><b>Porta Modbus TCP (502):</b> porta do CLP para Modbus TCP.</li>
 <li><b>ID da unidade (1):</b> endereço Modbus do CLP (também chamado de station ou slave). Quase sempre 1.</li>
-<li><b>Endereço base da memória M (2048):</b> o endereço Modbus onde está a memória M0. Endereço da memória = base + número. <b>Delta DVP:</b> M0 = <code>0800H</code> = <code>2048</code>. M1536 em diante ficam em outro trecho do mapa (<code>B000H</code> = 45056): use base <code>43520</code> para essas. Outras linhas Delta (AS etc.): veja a tabela Modbus do manual do seu modelo.</li>
+<li><b>Endereço base da memória M (2048):</b> o endereço Modbus onde está a memória M0. Endereço da memória = base + número. <b>Delta DVP:</b> M0 = <code>0800H</code> = <code>2048</code>. M1536 em diante ficam em outro trecho do mapa (<code>B000H</code> = 45056): use base <code>43520</code> para essas. <b>Delta AS (AS300):</b> o AS332P aceita 8192 bobinas a partir do endereço <code>0</code> (M0–M8191), então use base <code>0</code>. Isso foi deduzido lendo o CLP, não do manual: confirme com uma memória sua que você sabe se está ligada (veja abaixo).</li>
 <li><b>Primeira memória M / Quantidade:</b> a faixa que a tela lê para mostrar o estado (ex.: M0 e 64 memórias = M0 a M63).</li>
 </ul>
-<p>O botão <b>Valores Padrão TCP/IP (Delta)</b> coloca <code>502 / 1 / 2048 / M0 / 64</code>. Só vale para Delta DVP: confira o manual do seu modelo.</p>
+<p><b>Valores Padrão TCP/IP (Delta DVP)</b> coloca <code>502 / 1 / 2048 / M0 / 64</code>. <b>Valores Padrão TCP/IP (Delta AS)</b> coloca <code>502 / 1 / 0 / M0 / 64</code>.</p>
+<div class="caixa alerta"><p><b>Como conferir o endereço base sem acionar nada:</b> conecte e olhe a bolinha de uma memória que você <b>sabe</b> estar ligada no CLP (ou desligada). Se a bolinha bate com o CLP, o base está certo. Se não bate, troque o base.</p></div>
 <p>Depois de tocar num botão, os valores já ficam salvos. O <b>Primeiro bit</b> muda junto: os bits da lista têm de estar dentro da nova faixa.</p>
 </div>`;
 
@@ -176,7 +177,7 @@ const INSTRUCOES_SELECAO = `
 <ol>
 <li>No CLP, habilite o Modbus TCP na porta Ethernet (porta 502) e anote o endereço Modbus de M0 no manual.</li>
 <li>Em <b>Tipo de conexão</b>, escolha <b>TCP/IP (memórias M, Modbus TCP)</b>.</li>
-<li>Toque em <b>Valores Padrão TCP/IP (Delta)</b> (ou preencha os campos), coloque o <b>IP do CLP</b> e toque em <b>Identificar</b>.</li>
+<li>Toque em <b>Valores Padrão TCP/IP (Delta DVP)</b> ou <b>(Delta AS)</b> (ou preencha os campos), coloque o <b>IP do CLP</b> e toque em <b>Identificar</b>.</li>
 <li>Toque em <b>Conectar</b>, adicione a faixa (ex.: 0 a 7), dê o <b>Nome da Memoria</b> e escolha a ação.</li>
 <li>Teste primeiro numa memória que <b>não</b> controle nada importante.</li>
 </ol>
@@ -217,7 +218,8 @@ ${menuHtml("/clp")}
   <div class="linha" style="margin-top:10px">
     <button id="pad_robo" type="button">Valores Padrão Robô</button>
     <button id="pad_clp" type="button">Valores Padrão CLP (Universal)</button>
-    <button id="pad_tcp" type="button">Valores Padrão TCP/IP (Delta)</button>
+    <button id="pad_tcp" type="button">Valores Padrão TCP/IP (Delta DVP)</button>
+    <button id="pad_tcp_as" type="button">Valores Padrão TCP/IP (Delta AS)</button>
     <button id="pad_info" type="button">Instruções de Ajustes Padrão</button>
   </div>
   <div class="linha" style="margin-top:10px">
@@ -252,7 +254,7 @@ const CAMPOS_EIP = [
 const CAMPOS_TCP = [
   ['ip', 'IP do CLP', 'text', 'ex.: 192.168.0.10'], ['ip_local', 'IP deste PC (vazio = detecta)', 'text', 'ex.: 192.168.0.112'],
   ['porta', 'Porta Modbus TCP', 'number', ''], ['unidade', 'ID da unidade (Modbus)', 'number', ''],
-  ['base_m', 'Endereço base da memória M (Delta DVP: 2048)', 'number', ''],
+  ['base_m', 'Endereço base da memória M (Delta DVP: 2048 · Delta AS: 0)', 'number', ''],
   ['primeiro_bit', 'Primeira memória M (número)', 'number', ''], ['qtd_m', 'Quantidade de memórias lidas', 'number', ''],
 ];
 const MODOS = [['pulso', 'pulso'], ['alternar', 'alternar'], ['set', 'set (liga)'], ['reset', 'reset (desliga)']];
@@ -296,7 +298,7 @@ function desenhar() {
   $('campos').innerHTML = campos().map(c => '<div><label>' + c[1] + '</label><input id="c_' + c[0] + '" type="' + c[2] + '" placeholder="' + esc(c[3]) + '" value="' + esc(cfg ? cfg[c[0]] : '') + '"></div>').join('');
   $('multicast').checked = cfg ? Boolean(cfg.multicast) : true;
   $('linha_multicast').style.display = t ? 'none' : '';
-  $('pad_robo').style.display = t ? 'none' : ''; $('pad_clp').style.display = t ? 'none' : ''; $('pad_tcp').style.display = t ? '' : 'none';
+  $('pad_robo').style.display = t ? 'none' : ''; $('pad_clp').style.display = t ? 'none' : ''; $('pad_tcp').style.display = t ? '' : 'none'; $('pad_tcp_as').style.display = t ? '' : 'none';
   $('bzero').style.display = t ? 'none' : '';
   $('tit_bits').textContent = t ? 'Memórias (M)' : 'Bits';
   $('legenda').innerHTML = t ? '· <span class="led on"></span> memória ligada no CLP' : '· <span class="led on"></span> saída do PC &nbsp; <span class="led in on"></span> vindo do CLP';
@@ -377,8 +379,9 @@ const PADROES = {
   robo: { primeiro_bit: 512, ot_size: 32, to_size: 32, rpi_ms: 20, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: true },
   clp: { primeiro_bit: 0, ot_size: 8, to_size: 8, rpi_ms: 50, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: false },
   tcp: { porta: 502, unidade: 1, base_m: 2048, primeiro_bit: 0, qtd_m: 64 },
+  tcp_as: { porta: 502, unidade: 1, base_m: 0, primeiro_bit: 0, qtd_m: 64 },
 };
-const NOMES_PADRAO = { robo: 'Valores Padrão Robô', clp: 'Valores Padrão CLP (Universal)', tcp: 'Valores Padrão TCP/IP (Delta)' };
+const NOMES_PADRAO = { robo: 'Valores Padrão Robô', clp: 'Valores Padrão CLP (Universal)', tcp: 'Valores Padrão TCP/IP (Delta DVP)', tcp_as: 'Valores Padrão TCP/IP (Delta AS)' };
 function aplicarPadrao(tipo) {
   if (!cfg) return aviso('Escolha uma máquina primeiro.', 'erro');
   const v = PADROES[tipo];
@@ -392,6 +395,7 @@ function fecharAoClicar(id, botao) { $(id).addEventListener('click', e => { if (
 $('pad_robo').addEventListener('click', () => aplicarPadrao('robo'));
 $('pad_clp').addEventListener('click', () => aplicarPadrao('clp'));
 $('pad_tcp').addEventListener('click', () => aplicarPadrao('tcp'));
+$('pad_tcp_as').addEventListener('click', () => aplicarPadrao('tcp_as'));
 $('pad_info').addEventListener('click', () => $('dlg2').showModal());
 $('sel_info').addEventListener('click', () => $('dlg3').showModal());
 fecharAoClicar('dlg2', 'fechar2'); fecharAoClicar('dlg3', 'fechar3'); fecharAoClicar('dlg', 'fechar');

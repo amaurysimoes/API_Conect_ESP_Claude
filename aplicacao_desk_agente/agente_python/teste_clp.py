@@ -53,7 +53,7 @@ try:
     confere(acoes_clp.nomes_acoes() == [], "checkbox desligado: nenhuma ação CLP é anunciada no status")
     erro(acoes_clp.clp_conectar, base, "Ativar Conexao CLP")
     acoes_clp.definir_ativo(True)
-    confere("clp_conectar" in acoes_clp.nomes_acoes() and len(acoes_clp.nomes_acoes()) == 6, "checkbox ligado: 6 ações anunciadas")
+    confere("clp_conectar" in acoes_clp.nomes_acoes() and "clp_tcp_ip" in acoes_clp.nomes_acoes() and len(acoes_clp.nomes_acoes()) == 7, "checkbox ligado: 6 ações + marcador TCP/IP anunciados")
 
     erro(acoes_clp.clp_conectar, {**base, "ip": "8.8.8.8"}, "rede local")
     erro(acoes_clp.clp_conectar, {**base, "ip": "abc"}, "IPv4")

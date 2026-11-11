@@ -98,6 +98,10 @@ export async function escolherMaquinaClp(nome) {
 export async function comandoClp(m, acao, params = {}) {
   if (!m.online) throw new Error(`A máquina ${m.maquina} está offline (sem sinal há ${m.visto_ha_s ?? "?"} s).`);
   if (!temClp(m)) throw new Error(`Na máquina ${m.maquina}, marque "Ativar Conexao CLP: EtherNet/IP" no menu do ícone do agente (bandeja).`);
+  // agente antigo ignora o tipo TCP/IP e tentaria EtherNet/IP (erro enganoso): só ele não anuncia o marcador clp_tcp_ip
+  if (params.protocolo === "tcp_ip" && !m.acoes.includes("clp_tcp_ip")) {
+    throw new Error(`O agente da máquina ${m.maquina} é uma versão antiga e não tem a conexão TCP/IP. Feche o agente (ícone da bandeja → Sair), troque o Render_Agente.exe pelo novo (aplicacao_desk_agente\agente_python\dist\Windows\Render_Agente.exe) e abra de novo.`);
+  }
   return enviarComando(m, `clp_${acao}`, params);
 }
 

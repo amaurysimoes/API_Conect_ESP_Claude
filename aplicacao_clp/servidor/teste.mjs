@@ -70,7 +70,7 @@ try {
 
   // ---- aba, menu e instruções ----
   const pag = await (await req("GET", "/clp")).text();
-  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Duas formas de conectar", "Delta", "Mitsubishi FX3U", "protocolo MC (MELSEC)", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade", "Instruções de Seleção", "TCP/IP (memórias M, Modbus TCP)", "Valores Padrão TCP/IP (Delta)", "Endereço base da memória M", "Tipo de conexão"]) {
+  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Duas formas de conectar", "Delta", "Mitsubishi FX3U", "protocolo MC (MELSEC)", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade", "Instruções de Seleção", "TCP/IP (memórias M, Modbus TCP)", "Valores Padrão TCP/IP (Delta DVP)", "Valores Padrão TCP/IP (Delta AS)", "Endereço base da memória M", "Tipo de conexão"]) {
     assert.ok(pag.includes(trecho), "a página/instruções têm: " + trecho);
   }
   const home = await (await req("GET", "/")).text();
@@ -156,6 +156,9 @@ try {
   assert.ok(!JSON.stringify(banco).includes("chave-de-teste"), "a chave nunca vai para o Firebase");
   console.log("OK zerar saídas e desconectar");
   // ---- TCP/IP (Modbus TCP) nas memórias M ----
+  const { comandoClp: comandoDireto } = await import("./clp.js");
+  await assert.rejects(comandoDireto({ maquina: "VELHO", broker: "B", online: true, acoes: ["clp_conectar", "clp_estado"] }, "conectar", { protocolo: "tcp_ip", ip: "127.0.0.1" }),
+    /versão antiga e não tem a conexão TCP\/IP/, "agente antigo: aviso claro em vez do erro enganoso do EtherNet/IP");
   const ruimProto = await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { ip: "127.0.0.1", protocolo: "ftp" } });
   assert.equal(ruimProto.status, 400, "tipo de conexão inválido recusado");
   const cfgTcp = await (await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: {

@@ -70,7 +70,8 @@ def encerrar():
 
 def nomes_acoes():
     """Entram na lista de ações do status só com o checkbox marcado (é assim que a aba do Render sabe)."""
-    return sorted(ACOES) if ativo() else []
+    # "clp_tcp_ip" é só um marcador: diz à aba que este agente sabe falar TCP/IP (Modbus TCP). Agente antigo não tem.
+    return sorted(ACOES) + ["clp_tcp_ip"] if ativo() else []
 
 
 def item_menu(pystray):
