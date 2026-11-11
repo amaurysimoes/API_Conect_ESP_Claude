@@ -14,7 +14,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
 ```
-Executável: `dist\windows\Automacao_IOT-ESP.exe` (projeto `C:\Dev-AHS\AUTOMACAO_IOT` ou `aplicacao_esp_python`). Gerar de novo: `.uild_windows.ps1`.
+Executável: `dist\windows\Automacao_IOT-ESP.exe` (projeto `C:\Dev-AHS\AUTOMACAO_IOT` ou `aplicacao_esp_python`). Gerar de novo: `.\build_windows.ps1`.
 
 ## 3. Gravar
 Menu **Arquivo → Automação ESP_Firebase → Automação Firebase**.
