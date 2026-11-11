@@ -1,4 +1,4 @@
-// Teste sem gastar nada: Firebase falso (local) + Google simulado. Rodar: node gps_amaury/teste.mjs
+// Teste sem gastar nada: Firebase falso (local) + Google simulado. Rodar: node aplicacao_gps/teste.mjs
 import http from "node:http";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
@@ -19,7 +19,7 @@ await new Promise((r) => fake.listen(4599, "127.0.0.1", r));
 Object.assign(process.env, { FIREBASE_URL: "http://127.0.0.1:4599", MCP_TOKEN: "tok", PAINEL_SENHA: "s", GOOGLE_MAPS_KEY: "x", CIDADE_PADRAO: "Rio Claro - SP" });
 
 // --- servidor real como processo filho ---
-const filho = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4598" }, stdio: "ignore" });
+const filho = spawn("node", ["iot_automacao_esp/servidor.js"], { env: { ...process.env, PORTA: "4598" }, stdio: "ignore" });
 await new Promise((r) => setTimeout(r, 2500));
 const B = "http://127.0.0.1:4598", auth = { Authorization: "Basic " + Buffer.from("u:s").toString("base64") };
 const j = (m, p, b) => fetch(B + p, { method: m, headers: { ...auth, "Content-Type": "application/json" }, body: b && JSON.stringify(b) });

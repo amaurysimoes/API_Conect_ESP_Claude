@@ -1,7 +1,7 @@
 // Lugares salvos com nome ("Casa 1", "Trabalho"...) -> endereço.
 // Fontes: página /enderecos (cifrado no Firebase) e, opcionalmente, a variável LUGARES_JSON do Render:
 //   {"Casa 1":"Rua A, 100, Bairro, Cidade - UF"}
-import { tokens } from "../src/mapa.js";
+import { tokens } from "../iot_automacao_esp/mapa.js";
 import { listarLugaresSalvos } from "./lugaresStore.js";
 
 export async function lerLugares() {

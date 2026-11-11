@@ -8,7 +8,7 @@ import { timingSafeEqual } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { criarServidorMcp } from "./ferramentas.js";
 import { listarEsps, gravarPalavras } from "./firebase.js";
-import { gpsHttp } from "../gps_amaury/http.js"; // módulo maps/GPS (pasta própria)
+import { gpsHttp } from "../aplicacao_gps/http.js"; // módulo maps/GPS (pasta própria)
 import { deskHttp } from "../aplicacao_desk_agente/agente/http.js"; // módulo agente/Desk (pasta própria)
 import { clpHttp } from "../aplicacao_clp/servidor/http.js"; // módulo Conexao Socket-TCP/IP (pasta própria)
 

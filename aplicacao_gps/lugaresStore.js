@@ -3,7 +3,7 @@
 // (único caminho que as regras abertas do banco liberam; o código antigo ignora esse campo, então nada muda para ele).
 // O ESP que hospeda é LUGARES_ESP, ou o primeiro da lista; na leitura juntamos os de todos os ESPs.
 import { randomBytes } from "node:crypto";
-import { DB_URL } from "../src/firebase.js";
+import { DB_URL } from "../iot_automacao_esp/firebase.js";
 import { cifrar, decifrar } from "./cripto.js";
 
 const CAMPO = "lugares_cifrados";

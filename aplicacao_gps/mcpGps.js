@@ -1,4 +1,4 @@
-// Ferramentas do módulo maps/GPS para o conector do Claude. instalarGps(server) é chamado UMA vez em src/ferramentas.js:
+// Ferramentas do módulo maps/GPS para o conector do Claude. instalarGps(server) é chamado UMA vez em iot_automacao_esp/ferramentas.js:
 //  1) adiciona a todas as ferramentas (inclusive as antigas) a dica do Render dormindo e o aviso de "acabou de acordar";
 //  2) registra melhor_rota, orientar e listar_lugares. Não muda nenhuma ferramenta que já existia.
 import { z } from "zod";
