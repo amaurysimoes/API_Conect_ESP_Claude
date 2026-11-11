@@ -239,7 +239,7 @@ function desenharPontos() {
     '<div class="mini" data-n="' + p.numero + '"><div class="linha"><span class="n">' + p.numero + '</span>' +
     '<span class="led" data-led="out" title="saída do PC"></span><span class="led in" data-led="in" title="vindo do CLP"></span>' +
     '<button type="button" class="x" data-a="remover" title="Tirar da lista">tirar</button></div>' +
-    '<input data-f="nome" placeholder="Nome da Memoria (ex: Aciona Sensor1)" maxlength="40" value="' + esc(p.nome) + '">' +
+    '<input data-f="nome" placeholder="Nome da Memoria" maxlength="40" value="' + esc(p.nome) + '">' +
     '<div class="linha"><select data-f="modo" style="flex:1">' + MODOS.map(m => '<option value="' + m[0] + '"' + (p.modo === m[0] ? ' selected' : '') + '>' + m[1] + '</option>').join('') + '</select>' +
     '<input data-f="pulso_ms" type="number" min="10" max="5000" style="width:78px" title="duração do pulso (ms)" value="' + p.pulso_ms + '"></div>' +
     '<button type="button" class="principal" data-a="acionar">Acionar</button></div>').join('') ||
