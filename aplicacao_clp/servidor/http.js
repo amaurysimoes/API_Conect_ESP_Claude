@@ -40,6 +40,8 @@ export async function clpHttp(req, res, caminho, { json, corpoJson }) {
       if (!ACOES.includes(b.acao)) throw new Error(`Ação desconhecida: ${b.acao}. Use: ${ACOES.join(", ")}.`);
       const m = await maquinaDe(b.maquina);
       let params = {};
+      let cfgBit = null;
+      if (b.acao === "bit") cfgBit = await lerConfig(m);
       if (b.acao === "identificar" || b.acao === "conectar" || b.acao === "estado") {
         const cfg = await lerConfig(m);
         if (b.acao === "conectar") params = paramsConexao(cfg);
@@ -52,6 +54,8 @@ export async function clpHttp(req, res, caminho, { json, corpoJson }) {
         params = { bit: b.bit, modo: b.modo ?? "alternar", ...(b.pulso_ms ? { pulso_ms: Number(b.pulso_ms) } : {}) };
       }
       const r = await comandoClp(m, b.acao, params);
+      // TCP/IP: mostra o endereço Modbus realmente usado (endereço base errado = outra memória do CLP)
+      if (r.ok && cfgBit && cfgBit.protocolo === "tcp_ip") r.texto += ` (bobina Modbus ${cfgBit.base_m + b.bit}, base ${cfgBit.base_m})`;
       return resposta(200, { maquina: m.maquina, ...r });
     }
   } catch (e) {
