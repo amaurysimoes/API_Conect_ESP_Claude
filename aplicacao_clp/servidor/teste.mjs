@@ -173,7 +173,7 @@ try {
   assert.ok(eTcp.conectado && eTcp.protocolo === "tcp_ip" && eTcp.quantidade === 64, "estado TCP/IP: " + JSON.stringify(eTcp));
   assert.ok(Buffer.from(eTcp.memorias, "hex")[2] & 0x10, "M20 (já ligada no CLP) aparece ligada");
   const set3 = await exec("bit", { bit: 3, modo: "set" });
-  assert.ok(set3.ok && set3.texto.includes("M3 = ON"), JSON.stringify(set3));
+  assert.ok(set3.ok && set3.texto.includes("M3 = ON") && set3.texto.includes("bobina Modbus 2051, base 2048"), JSON.stringify(set3));
   eTcp = JSON.parse((await exec("estado")).texto);
   assert.ok(Buffer.from(eTcp.memorias, "hex")[0] & 0x08, "M3 ligada lida de volta do CLP");
   const zTcp = await exec("zerar");
@@ -181,7 +181,7 @@ try {
   const listaTcp = await ferramenta("listar_clp", {});
   assert.ok(listaTcp.includes("TCP/IP (Modbus TCP)") && listaTcp.includes("CONECTADO") && listaTcp.includes("memória M3") && listaTcp.includes("LIGADA") && listaTcp.includes("Esteira M"), listaTcp);
   const viaClaudeTcp = await ferramenta("acionar_clp", { ponto: "esteira m" });
-  assert.ok(viaClaudeTcp.includes("M5 = ON (alternar)") && !viaClaudeTcp.includes("isError\":true"), viaClaudeTcp);
+  assert.ok(viaClaudeTcp.includes("M5 = ON (alternar)") && viaClaudeTcp.includes("bobina Modbus 2053") && !viaClaudeTcp.includes("isError\":true"), viaClaudeTcp);
   const pulsoTcp = await ferramenta("acionar_clp", { ponto: "luz" });
   assert.ok(pulsoTcp.includes("M7: pulso de 300 ms"), pulsoTcp);
   const foraTcp = await ferramenta("acionar_clp", { ponto: "5000", acao: "set" });

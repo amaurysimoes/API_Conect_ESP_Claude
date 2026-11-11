@@ -85,7 +85,8 @@ export function instalarClp(server) {
         }
         const modo = acao ?? p.modo;
         const r = await comandoClp(m, "bit", { bit: p.numero, modo, ...(modo === "pulso" ? { pulso_ms: pulso_ms ?? p.pulso_ms } : {}) });
-        return texto(`${m.maquina}: ${avisoConexao}${r.texto}${p.nome ? ` ("${p.nome}")` : ""}`, !r.ok);
+        const endereco = r.ok && cfg.protocolo === "tcp_ip" ? ` (bobina Modbus ${cfg.base_m + p.numero}, base ${cfg.base_m})` : "";
+        return texto(`${m.maquina}: ${avisoConexao}${r.texto}${endereco}${p.nome ? ` ("${p.nome}")` : ""}`, !r.ok);
       } catch (e) { return texto(String(e.message || e), true); }
     }
   );
