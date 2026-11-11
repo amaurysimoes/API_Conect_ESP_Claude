@@ -9,7 +9,7 @@ Você   ──► painel (senha) ──► nomes dos pinos, endereços, atalhos
 
 | Pasta | O que é |
 |---|---|
-| `iot_automacao_esp/` | IOT-Automacao: ESP, painel, MCP, Firebase |
+| `iot_automacao_esp/` | IOT-Automacao-ESP: ESP, painel, MCP, Firebase |
 | `aplicacao_gps/` | rotas, endereços, GPS |
 | `aplicacao_desk_agente/` | agente do PC (Windows/Linux) + aba Desk |
 | `aplicacao_android/` | `api_conect.apk` |

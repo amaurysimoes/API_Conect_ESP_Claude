@@ -116,6 +116,30 @@ const INSTRUCOES = `
 </div>
 </div>`;
 
+const INSTRUCOES_AJUSTES = `
+<button class="fecha" id="fechar2" type="button">Fechar</button>
+<div class="dlg">
+<h1>Instruções de Ajustes Padrão</h1>
+<p>São os parâmetros da conexão EtherNet/IP. <b>Todos têm de bater com o que o CLP tem configurado.</b></p>
+<ul>
+<li><b>Bytes CLP→PC (32):</b> quantos bytes o CLP envia ao PC. 32 bytes são 256 bits (os bits de retorno, as bolinhas azuis).</li>
+<li><b>RPI (20 ms):</b> de quanto em quanto tempo o PC e o CLP trocam dados. 20 ms são 50 trocas por segundo.</li>
+<li><b>Instância de configuração (1):</b> número do bloco do CLP usado só para configurar a conexão.</li>
+<li><b>Instância O→T (150):</b> bloco do CLP onde o PC escreve. Daqui saem as saídas que você aciona. O→T quer dizer "Originador para Target", ou seja, PC → CLP.</li>
+<li><b>Instância T→O (100):</b> bloco do CLP de onde o PC lê. É o retorno, CLP → PC.</li>
+</ul>
+<div class="caixa alerta"><p>Esses números (1, 150, 100 e 32 bytes) vêm do arquivo <b>EDS do robô Epson</b>. No seu CLP eles podem ser outros. O EDS dele ou o manual diz quais são. Se estiverem errados, a conexão é recusada, e a tela mostra qual valor ajustar.</p></div>
+
+<h3>Botões de valores padrão</h3>
+<table>
+<tr><th>Botão</th><th>O que coloca</th></tr>
+<tr><td><b>Valores Padrão Robô</b></td><td>Os valores do robô Epson (EDS <code>EPSN0901</code>): primeiro bit <code>512</code>, bytes <code>32 / 32</code>, RPI <code>20</code>, instâncias <code>1 / 150 / 100</code>, CLP→PC em multicast <b>ligado</b>.</td></tr>
+<tr><td><b>Valores Padrão CLP (Universal)</b></td><td>Ponto de partida mais aceito: primeiro bit <code>0</code>, bytes <code>8 / 8</code>, RPI <code>50</code>, instâncias <code>1 / 150 / 100</code>, CLP→PC em ponto-a-ponto (multicast <b>desligado</b>).</td></tr>
+</table>
+<div class="caixa alerta"><p><b>Não existe um padrão universal de verdade:</b> cada CLP define os dele no EDS. Os "universais" são só um ponto de partida seguro (mais lento e sem multicast). Se a conexão for recusada, a mensagem de erro diz qual valor trocar.</p></div>
+<p>Depois de tocar num botão, os valores já ficam salvos. O <b>Primeiro bit</b> muda junto: os bits da lista têm de estar dentro da nova faixa.</p>
+</div>`;
+
 export const paginaClp = () => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Conexao Socket-TCP/IP · Automacao IOT Amaury</title><style>${CSS}</style>${CSS_MENU}${FAVICON}</head><body>
@@ -123,6 +147,7 @@ ${menuHtml("/clp")}
 <div class="topo"><h1>Conexao Socket-TCP/IP</h1><button id="instr" type="button" class="principal">Instruções</button></div>
 <p class="sub">Liga e desliga bits de um CLP (ou robô) por EtherNet/IP, pela máquina com o agente. Não é dispositivo de segurança.</p>
 <dialog id="dlg">${INSTRUCOES}</dialog>
+<dialog id="dlg2">${INSTRUCOES_AJUSTES}</dialog>
 
 <div class="card">
   <select id="maq"></select>
@@ -134,6 +159,11 @@ ${menuHtml("/clp")}
   <h2>Conexão com o CLP</h2>
   <div class="campos" id="campos"></div>
   <p class="linha" style="margin:10px 0 0"><label style="margin:0"><input type="checkbox" id="multicast"> CLP→PC em multicast</label></p>
+  <div class="linha" style="margin-top:10px">
+    <button id="pad_robo" type="button">Valores Padrão Robô</button>
+    <button id="pad_clp" type="button">Valores Padrão CLP (Universal)</button>
+    <button id="pad_info" type="button">Instruções de Ajustes Padrão</button>
+  </div>
   <div class="linha" style="margin-top:10px">
     <button id="bident" type="button">Identificar</button>
     <button id="bconn" type="button" class="principal">Conectar</button>
@@ -209,7 +239,7 @@ function desenharPontos() {
     '<div class="mini" data-n="' + p.numero + '"><div class="linha"><span class="n">' + p.numero + '</span>' +
     '<span class="led" data-led="out" title="saída do PC"></span><span class="led in" data-led="in" title="vindo do CLP"></span>' +
     '<button type="button" class="x" data-a="remover" title="Tirar da lista">tirar</button></div>' +
-    '<input data-f="nome" placeholder="nome (ex.: garra)" maxlength="40" value="' + esc(p.nome) + '">' +
+    '<input data-f="nome" placeholder="Nome da Memoria (ex: Aciona Sensor1)" maxlength="40" value="' + esc(p.nome) + '">' +
     '<div class="linha"><select data-f="modo" style="flex:1">' + MODOS.map(m => '<option value="' + m[0] + '"' + (p.modo === m[0] ? ' selected' : '') + '>' + m[1] + '</option>').join('') + '</select>' +
     '<input data-f="pulso_ms" type="number" min="10" max="5000" style="width:78px" title="duração do pulso (ms)" value="' + p.pulso_ms + '"></div>' +
     '<button type="button" class="principal" data-a="acionar">Acionar</button></div>').join('') ||
@@ -269,6 +299,24 @@ async function acao(nome, extra, quando) {
   await atualizar();
 }
 
+// valores padrão: robô Epson (EDS EPSN0901) ou ponto de partida mais aceito por CLPs em geral
+const PADROES = {
+  robo: { primeiro_bit: 512, ot_size: 32, to_size: 32, rpi_ms: 20, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: true },
+  clp: { primeiro_bit: 0, ot_size: 8, to_size: 8, rpi_ms: 50, inst_cfg: 1, inst_ot: 150, inst_to: 100, multicast: false },
+};
+function aplicarPadrao(tipo) {
+  if (!cfg) return aviso('Escolha uma máquina primeiro.', 'erro');
+  const v = PADROES[tipo];
+  for (const k of Object.keys(v)) { if (k !== 'multicast') $('c_' + k).value = v[k]; }
+  $('multicast').checked = v.multicast;
+  $('de').value = v.primeiro_bit; $('ate').value = v.primeiro_bit + 7;
+  lerForm(); salvarLogo();
+  aviso((tipo === 'robo' ? 'Valores Padrão Robô' : 'Valores Padrão CLP (Universal)') + ' aplicados e salvos. Se o CLP estiver conectado, desconecte e conecte de novo.', 'ok');
+}
+$('pad_robo').addEventListener('click', () => aplicarPadrao('robo'));
+$('pad_clp').addEventListener('click', () => aplicarPadrao('clp'));
+$('pad_info').addEventListener('click', () => $('dlg2').showModal());
+$('dlg2').addEventListener('click', e => { if (e.target === $('dlg2') || e.target.id === 'fechar2') $('dlg2').close(); });
 $('instr').addEventListener('click', () => $('dlg').showModal());
 $('dlg').addEventListener('click', e => { if (e.target === $('dlg') || e.target.id === 'fechar') $('dlg').close(); });
 $('maq').addEventListener('change', trocarMaquina);

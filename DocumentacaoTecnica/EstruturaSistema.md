@@ -8,7 +8,7 @@ Claude / navegador ──► Ponte (Render) ──► Firebase ──► ESP32 �
 
 | Parte | Pasta |
 |---|---|
-| IOT-Automacao (ESP, painel, MCP, Firebase) | `iot_automacao_esp/` |
+| IOT-Automacao-ESP (ESP, painel, MCP, Firebase) | `iot_automacao_esp/` |
 | Firmware ESP32 | `aplicacao_esp_python/firmware/Automacao` (cópia: `firmware_esp/Automacao`) |
 | Programa de carga do ESP | `aplicacao_esp_python/` |
 | Mapas e GPS | `aplicacao_gps/` |

@@ -23,7 +23,7 @@ const CSS = `
 `;
 
 // "/" é a página de pinos original (o menu é injetado nela por aplicacao_gps/http.js, sem editar o código antigo)
-const LINKS = [["/", "IOT-Automacao"], ["/clp", "Conexao Socket-TCP/IP"], ["/desk", "Desk-Automacao_Firebase"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
+const LINKS = [["/", "IOT-Automacao-ESP"], ["/clp", "Conexao Socket-TCP/IP"], ["/desk", "Desk-Automacao_Firebase"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
 // Marca d'água: img/circuito-cinza.svg (vetor: nunca desfoca), bem clarinha, fixa atrás de todo o conteúdo de todas as abas.
 const MARCA = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='16 16 88 88' fill='none'>" +
   "<path d='M32 42 H42 L58 26 H88 M32 60 H46 L58 48 H82 M32 78 H46 L64 60 H88 M44 94 H64 L74 84 H82' stroke='#6B7280' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/>" +
@@ -31,7 +31,7 @@ const MARCA = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='16 16 88 88' fil
   "<g fill='#6B7280'><circle cx='26' cy='60' r='6'/><circle cx='38' cy='94' r='6'/><circle cx='94' cy='26' r='6'/><circle cx='94' cy='60' r='6'/></g></svg>";
 const MARCA_URI = "data:image/svg+xml," + encodeURIComponent(MARCA);
 export const CSS_MENU = `<style>
-  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;background:url("${MARCA_URI}") center / min(72vmin,680px) no-repeat}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.09;background:url("${MARCA_URI}") center / min(72vmin,680px) no-repeat}
   nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
   nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
 </style>`;

@@ -69,7 +69,7 @@ try {
 
   // ---- aba, menu e instruções ----
   const pag = await (await req("GET", "/clp")).text();
-  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Só funciona com CLP que fale EtherNet/IP", "Delta", "Mitsubishi FX3U", "nem com o módulo ENET", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222"]) {
+  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Só funciona com CLP que fale EtherNet/IP", "Delta", "Mitsubishi FX3U", "nem com o módulo ENET", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade"]) {
     assert.ok(pag.includes(trecho), "a página/instruções têm: " + trecho);
   }
   const home = await (await req("GET", "/")).text();

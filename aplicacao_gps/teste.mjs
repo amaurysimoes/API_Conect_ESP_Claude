@@ -29,7 +29,7 @@ try {
   // o que já existia continua igual
   const home = await (await j("GET", "/")).text();
   assert.match(home, /Escreva, em cada pino/, "página de pinos original intacta");
-  assert.ok(home.includes("<nav>") && home.includes(">IOT-Automacao<") && home.includes('href="/gps"'), "menu somado na página original");
+  assert.ok(home.includes("<nav>") && home.includes(">IOT-Automacao-ESP<") && home.includes('href="/gps"'), "menu somado na página original");
   assert.equal((await (await j("GET", "/api/dados")).json()).map((e) => e.nome).join(), "FIRE_AHS01", "lista de ESPs original");
   const r = await (await j("POST", "/api/lugares", { nome: "Casa Teste", endereco: "Rua Exemplo 100", cep: "00000-000" })).json();
   assert.ok(r.id);

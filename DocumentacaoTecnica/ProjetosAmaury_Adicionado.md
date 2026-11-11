@@ -57,7 +57,7 @@ Agente do PC (bandeja, Windows/Linux) + aba **Desk-Automacao_Firebase**. Pasta: 
 
 # Projeto CLP (Conexao Socket-TCP/IP)
 
-Liga/desliga bits de CLP ou robô por **EtherNet/IP**. Aba **Conexao Socket-TCP/IP** (depois de IOT-Automacao). Pasta: `aplicacao_clp/` (servidor) + `aplicacao_desk_agente/agente_python/` (`clp_eip.py`, `acoes_clp.py`). Origem: porte do `EipScanner` do Robo_conect, sem a voz.
+Liga/desliga bits de CLP ou robô por **EtherNet/IP**. Aba **Conexao Socket-TCP/IP** (depois de IOT-Automacao-ESP). Pasta: `aplicacao_clp/` (servidor) + `aplicacao_desk_agente/agente_python/` (`clp_eip.py`, `acoes_clp.py`). Origem: porte do `EipScanner` do Robo_conect, sem a voz.
 
 ```
 Render / Claude ──► Firebase (comando assinado clp_*) ──► agente (RJ45 do CLP + Wi-Fi) ──► CLP
@@ -74,6 +74,7 @@ Passos:
 Notas:
 - Só CLP com EtherNet/IP. Delta: confirmar o modelo. FX3U **não** fala EtherNet/IP (nem com ENET: usa MC/Modbus).
 - Padrões vêm do EDS Epson (instâncias 1/150/100, 32+32 bytes, RPI 20 ms, primeiro bit 512). Trocar para o EDS do CLP.
+- Botões: **Valores Padrão Robô** (Epson), **Valores Padrão CLP (Universal)** (primeiro bit 0, 8+8 bytes, RPI 50, sem multicast; só ponto de partida) e **Instruções de Ajustes Padrão** (explica cada campo).
 - Atraso 1 a 4 s; não é tempo real; não é dispositivo de segurança.
 - Config (IP, pontos) em `brokers/<broker>/maquinas/<maquina>/clp_config` (sem senha).
 - Botão **Instruções** na aba tem tudo isso e a tabela de erros.
