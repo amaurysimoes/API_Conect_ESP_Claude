@@ -9,8 +9,8 @@ Você   ──► painel (senha) ──► nomes dos pinos, endereços, atalhos
 
 | Pasta | O que é |
 |---|---|
-| `src/` | ponte: painel + MCP |
-| `gps_amaury/` | rotas, endereços, GPS |
+| `iot_automacao_esp/` | IOT-Automacao: ESP, painel, MCP, Firebase |
+| `aplicacao_gps/` | rotas, endereços, GPS |
 | `aplicacao_desk_agente/` | agente do PC (Windows/Linux) + aba Desk |
 | `aplicacao_android/` | `api_conect.apk` |
 | `aplicacao_clp/` | aba Conexao Socket-TCP/IP (CLP EtherNet/IP) |

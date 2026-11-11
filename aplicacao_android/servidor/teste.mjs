@@ -71,7 +71,7 @@ const obedece = (async () => {
   }
 })();
 
-const servidor = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4594" }, stdio: "ignore" });
+const servidor = spawn("node", ["iot_automacao_esp/servidor.js"], { env: { ...process.env, PORTA: "4594" }, stdio: "ignore" });
 try {
   const lista = await listarAndroid();
   assert.equal(lista.length, 1); assert.ok(lista[0].online && lista[0].resumo.bateria === 80 && lista[0].acoes.includes("abrir_app"));

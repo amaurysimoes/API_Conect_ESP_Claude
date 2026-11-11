@@ -8,10 +8,10 @@ Claude / navegador ──► Ponte (Render) ──► Firebase ──► ESP32 �
 
 | Parte | Pasta |
 |---|---|
-| Ponte (painel + MCP) | `src/` |
+| IOT-Automacao (ESP, painel, MCP, Firebase) | `iot_automacao_esp/` |
 | Firmware ESP32 | `aplicacao_esp_python/firmware/Automacao` (cópia: `firmware_esp/Automacao`) |
 | Programa de carga do ESP | `aplicacao_esp_python/` |
-| Mapas e GPS | `gps_amaury/` |
+| Mapas e GPS | `aplicacao_gps/` |
 | Agente do PC + aba Desk | `aplicacao_desk_agente/` |
 | App Android | `aplicacao_android/` |
 | Aba CLP EtherNet/IP | `aplicacao_clp/` (+ `clp_eip.py` e `acoes_clp.py` no agente) |

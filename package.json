@@ -5,9 +5,9 @@
   "type": "module",
   "description": "Ponte entre o Claude e os ESPs no Firebase: o painel guarda as palavras de cada pino e o MCP aciona.",
   "scripts": {
-    "start": "node src/servidor.js",
-    "local": "node --env-file=.env src/servidor.js",
-    "mcp": "node src/mcp.js"
+    "start": "node iot_automacao_esp/servidor.js",
+    "local": "node --env-file=.env iot_automacao_esp/servidor.js",
+    "mcp": "node iot_automacao_esp/mcp.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

@@ -2,7 +2,7 @@
   "mcpServers": {
     "casa": {
       "command": "node",
-      "args": ["src/mcp.js"]
+      "args": ["iot_automacao_esp/mcp.js"]
     }
   }
 }

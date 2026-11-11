@@ -1,7 +1,7 @@
 // Módulo "Conexao Socket-TCP/IP": CLPs/equipamentos EtherNet/IP ligados à rede RJ45 de uma máquina com o agente.
 // O servidor NÃO fala com o CLP: manda comandos ASSINADOS (clp_*) à máquina, que tem o cabo na rede do CLP.
 // A configuração (IP, tamanhos, pontos com nome/ação) fica em brokers/<broker>/maquinas/<maquina>/clp_config.
-import { DB_URL } from "../../src/firebase.js";
+import { DB_URL } from "../../iot_automacao_esp/firebase.js";
 import { listarMaquinas, enviarComando } from "../../aplicacao_desk_agente/agente/maquinas.js";
 
 export const MODOS = ["alternar", "pulso", "set", "reset"];

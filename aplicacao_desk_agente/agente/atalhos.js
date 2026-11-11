@@ -4,9 +4,9 @@
 //   brokers/<broker>/atalhos/<id> = texto cifrado de { tipo, nome, alvo, argumentos, palavras }
 // Cifra: a mesma do módulo de endereços (LUGARES_CHAVE ou MCP_TOKEN). Registro adulterado não decifra e é ignorado.
 import { randomBytes } from "node:crypto";
-import { DB_URL } from "../../src/firebase.js";
-import { cifrar, decifrar } from "../../gps_amaury/cripto.js";
-import { tokens } from "../../src/mapa.js";
+import { DB_URL } from "../../iot_automacao_esp/firebase.js";
+import { cifrar, decifrar } from "../../aplicacao_gps/cripto.js";
+import { tokens } from "../../iot_automacao_esp/mapa.js";
 import { enviarComando } from "./maquinas.js";
 
 export const TIPOS = ["site", "programa", "pasta", "arquivo"];

@@ -2,7 +2,7 @@
 //   brokers/<broker>/android/<dispositivo>/status | comandos/<id> | resultado/<id> | apps (cifrado)
 // Comandos ASSINADOS com HMAC-SHA256 (a mesma chave: AGENTE_CHAVE, ou o MCP_TOKEN se não houver).
 import { randomBytes } from "node:crypto";
-import { DB_URL } from "../../src/firebase.js";
+import { DB_URL } from "../../iot_automacao_esp/firebase.js";
 import { assinar } from "../../aplicacao_desk_agente/agente/maquinas.js";
 import { decifrar } from "./criptoApps.js";
 

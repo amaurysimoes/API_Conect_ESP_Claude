@@ -47,7 +47,7 @@ const pasta = mkdtempSync(join(tmpdir(), "agente-"));
 const cfg = join(pasta, "config.json");
 writeFileSync(cfg, JSON.stringify({ firebase: "http://127.0.0.1:4597", broker: "TESTE", maquina: "PC_TESTE", chave: "chave-de-teste" }));
 const agente = spawn(join(process.cwd(), "aplicacao_desk_agente/agente_python/.venv/Scripts/python.exe"), ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", env: { ...process.env, AGENTE_MUTEX: "AgenteDeTeste" }, stdio: "ignore" });
-const servidor = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4596" }, stdio: "ignore" });
+const servidor = spawn("node", ["iot_automacao_esp/servidor.js"], { env: { ...process.env, PORTA: "4596" }, stdio: "ignore" });
 try {
   let m;
   for (let i = 0; i < 20 && !m?.online; i++) { await espera(500); m = (await listarMaquinas()).find((x) => x.maquina === "PC_TESTE"); }

@@ -1,4 +1,4 @@
-// Ferramentas do Claude para CLPs/equipamentos EtherNet/IP. instalarClp(server) é chamado UMA vez em src/ferramentas.js
+// Ferramentas do Claude para CLPs/equipamentos EtherNet/IP. instalarClp(server) é chamado UMA vez em iot_automacao_esp/ferramentas.js
 // (depois de instalarGps, para herdar a dica do Render dormindo). Não altera nenhuma ferramenta existente.
 import { z } from "zod";
 import { MODOS, lerConfig, escolherMaquinaClp, comandoClp, paramsConexao, lerEstado, bitLigado, acharPonto } from "./clp.js";

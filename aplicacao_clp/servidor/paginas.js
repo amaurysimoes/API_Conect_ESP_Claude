@@ -1,7 +1,7 @@
 // Aba "Conexao Socket-TCP/IP": liga/desliga bits de um CLP (ou outro equipamento) EtherNet/IP pela máquina com o agente.
 // Modo escuro, mesmo menu das outras abas. Botão "Instruções" abre um card com tudo que precisa saber.
-import { menuHtml, CSS_MENU } from "../../gps_amaury/paginas.js";
-import { FAVICON } from "../../gps_amaury/favicon.js";
+import { menuHtml, CSS_MENU } from "../../aplicacao_gps/paginas.js";
+import { FAVICON } from "../../aplicacao_gps/favicon.js";
 
 const CSS = `
   :root{color-scheme:dark;--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c;--amarelo:#f5c451}

@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm install
-    startCommand: node src/servidor.js
+    startCommand: node iot_automacao_esp/servidor.js
     healthCheckPath: /saude
     envVars:
       - key: NODE_VERSION

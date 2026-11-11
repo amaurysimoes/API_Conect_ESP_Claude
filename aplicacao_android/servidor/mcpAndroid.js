@@ -1,4 +1,4 @@
-// Ferramentas do Claude para os celulares Android. instalarAndroid(server) é chamado UMA vez em src/ferramentas.js
+// Ferramentas do Claude para os celulares Android. instalarAndroid(server) é chamado UMA vez em iot_automacao_esp/ferramentas.js
 // (depois de instalarMaquinas). Não altera nenhuma ferramenta existente.
 import { z } from "zod";
 import { listarAndroid, lerApps, lerAtalhos, enviarComando, escolher } from "./android.js";

@@ -2,7 +2,7 @@
 //   brokers/<broker>/maquinas/<maquina>/status | comandos/<id> | resultado/<id>   (mesmo caminho do agente antigo)
 // Assinatura: HMAC-SHA256(AGENTE_CHAVE, "<id>\n<acao>\n<parametros em JSON ordenado>\n<ts>") — o agente confere igual.
 import { createHmac, randomBytes } from "node:crypto";
-import { DB_URL } from "../../src/firebase.js";
+import { DB_URL } from "../../iot_automacao_esp/firebase.js";
 
 const ONLINE_MS = 30000;      // o agente dá sinal de vida a cada 10 s
 const ESPERA_MS = 12000;      // quanto esperamos o resultado de um comando

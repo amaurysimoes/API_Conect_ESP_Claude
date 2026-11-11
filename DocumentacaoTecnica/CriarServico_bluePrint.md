@@ -1,6 +1,6 @@
 # Criar o serviço no Render (Blueprint)
 
-Serviço: `ponte-casa` · plano Free · `node src/servidor.js` · health `/saude`.
+Serviço: `ponte-casa` · plano Free · `node iot_automacao_esp/servidor.js` · health `/saude`.
 Nenhuma senha fica aqui. Os valores ficam só no Render (Environment) e no `.env` local.
 
 ## 1. Subir o código no GitHub
@@ -11,7 +11,7 @@ Nenhuma senha fica aqui. Os valores ficam só no Render (Environment) e no `.env
 1. https://dashboard.render.com → **New → Blueprint**.
 2. Conectar a conta do GitHub e escolher o repositório.
 3. O Render lê o `render.yaml` e mostra o serviço `ponte-casa`.
-4. **Apply**. Ele faz `npm install` e liga `node src/servidor.js`.
+4. **Apply**. Ele faz `npm install` e liga `node iot_automacao_esp/servidor.js`.
 5. Auto Sync = Yes: cada `git push` faz deploy sozinho (1-3 min).
 
 ## 3. Como as senhas foram criadas

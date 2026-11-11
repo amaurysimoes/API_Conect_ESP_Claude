@@ -6,7 +6,7 @@ Um capítulo por projeto. ESP: `ManualNovosDispositivos.md`.
 
 # Projeto maps
 
-Rota com trânsito ao vivo (Google Routes API). Pasta: `gps_amaury/`.
+Rota com trânsito ao vivo (Google Routes API). Pasta: `aplicacao_gps/`.
 
 ## Chave do Google
 1. https://console.cloud.google.com/projectcreate → projeto (usado: `ProjetoAmauryExpert`).
@@ -28,7 +28,7 @@ Chave só no Render (`ponte-casa` → **Environment**) e no `.env`. Nunca no git
 - `/enderecos`: Nome, Endereço, CEP. `/gps`: abrir no celular e compartilhar.
 - Claude: "melhor rota para a casa do centro" · "me oriente até o Amazonas Shopping" · "errei o caminho".
 - Origem: o que você disser > GPS (15 min) > `ORIGEM_PADRAO`.
-- Teste: `node gps_amaury/teste.mjs`
+- Teste: `node aplicacao_gps/teste.mjs`
 
 ---
 

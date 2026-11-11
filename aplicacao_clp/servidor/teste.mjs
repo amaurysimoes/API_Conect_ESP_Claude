@@ -36,7 +36,7 @@ const iniciarAgente = (clp) => {
   return spawn(py, ["main.py", "--config", cfg, "--sem-bandeja"], { cwd: "aplicacao_desk_agente/agente_python", env: { ...process.env, AGENTE_MUTEX: "AgenteDeTesteClp" }, stdio: "ignore" });
 };
 const adaptador = spawn(py, ["clp_adaptador_falso.py", "44818", "24819"], { cwd: "aplicacao_desk_agente/agente_python", stdio: "ignore" });
-const servidor = spawn("node", ["src/servidor.js"], { env: { ...process.env, PORTA: "4586" }, stdio: "ignore" });
+const servidor = spawn("node", ["iot_automacao_esp/servidor.js"], { env: { ...process.env, PORTA: "4586" }, stdio: "ignore" });
 let agente = iniciarAgente(false);
 
 const auth = { Authorization: "Basic " + Buffer.from("u:s").toString("base64") };
