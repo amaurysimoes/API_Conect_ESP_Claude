@@ -6,6 +6,7 @@ import { mapaDe, achar } from "./mapa.js";
 import { instalarGps } from "../gps_amaury/mcpGps.js"; // módulo maps/GPS (pasta própria)
 import { instalarMaquinas } from "../aplicacao_desk_agente/agente/mcpMaquinas.js"; // módulo agente/Desk (pasta própria)
 import { instalarAndroid } from "../aplicacao_android/servidor/mcpAndroid.js"; // módulo Android (pasta própria)
+import { instalarClp } from "../aplicacao_clp/servidor/mcpClp.js"; // módulo Conexao Socket-TCP/IP, CLP EtherNet/IP (pasta própria)
 
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
@@ -14,6 +15,7 @@ export function criarServidorMcp() {
   instalarGps(server); // soma as ferramentas de rota e o aviso do Render; não altera as de cima
   instalarMaquinas(server); // soma as ferramentas das máquinas (agente)
   instalarAndroid(server); // soma as ferramentas dos celulares Android
+  instalarClp(server); // soma as ferramentas do CLP (EtherNet/IP)
 
   server.registerTool(
     "listar_dispositivos",

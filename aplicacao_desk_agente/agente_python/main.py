@@ -16,6 +16,7 @@ import sys
 import threading
 import time
 
+import acoes_clp
 import config
 import recursos
 from agente import Agente
@@ -86,6 +87,7 @@ def bandeja(agente):
 
     verde, vermelho = imagem((46, 204, 113, 255)), imagem((231, 76, 60, 255))
     icone = pystray.Icon("agente", vermelho, "Agente: conectando…", menu=pystray.Menu(
+        acoes_clp.item_menu(pystray),   # checkbox "Ativar Conexao CLP: EtherNet/IP"
         pystray.MenuItem("Sair", lambda i, _: i.stop())))
 
     def atualizar():
@@ -123,6 +125,7 @@ def main():
             return
         config.salvar(cfg, a.config)
 
+    acoes_clp.iniciar(cfg, a.config)
     agente = Agente(cfg)
     agente.iniciar()
     try:
@@ -141,6 +144,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        acoes_clp.encerrar()
         agente.parar()
 
 

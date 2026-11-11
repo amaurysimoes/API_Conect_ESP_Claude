@@ -55,4 +55,31 @@ Agente do PC (bandeja, Windows/Linux) + aba **Desk-Automacao_Firebase**. Pasta: 
 
 ---
 
+# Projeto CLP (Conexao Socket-TCP/IP)
+
+Liga/desliga bits de CLP ou robô por **EtherNet/IP**. Aba **Conexao Socket-TCP/IP** (depois de IOT-Automacao). Pasta: `aplicacao_clp/` (servidor) + `aplicacao_desk_agente/agente_python/` (`clp_eip.py`, `acoes_clp.py`). Origem: porte do `EipScanner` do Robo_conect, sem a voz.
+
+```
+Render / Claude ──► Firebase (comando assinado clp_*) ──► agente (RJ45 do CLP + Wi-Fi) ──► CLP
+```
+
+Passos:
+1. Máquina do agente com cabo RJ45 no CLP (mesma faixa de IP) e internet.
+2. Bandeja do agente → marcar **Ativar Conexao CLP: EtherNet/IP**.
+3. Firewall do PC: `TCP 44818` e `UDP 2222`.
+4. Aba → máquina → IP do CLP → **Identificar** → **Conectar**.
+5. **Adicionar faixa** (ex.: 512 a 519), nome e ação (alternar, pulso, set, reset) por bit → **Acionar**.
+6. Claude: "liga a garra do CLP" · "pulsa o bit 513" · "o CLP está conectado?".
+
+Notas:
+- Só CLP com EtherNet/IP. Delta: confirmar o modelo. FX3U **não** fala EtherNet/IP (nem com ENET: usa MC/Modbus).
+- Padrões vêm do EDS Epson (instâncias 1/150/100, 32+32 bytes, RPI 20 ms, primeiro bit 512). Trocar para o EDS do CLP.
+- Atraso 1 a 4 s; não é tempo real; não é dispositivo de segurança.
+- Config (IP, pontos) em `brokers/<broker>/maquinas/<maquina>/clp_config` (sem senha).
+- Botão **Instruções** na aba tem tudo isso e a tabela de erros.
+- Testado só com equipamento simulado. CLP real: não testado.
+- Testes: `node aplicacao_clp/servidor/teste.mjs` · `agente_python\.venv\Scripts\python.exe teste_clp.py`
+
+---
+
 # Próximo projeto

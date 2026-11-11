@@ -20,6 +20,7 @@ if sys.platform == "win32":
 else:
     import acoes_linux as acoes   # mesmos nomes de ação, feitos para Linux
 from firebase_rest import SERVER_TS, requisitar
+import acoes_clp   # módulo "Conexao Socket-TCP/IP" (CLP EtherNet/IP): só vale com o checkbox da bandeja marcado
 
 log = logging.getLogger("agente")
 CONSULTA_S = 2
@@ -102,7 +103,7 @@ class Agente:
             log.warning("Comando %s recusado: fora da validade (relógio do PC fora de sincronia?)", id_)
             return {"ok": False, "texto": "comando fora da validade de 60 s (confira o relógio do PC)"}
         acao = cmd.get("acao")
-        funcao = acoes.ACOES.get(acao)
+        funcao = acoes.ACOES.get(acao) or acoes_clp.ACOES.get(acao)
         if not funcao:
             return {"ok": False, "texto": f"ação desconhecida: {acao}"}
         try:
@@ -121,7 +122,7 @@ class Agente:
             try:
                 requisitar(self.url, "PATCH", f"{self.base}/status",
                            {"online": True, "visto_em": SERVER_TS, "resumo": acoes.resumo(), "so": "Windows" if sys.platform == "win32" else "Linux",
-                            "acoes": sorted(acoes.ACOES)})
+                            "acoes": sorted(acoes.ACOES) + acoes_clp.nomes_acoes()})
                 self.ultimo_ok = time.time()
             except Exception as exc:  # noqa: BLE001
                 log.warning("Firebase (status): %s", exc)

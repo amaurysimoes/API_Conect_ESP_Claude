@@ -46,11 +46,21 @@ No Linux cria `~/.config/autostart`. Mudou o `.exe` de lugar: rode de novo.
 `info`, `abrir_programa`, `abrir_url`, `abrir_pasta`, `abrir_arquivo`, `fechar_programa`, `bloquear_tela`, `desligar`*, `reiniciar`*, `cancelar_desligamento`, `verificar_caminhos` (*pede confirmação).
 Windows: o que abre vem para a frente. Linux: sem isso; programas do Windows não existem ("ainda não existe nesta máquina").
 
-## 7. Segurança
+## 7. Conexão CLP (EtherNet/IP)
+- Clique direito no ícone da bandeja → marcar **Ativar Conexao CLP: EtherNet/IP**. Desmarcado, o agente ignora comandos de CLP e fecha a conexão.
+- O PC precisa estar no cabo RJ45 do CLP (mesma faixa de IP) e na internet (Wi-Fi).
+- Firewall do PC: liberar `TCP 44818` e `UDP 2222`.
+- Usar: aba **Conexao Socket-TCP/IP** → botão **Instruções**. Detalhes: `DocumentacaoTecnica/ProjetosAmaury_Adicionado.md` (Projeto CLP).
+- Opcional no `config.json`: `"clp_faixa": [512, 767]` limita os bits que a rede pode acionar.
+- Só funciona com CLP que fale EtherNet/IP. FX3U não fala.
+- Teste (CLP simulado): `.venv\Scripts\python.exe teste_clp.py` em `agente_python`.
+
+## 8. Segurança
 - Só comandos com assinatura HMAC-SHA256; comando com mais de 60 s ou ID repetido é descartado (relógio do PC certo).
 - Processos do sistema não são fechados.
+- CLP: só IP de rede local/privada.
 
-## 8. Gerar os executáveis
+## 9. Gerar os executáveis
 ```powershell
 cd aplicacao_desk_agente\agente_python
 .\build_windows.ps1                                    # dist\Windows\Render_Agente.exe
@@ -61,11 +71,11 @@ wsl -d Ubuntu-22.04 -u root -- bash /mnt/c/Dev-AHS/api_conect/aplicacao_desk_age
 - Ubuntu 22.04 no WSL: `wsl --install -d Ubuntu-22.04 --no-launch`.
 - Mais detalhes: `agente_python/DocumentacaoTecnica/BuildarExecutaveis.md`.
 
-## 9. Arquivos
+## 10. Arquivos
 - Config: `%LOCALAPPDATA%\AutomacaoIOTAmaury-Agente\config.json` (Linux: `~/.local/share/AutomacaoIOTAmaury-Agente/`) · log `agente.log`.
-- Testes (sem tocar no Firebase): `node aplicacao_desk_agente/agente/teste.mjs` · `teste_linux.py` (ver topo do arquivo).
+- Testes (sem tocar no Firebase): `node aplicacao_desk_agente/agente/teste.mjs` · `node aplicacao_clp/servidor/teste.mjs` · `teste_linux.py` (ver topo do arquivo).
 
-## 10. Problemas
+## 11. Problemas
 | Sintoma | Causa |
 |---|---|
 | Ícone vermelho | sem internet ou Firebase fora |
@@ -74,3 +84,5 @@ wsl -d Ubuntu-22.04 -u root -- bash /mnt/c/Dev-AHS/api_conect/aplicacao_desk_age
 | "fora da validade" | relógio do PC errado |
 | "não consegui abrir" | programa não instalado ou nome errado |
 | Render demora ~30 s | plano grátis acordando |
+| Aba CLP: "marque Ativar Conexao CLP" | checkbox desmarcado na bandeja |
+| CLP: erro `0x0106` | outro scanner conectado ao CLP; esperar alguns segundos |

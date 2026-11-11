@@ -14,6 +14,7 @@ Claude / navegador ──► Ponte (Render) ──► Firebase ──► ESP32 �
 | Mapas e GPS | `gps_amaury/` |
 | Agente do PC + aba Desk | `aplicacao_desk_agente/` |
 | App Android | `aplicacao_android/` |
+| Aba CLP EtherNet/IP | `aplicacao_clp/` (+ `clp_eip.py` e `acoes_clp.py` no agente) |
 | Manuais | `DocumentacaoTecnica/` |
 
 ## 1. Instalar

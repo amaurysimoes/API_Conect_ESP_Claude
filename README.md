@@ -13,6 +13,7 @@ Você   ──► painel (senha) ──► nomes dos pinos, endereços, atalhos
 | `gps_amaury/` | rotas, endereços, GPS |
 | `aplicacao_desk_agente/` | agente do PC (Windows/Linux) + aba Desk |
 | `aplicacao_android/` | `api_conect.apk` |
+| `aplicacao_clp/` | aba Conexao Socket-TCP/IP (CLP EtherNet/IP) |
 | `aplicacao_esp_python/` | programa de carga do ESP e firmware |
 | `DocumentacaoTecnica/` | manuais |
 
