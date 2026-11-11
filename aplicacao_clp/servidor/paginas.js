@@ -195,7 +195,14 @@ ${menuHtml("/clp")}
 <dialog id="dlg">${INSTRUCOES}</dialog>
 <dialog id="dlg2">${INSTRUCOES_AJUSTES}</dialog>
 <dialog id="dlg3">${INSTRUCOES_SELECAO}</dialog>
-<style>#pontos.tcp [data-led=in]{display:none}</style>
+<style>
+#pontos.tcp [data-led=in]{display:none}
+#pontos button.principal.exec{background:#1f8f4a !important;border-color:#3ddc84 !important;color:#fff !important}
+#pontos button.principal.falhou{background:#8a2535 !important;border-color:#ff5c5c !important;color:#fff !important}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:10000;display:none;max-width:90vw;padding:10px 18px;border-radius:10px;font:600 14px system-ui,sans-serif;background:var(--card);color:var(--texto);border:2px solid var(--azul);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+#toast.ok{border-color:var(--verde)} #toast.erro{border-color:var(--verm)}
+</style>
+<div id="toast"></div>
 
 <div class="card">
   <select id="maq"></select>
@@ -265,7 +272,14 @@ const atual = () => maquinas.find(m => m.maquina === $('maq').value);
 const pronta = () => { const m = atual(); return Boolean(m && m.online && m.clp); };
 const tcp = () => Boolean(cfg && cfg.protocolo === 'tcp_ip');
 const campos = () => tcp() ? CAMPOS_TCP : CAMPOS_EIP;
-function aviso(t, cls) { const r = $('res'); r.className = 'sub ' + (cls || ''); r.textContent = t; }
+let tToast = null;
+function aviso(t, cls) {
+  const r = $('res'); r.className = 'sub ' + (cls || ''); r.textContent = t;
+  const o = $('toast'); clearTimeout(tToast);       // aviso fixo na tela: aparece mesmo com a página rolada
+  if (!t) { o.style.display = 'none'; return; }
+  o.className = cls || ''; o.textContent = t; o.style.display = 'block';
+  if (cls) tToast = setTimeout(() => { o.style.display = 'none'; }, cls === 'erro' ? 8000 : 3500);
+}
 
 async function api(url, opc) {
   const r = await fetch(url, opc); const d = await r.json();
@@ -376,18 +390,28 @@ async function acao(nome, extra, quando) {
 }
 
 // Acionar: se ainda não estiver conectado (ou conectado por outro tipo), conecta sozinho com a configuração salva e aciona.
-async function acionar(p) {
+async function acionar(p, botao) {
+  const antes = botao.textContent;
+  botao.classList.remove('falhou'); botao.classList.add('exec'); botao.textContent = 'Acionando…'; botao.disabled = true;   // verde na hora do clique
+  let ok = false;
   aviso('Enviando…', '');
   try {
     if (!(est && est.conectado && (est.protocolo === 'tcp_ip') === tcp())) {
       await salvar();
       aviso('Conectando ao CLP…', '');
       const c = await executar('conectar');
-      if (!c.ok) { aviso(c.texto, 'erro'); return atualizar(); }
+      if (!c.ok) { aviso(c.texto, 'erro'); }
+      else ok = null;
+    } else ok = null;
+    if (ok === null) {
+      const r = await executar('bit', { bit: p.numero, modo: p.modo, pulso_ms: p.pulso_ms });
+      ok = Boolean(r.ok);
+      aviso(r.texto, ok ? 'ok' : 'erro');
     }
-    const r = await executar('bit', { bit: p.numero, modo: p.modo, pulso_ms: p.pulso_ms });
-    aviso(r.texto, r.ok ? 'ok' : 'erro');
-  } catch (e) { aviso(e.message, 'erro'); }
+  } catch (e) { ok = false; aviso(e.message, 'erro'); }
+  botao.classList.toggle('exec', ok); botao.classList.toggle('falhou', !ok);
+  botao.textContent = ok ? '✓ Acionado' : '✗ Falhou';
+  setTimeout(() => { botao.classList.remove('exec', 'falhou'); botao.textContent = antes; botao.disabled = !pronta(); }, ok ? 1000 : 2000);   // volta à cor normal
   await atualizar();
 }
 
@@ -483,7 +507,7 @@ $('pontos').addEventListener('click', e => {
   if (!b || !el || !cfg) return;
   const p = cfg.pontos[el.dataset.n];
   if (b.dataset.a === 'remover') { delete cfg.pontos[p.numero]; sincronizarLeitura(); desenharPontos(); return salvarLogo(); }
-  if (b.dataset.a === 'acionar') return acionar(p);
+  if (b.dataset.a === 'acionar') return acionar(p, b);
 });
 
 carregarMaquinas().catch(e => aviso(e.message, 'erro'));
