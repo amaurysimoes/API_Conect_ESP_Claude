@@ -340,7 +340,7 @@ function pintar() {
     const n = Number(el.dataset.n);
     el.querySelector('[data-led=out]').classList.toggle('on', conectado && (estTcp ? ligado(bytes(est.memorias), n, est.primeiro_bit) : ligado(bytes(est.saida), n, est.primeiro_bit)));
     el.querySelector('[data-led=in]').classList.toggle('on', conectado && !estTcp && ligado(bytes(est.entrada), n, est.primeiro_bit));
-    el.querySelector('[data-a=acionar]').disabled = !conectado;
+    el.querySelector('[data-a=acionar]').disabled = !pronta();
   });
 }
 
@@ -369,6 +369,22 @@ async function acao(nome, extra, quando) {
   try {
     if (nome === 'identificar' || nome === 'conectar') await salvar();
     const r = await executar(nome, extra);
+    aviso(r.texto, r.ok ? 'ok' : 'erro');
+  } catch (e) { aviso(e.message, 'erro'); }
+  await atualizar();
+}
+
+// Acionar: se ainda não estiver conectado (ou conectado por outro tipo), conecta sozinho com a configuração salva e aciona.
+async function acionar(p) {
+  aviso('Enviando…', '');
+  try {
+    if (!(est && est.conectado && (est.protocolo === 'tcp_ip') === tcp())) {
+      await salvar();
+      aviso('Conectando ao CLP…', '');
+      const c = await executar('conectar');
+      if (!c.ok) { aviso(c.texto, 'erro'); return atualizar(); }
+    }
+    const r = await executar('bit', { bit: p.numero, modo: p.modo, pulso_ms: p.pulso_ms });
     aviso(r.texto, r.ok ? 'ok' : 'erro');
   } catch (e) { aviso(e.message, 'erro'); }
   await atualizar();
@@ -433,7 +449,7 @@ $('pontos').addEventListener('click', e => {
   if (!b || !el || !cfg) return;
   const p = cfg.pontos[el.dataset.n];
   if (b.dataset.a === 'remover') { delete cfg.pontos[p.numero]; desenharPontos(); return salvarLogo(); }
-  if (b.dataset.a === 'acionar') return acao('bit', { bit: p.numero, modo: p.modo, pulso_ms: p.pulso_ms });
+  if (b.dataset.a === 'acionar') return acionar(p);
 });
 
 carregarMaquinas().catch(e => aviso(e.message, 'erro'));

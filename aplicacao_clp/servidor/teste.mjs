@@ -70,7 +70,7 @@ try {
 
   // ---- aba, menu e instruções ----
   const pag = await (await req("GET", "/clp")).text();
-  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Duas formas de conectar", "Delta", "Mitsubishi FX3U", "protocolo MC (MELSEC)", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade", "Instruções de Seleção", "TCP/IP (memórias M, Modbus TCP)", "Valores Padrão TCP/IP (Delta DVP)", "Valores Padrão TCP/IP (Delta AS)", "Endereço base da memória M", "Tipo de conexão"]) {
+  for (const trecho of ["Conexao Socket-TCP/IP", "Instruções", "id=\"dlg\"", "Duas formas de conectar", "Delta", "Mitsubishi FX3U", "protocolo MC (MELSEC)", "adapter EtherNet/IP", "Ativar Conexao CLP: EtherNet/IP", "TCP 44818", "UDP 2222", "Valores Padrão Robô", "Valores Padrão CLP (Universal)", "Instruções de Ajustes Padrão", "Bytes CLP→PC (32)", "Não existe um padrão universal de verdade", "Instruções de Seleção", "TCP/IP (memórias M, Modbus TCP)", "Valores Padrão TCP/IP (Delta DVP)", "Valores Padrão TCP/IP (Delta AS)", "Endereço base da memória M", "Tipo de conexão", "Conectando ao CLP…"]) {
     assert.ok(pag.includes(trecho), "a página/instruções têm: " + trecho);
   }
   const home = await (await req("GET", "/")).text();
