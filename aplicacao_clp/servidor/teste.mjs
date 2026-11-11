@@ -90,6 +90,8 @@ try {
   console.log("OK aba /clp com botão Instruções e card; menu na ordem certa; página antiga intacta");
 
   // ---- configuração ----
+  const padrao = await (await req("GET", "/api/clp/config?maquina=PC_TESTE")).json();
+  assert.ok(padrao.protocolo === "tcp_ip" && padrao.base_m === 0 && padrao.primeiro_bit === 0 && padrao.porta === 502 && padrao.unidade === 1 && padrao.qtd_m === 64, "máquina nova já vem em TCP/IP com os valores do Delta AS: " + JSON.stringify(padrao));
   const ruim = await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { ip: "999.1.1.1" } });
   assert.equal(ruim.status, 400);
   const ruim2 = await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { ip: "127.0.0.1", pontos: [{ numero: 512, modo: "voar" }] } });
@@ -98,7 +100,7 @@ try {
     { numero: 512, nome: "Garra", modo: "set", pulso_ms: 500 }, { numero: 513, nome: "Garra aberta", modo: "pulso", pulso_ms: 400 },
     { numero: 514, nome: "Esteira", modo: "alternar" }, { numero: 515, nome: "", modo: "pulso" },
   ];
-  const salvo = await (await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { ip: "127.0.0.1", multicast: false, primeiro_bit: 512, pontos } })).json();
+  const salvo = await (await req("POST", "/api/clp/config", { maquina: "PC_TESTE", config: { protocolo: "ethernet_ip", ip: "127.0.0.1", multicast: false, primeiro_bit: 512, pontos } })).json();
   assert.equal(salvo.ip, "127.0.0.1"); assert.equal(Object.keys(salvo.pontos).length, 4);
   const lido = await (await req("GET", "/api/clp/config?maquina=PC_TESTE")).json();
   assert.equal(lido.pontos[514].nome, "Esteira"); assert.equal(lido.ot_size, 32); assert.equal(lido.inst_ot, 150);

@@ -208,8 +208,8 @@ ${menuHtml("/clp")}
   <div class="linha" style="margin-bottom:10px;align-items:flex-end">
     <div style="flex:1;min-width:250px"><label>Tipo de conexão</label>
       <select id="protocolo">
-        <option value="ethernet_ip">EtherNet/IP (área de I/O do CLP)</option>
         <option value="tcp_ip">TCP/IP (memórias M, Modbus TCP)</option>
+        <option value="ethernet_ip">EtherNet/IP (área de I/O do CLP)</option>
       </select></div>
     <button id="sel_info" type="button">Instruções de Seleção</button>
   </div>
@@ -294,7 +294,7 @@ async function trocarMaquina() {
 
 function desenhar() {
   const t = tcp();
-  $('protocolo').value = cfg ? cfg.protocolo : 'ethernet_ip';
+  $('protocolo').value = cfg ? cfg.protocolo : 'tcp_ip';
   $('campos').innerHTML = campos().map(c => '<div><label>' + c[1] + '</label><input id="c_' + c[0] + '" type="' + c[2] + '" placeholder="' + esc(c[3]) + '" value="' + esc(cfg ? cfg[c[0]] : '') + '"></div>').join('');
   $('multicast').checked = cfg ? Boolean(cfg.multicast) : true;
   $('linha_multicast').style.display = t ? 'none' : '';

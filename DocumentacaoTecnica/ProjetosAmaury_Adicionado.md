@@ -73,7 +73,7 @@ Passos:
 
 Notas:
 - **EtherNet/IP**: área de I/O (assemblies); só CLP que fale EtherNet/IP; precisa do EDS. **TCP/IP**: Modbus TCP direto nas memórias M, sem EDS (CLP com Modbus TCP, porta 502). Botão **Instruções de Seleção** explica.
-- TCP/IP: endereço da memória = base + número. Delta DVP: base 2048 (M0 = 0800H). Botões **Valores Padrão TCP/IP (Delta DVP)** (base 2048) e **(Delta AS)** (base 0, deduzido no AS332P: confirme). Sem registradores D, sem "zerar todas".
+- TCP/IP: endereço da memória = base + número. Delta DVP: base 2048 (M0 = 0800H). Máquina nova já abre em **TCP/IP** com 502 / 1 / base 0 / M0 / 64. Botões **Valores Padrão TCP/IP (Delta DVP)** (base 2048) e **(Delta AS)** (base 0, deduzido no AS332P: confirme). Sem registradores D, sem "zerar todas".
 - Delta: respondeu EtherNet/IP mas recusou a instância 150 (0x012A): confira o EDS ou use TCP/IP. FX3U **não** fala EtherNet/IP; com ENET usa MC (MELSEC), que a aba não tem.
 - Padrões vêm do EDS Epson (instâncias 1/150/100, 32+32 bytes, RPI 20 ms, primeiro bit 512). Trocar para o EDS do CLP.
 - Botões: **Valores Padrão Robô** (Epson), **Valores Padrão CLP (Universal)** (primeiro bit 0, 8+8 bytes, RPI 50, sem multicast; só ponto de partida) e **Instruções de Ajustes Padrão** (explica cada campo).

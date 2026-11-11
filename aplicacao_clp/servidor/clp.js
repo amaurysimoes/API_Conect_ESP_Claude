@@ -7,8 +7,9 @@ import { listarMaquinas, enviarComando } from "../../aplicacao_desk_agente/agent
 export const MODOS = ["alternar", "pulso", "set", "reset"];
 export const PROTOCOLOS = ["ethernet_ip", "tcp_ip"];   // EtherNet/IP (área de I/O) ou TCP/IP = Modbus TCP nas memórias M
 export const PADRAO = {
-  protocolo: "ethernet_ip", porta: 502, unidade: 1, base_m: 2048, qtd_m: 64,
-  ip: "", ip_local: "", primeiro_bit: 512, ot_size: 32, to_size: 32, rpi_ms: 20, multicast: true,
+  // padrão de máquina nova: TCP/IP (Modbus TCP) com os valores do Delta AS (base 0 deduzido do AS332P: confirme)
+  protocolo: "tcp_ip", porta: 502, unidade: 1, base_m: 0, qtd_m: 64,
+  ip: "", ip_local: "", primeiro_bit: 0, ot_size: 32, to_size: 32, rpi_ms: 20, multicast: true,
   inst_cfg: 1, inst_ot: 150, inst_to: 100, pontos: {},
 };
 const plano = (t) => String(t ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
