@@ -24,18 +24,26 @@ const CSS = `
 
 // "/" é a página de pinos original (o menu é injetado nela por aplicacao_gps/http.js, sem editar o código antigo)
 const LINKS = [["/", "IOT-Automacao-ESP"], ["/clp", "Conexao Socket-TCP/IP"], ["/desk", "Desk-Automacao_Firebase"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
-// Marca d'água: img/circuito-cinza.svg (vetor: nunca desfoca), bem clarinha, fixa atrás de todo o conteúdo de todas as abas.
-const MARCA = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='16 16 88 88' fill='none'>" +
-  "<path d='M32 42 H42 L58 26 H88 M32 60 H46 L58 48 H82 M32 78 H46 L64 60 H88 M44 94 H64 L74 84 H82' stroke='#6B7280' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/>" +
-  "<g stroke='#6B7280' stroke-width='3.5'><circle cx='26' cy='42' r='5'/><circle cx='26' cy='78' r='5'/><circle cx='88' cy='48' r='5'/><circle cx='88' cy='84' r='5'/></g>" +
-  "<g fill='#6B7280'><circle cx='26' cy='60' r='6'/><circle cx='38' cy='94' r='6'/><circle cx='94' cy='26' r='6'/><circle cx='94' cy='60' r='6'/></g></svg>";
-const MARCA_URI = "data:image/svg+xml," + encodeURIComponent(MARCA);
+// Fundo e tema das abas, iguais aos do programa Automacao_IOT-ESP: abre no escuro (img/background_iot.jpg) e o botão
+// "☀  Light" / "☾  Dark" troca para o claro (img/background_iot_l.jpg). A imagem cobre a tela, ancorada embaixo à direita.
+// A escolha vale só nesta aba do navegador (sessionStorage): ao abrir de novo, volta ao escuro, como no programa.
 export const CSS_MENU = `<style>
-  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.09;background:url("${MARCA_URI}") center / min(72vmin,680px) no-repeat}
-  nav{display:flex;gap:6px;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(/img/background_iot.jpg) right bottom / cover no-repeat}
+  html[data-tema=claro]{color-scheme:light;--fundo:#f2f2f7;--card:#ffffff;--borda:#d1d1d6;--texto:#1c1c1e;--suave:#6e6e73;--azul:#0a84ff;--verde:#1fa84a;--verm:#e0244a;--amarelo:#b7791f}
+  html[data-tema=claro] body::before{background-image:url(/img/background_iot_l.jpg)}
+  html[data-tema=claro] button.principal{background:#dcebff}
+  html[data-tema=claro] .mini.perigo.clique:hover{background:#ffe9ee}
+  html[data-tema=claro] .led{background:#d1d1d6;border-color:#b4b4ba}
+  nav{display:flex;gap:6px;align-items:center;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
   nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
+  nav button#tema{margin-left:auto;padding:7px 14px;font:600 13px system-ui,sans-serif;background:transparent;color:var(--azul);border:2px solid var(--azul);border-radius:8px;cursor:pointer}
+  nav button#tema:hover{background:var(--azul);color:#08111f}
 </style>`;
-export const menuHtml = (ativo) => `<nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}</nav>`;
+const SCRIPT_TEMA = `<script>(function(){var h=document.documentElement,k='tema_site',b=document.getElementById('tema'),claro=false;
+try{claro=sessionStorage.getItem(k)==='claro'}catch(e){}
+function aplicar(){if(claro)h.setAttribute('data-tema','claro');else h.removeAttribute('data-tema');b.textContent=claro?'☾  Dark':'☀  Light'}
+b.addEventListener('click',function(){claro=!claro;try{sessionStorage.setItem(k,claro?'claro':'escuro')}catch(e){}aplicar()});aplicar()})()</script>`;
+export const menuHtml = (ativo) => `<nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}<button id="tema" type="button" title="Trocar entre escuro e claro">☀  Light</button></nav>${SCRIPT_TEMA}`;
 
 const pagina = (titulo, ativo, corpo, script) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

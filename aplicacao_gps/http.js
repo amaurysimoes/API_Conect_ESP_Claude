@@ -4,6 +4,10 @@ import { paginaEnderecos, paginaGps, menuHtml, CSS_MENU } from "./paginas.js";
 import { FAVICON } from "./favicon.js";
 import { listarLugaresSalvos, salvarLugar, apagarLugar, idValido } from "./lugaresStore.js";
 import { gravarPosicao, lerPosicao } from "./posicao.js";
+import { readFile } from "node:fs/promises";
+
+// Fundos das abas (dark e light): só estes dois arquivos da pasta img/ são servidos, e só depois da senha do painel.
+const FUNDOS = { "/img/background_iot.jpg": "background_iot.jpg", "/img/background_iot_l.jpg": "background_iot_l.jpg" };
 
 const limpo = (v, max) => String(v ?? "").replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max);
 
@@ -19,6 +23,11 @@ export async function gpsHttp(req, res, caminho, { json, corpoJson }) {
     return false;
   }
 
+  if (req.method === "GET" && FUNDOS[caminho]) {
+    res.writeHead(200, { "Content-Type": "image/jpeg", "Cache-Control": "private, max-age=86400" });
+    res.end(await readFile(new URL(`../img/${FUNDOS[caminho]}`, import.meta.url)));
+    return true;
+  }
   if (req.method === "GET" && caminho === "/enderecos") return html(paginaEnderecos());
   if (req.method === "GET" && caminho === "/gps") return html(paginaGps());
 

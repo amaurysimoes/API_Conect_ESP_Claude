@@ -75,6 +75,17 @@ try {
   const home = await (await req("GET", "/")).text();
   assert.ok(home.indexOf("IOT-Automacao") < home.indexOf("Conexao Socket-TCP/IP") && home.indexOf("Conexao Socket-TCP/IP") < home.indexOf("Desk-Automacao_Firebase"), "aba logo depois de IOT-Automacao");
   assert.match(home, /Escreva, em cada pino/, "página de pinos original intacta");
+  // tema claro/escuro e fundos (iguais aos do programa Automacao_IOT-ESP)
+  for (const [nome, html] of [["/clp", pag], ["/", home]]) {
+    assert.ok(html.includes('id="tema"') && html.includes("data-tema") && html.includes("sessionStorage") && html.includes("background_iot_l.jpg") && html.includes("☀  Light"), "botão Light/Dark e fundos em " + nome);
+  }
+  const fundoEscuro = await req("GET", "/img/background_iot.jpg");
+  assert.equal(fundoEscuro.status, 200); assert.equal(fundoEscuro.headers.get("content-type"), "image/jpeg");
+  assert.ok((await fundoEscuro.arrayBuffer()).byteLength > 100000, "fundo escuro é a imagem inteira");
+  assert.equal((await req("GET", "/img/background_iot_l.jpg")).status, 200, "fundo claro");
+  assert.equal((await fetch(URL + "/img/background_iot.jpg")).status, 401, "imagem também exige a senha");
+  assert.notEqual((await req("GET", "/img/qualquer.jpg")).status, 200, "só os dois fundos são servidos");
+  console.log("OK tema: botão Light/Dark, fundos dark e light servidos só com senha");
   console.log("OK aba /clp com botão Instruções e card; menu na ordem certa; página antiga intacta");
 
   // ---- configuração ----
