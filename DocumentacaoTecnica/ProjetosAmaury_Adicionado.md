@@ -104,4 +104,20 @@ Notas:
 
 ---
 
+# Projeto Consulta Serial
+
+Lê o serial pela câmera do celular (iPhone e Android): código de barras de qualquer padrão e QR. Aba **Consulta Serial** (depois de Documentos Database) e ferramenta do conector. Pasta: `aplicacao_consultar_sn/`. 1ª parte: só ler. 2ª parte (futuro): consultar o serial no banco.
+
+Passos:
+1. Aba: abrir `https://ponte-casa.onrender.com/serial` no celular (senha do painel), permitir a câmera e apontar para o código.
+2. Moldura **vermelha** = procurando; **verde** + nome do padrão = detectou; lê sozinho. Botões: **Escanear agora**, **Foto** (plano B), **Lanterna** (Android), **Ler outro**, **Copiar**.
+3. Pela IA: dizer "Consultar Serial" → a IA manda um link → abrir no celular e escanear → dizer "escaneei" → a IA responde "Código lido: ...".
+
+Notas:
+- Link vale 10 minutos e é de uso único. Nenhuma variável nova no Render.
+- Lê Code 128/39/93, Codabar, ITF, EAN/UPC, GS1 DataBar, QR, Data Matrix, Aztec, PDF417, MaxiCode.
+- Testes: `node aplicacao_consultar_sn/teste.mjs` · `node aplicacao_consultar_sn/teste_navegador.mjs` (precisa `npm i --no-save playwright-core`). Não testado no iPhone/Android de verdade.
+
+---
+
 # Próximo projeto

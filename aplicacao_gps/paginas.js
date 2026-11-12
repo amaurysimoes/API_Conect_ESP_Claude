@@ -23,7 +23,7 @@ const CSS = `
 `;
 
 // "/" é a página de pinos original (o menu é injetado nela por aplicacao_gps/http.js, sem editar o código antigo)
-const LINKS = [["/", "IOT-Automacao-ESP"], ["/clp", "Conexao Socket-TCP/IP"], ["/desk", "Desk-Automacao_Firebase"], ["/docs", "Documentos Database"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
+const LINKS = [["/", "IOT-Automacao-ESP"], ["/clp", "Conexao Socket-TCP/IP"], ["/desk", "Desk-Automacao_Firebase"], ["/docs", "Documentos Database"], ["/serial", "Consulta Serial"], ["/enderecos", "GPS-Rotas"], ["/gps", "GPS"]];
 // Fundo e tema das abas, iguais aos do programa Automacao_IOT-ESP: abre no escuro (img/background_iot.jpg) e o botão
 // "☀  Light" / "☾  Dark" troca para o claro (img/background_iot_l.jpg). A imagem cobre a tela, ancorada embaixo à direita.
 // A escolha vale só nesta aba do navegador (sessionStorage): ao abrir de novo, volta ao escuro, como no programa.

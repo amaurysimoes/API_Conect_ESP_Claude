@@ -15,6 +15,7 @@ Claude / navegador ──► Ponte (Render) ──► Firebase ──► ESP32 �
 | Agente do PC + aba Desk | `aplicacao_desk_agente/` |
 | App Android | `aplicacao_android/` |
 | Aba CLP EtherNet/IP | `aplicacao_clp/` (+ `clp_eip.py` e `acoes_clp.py` no agente) |
+| Aba Consulta Serial (leitor de código pela câmera) | `aplicacao_consultar_sn/` |
 | Aba Documentos Database (Aiven MySQL) | `aplicacao_docs_mysqlaiven/` (+ `acoes_docs.py` no agente) |
 | Manuais | `DocumentacaoTecnica/` |
 
@@ -111,7 +112,18 @@ Criar do zero:
 
 Formato no banco (igual ao app Python; os dois lêem o mesmo banco): linha `doc` (nome, tamanho, sha256, nº de partes), linhas `parte` (arquivo SEM as imagens, em pedaços de 8 MB por causa do `max_allowed_packet`), linhas `img` (WebP por imagem, chave = caminho no zip). O Render não grava as linhas `pos` (posição na tela do app Python).
 
-## 8. Problemas
+## 8. Consulta Serial (câmera do celular)
+Aba **Consulta Serial** (`/serial`) e ferramenta **consultar_serial** do conector: lê código de barras (qualquer padrão) e QR pela câmera do celular (iPhone e Android).
+
+Criar do zero:
+1. Pasta `aplicacao_consultar_sn/`: `sessao.js` (token de uso único, 10 min), `http.js` (rotas; serve a biblioteca e o `.wasm` de `node_modules/zxing-wasm`), `pagina.js` (HTML), `cliente.js` (código do celular), `mcpSn.js` (ferramenta).
+2. `npm install zxing-wasm` e `npm install -D bwip-js` (testes).
+3. `cliente.js`: `getUserMedia` (câmera traseira) → desenha o quadro num `<canvas>` (máx. 1280 px) → `ZXingWASM.readBarcodes(imageData, { tryHarder: true, maxNumberOfSymbols: 1, formats: [] })` → moldura vermelha sem código, verde com os 4 cantos devolvidos (`position`) e o nome do padrão; 2 leituras iguais seguidas = confirma e faz `POST /api/serial/<token>/resultado`. Apontar o `.wasm` com `ZXingWASM.setZXingModuleOverrides({ locateFile })`.
+4. Somar nos arquivos antigos: `iot_automacao_esp/ferramentas.js` (`instalarSn(server)`), `iot_automacao_esp/servidor.js` (`snHttp` ANTES de `painelAutorizado`; `snPainelHttp` depois) e o link no menu em `aplicacao_gps/paginas.js`.
+5. Usa o endereço do servidor (`RENDER_EXTERNAL_URL`, o Render já define; local: `DOCS_URL_PUBLICA`). Nenhuma variável nova.
+6. Testar: `node aplicacao_consultar_sn/teste.mjs` · `npm i --no-save playwright-core` e `node aplicacao_consultar_sn/teste_navegador.mjs`.
+
+## 9. Problemas
 | Sintoma | Solução |
 |---|---|
 | "nenhum pino combina" | cadastre só o nome (`led`, `luz frente`), sem verbo |
@@ -123,5 +135,7 @@ Formato no banco (igual ao app Python; os dois lêem o mesmo banco): linha `doc`
 | Sem porta COM | driver ausente ou cabo só de carga |
 | `pip` falha no PyYAML | Python 3.14: use 3.11 ou 3.12 |
 | `No Python at ...` | `.venv` de outro PC: apague e recrie |
+| Consulta Serial: "Sem acesso à câmera" | permitir a câmera para o site no navegador do celular; só funciona em HTTPS |
+| Consulta Serial não lê | aproximar, firmar, sem reflexo; botão **Foto** como plano B |
 | `Banco do Aiven não configurado` | faltam `DOCS_DB_*` no Render (Environment) |
 | Documentos: timeout/ECONNREFUSED | Aiven sem `0.0.0.0/0` em Allowed IP addresses, ou serviço MySQL desligado |
