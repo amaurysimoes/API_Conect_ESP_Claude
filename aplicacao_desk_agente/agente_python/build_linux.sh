@@ -6,6 +6,7 @@
 set -e
 R="$(cd "$(dirname "$0")" && pwd)"
 TMP="$HOME/build_render_agente"
+cp "$R/../../img/icone.png" "$R/../../img/icone.ico" "$R/"   # ícone único do projeto (api_conect/img)
 
 # programas do sistema que o PyInstaller e a janelinha de configuração precisam (só instala o que falta, se for root)
 faltam=""
@@ -34,4 +35,18 @@ mkdir -p "$R/dist/Linux"
 cp dist/Render_Agente "$R/dist/Linux/Render_Agente"
 chmod +x "$R/dist/Linux/Render_Agente"
 ls -la "$R/dist/Linux/Render_Agente"
+
+# atalho no menu de aplicativos com o ícone (binário Linux não leva ícone dentro)
+cp "$R/icone.png" "$R/dist/Linux/icone.png"
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/render-agente.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Render Agente
+Exec=$R/dist/Linux/Render_Agente
+Icon=$R/dist/Linux/icone.png
+Terminal=false
+Categories=Utility;
+EOF
+echo "atalho: ~/.local/share/applications/render-agente.desktop"
 echo "LINUX_FIM"

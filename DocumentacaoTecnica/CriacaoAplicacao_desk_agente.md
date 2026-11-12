@@ -23,7 +23,9 @@ python -m venv .venv
 A `.venv` só precisa ser criada uma vez em cada máquina.
 
 ## Ícone
-`icone.png` e `icone.ico` da pasta = cópia de `img/`. Se mudar o ícone: `cp ../../img/icone.png ../../img/icone.ico .`
+Os dois builds copiam sozinhos `api_conect/img/icone.ico` e `icone.png`.
+- Windows: o `.exe` sai com o `icone.ico`.
+- Linux: o binário não leva ícone dentro. O build cria o atalho **Render Agente** no menu de aplicativos, com o ícone.
 
 ## Cuidados
 - `dist/` não vai para o git: o executável fica só na máquina.
