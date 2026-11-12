@@ -15,7 +15,7 @@ const CSS = `
   body.aba{display:block;height:auto;min-height:100%;overflow:auto;background:transparent;max-width:960px;margin:0 auto;padding:0 16px 24px}
   body.aba #topo b{display:none}
   body.aba h1{font-size:20px;margin:0} body.aba .sub{color:var(--suave);font-size:13px;margin:6px 0 12px}
-  body.aba #cena{height:calc(100vh - 170px);height:calc(100dvh - 170px);min-height:380px;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+  body.aba #cena{flex:none;width:100%;max-width:560px;height:min(60vh,460px);min-height:340px;border:1px solid var(--borda);border-radius:8px;overflow:hidden;margin:12px 0}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   canvas#o{position:absolute;left:0;top:0;pointer-events:none}
   #topo{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;background:linear-gradient(#000c,#0000);z-index:3}
