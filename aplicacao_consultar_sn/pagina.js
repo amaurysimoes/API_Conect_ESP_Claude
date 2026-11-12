@@ -5,10 +5,17 @@ import { menuHtml, CSS_MENU } from "../aplicacao_gps/paginas.js";
 const CSS = `
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
-  html,body{margin:0;height:100%;background:#0f1115;color:#e6e8ee;font:15px system-ui,-apple-system,sans-serif;overflow:hidden}
-  body{display:flex;flex-direction:column}
-  nav{flex:none;margin:0 !important;padding:8px 10px !important}
+  html{background:var(--fundo)}
+  html,body{margin:0;height:100%;color:var(--texto);font:15px system-ui,-apple-system,sans-serif}
+  /* link do celular: câmera em tela cheia */
+  body{display:flex;flex-direction:column;overflow:hidden;background:var(--fundo)}
+  body:not(.aba) nav{flex:none;margin:0 !important;padding:8px 10px !important}
   #cena{position:relative;flex:1;min-height:0;background:#000}
+  /* aba do site: igual às outras (fundo com a imagem, menu, câmera dentro de um quadro) */
+  body.aba{display:block;height:auto;min-height:100%;overflow:auto;background:transparent;max-width:960px;margin:0 auto;padding:0 16px 24px}
+  body.aba #topo b{display:none}
+  body.aba h1{font-size:20px;margin:0} body.aba .sub{color:var(--suave);font-size:13px;margin:6px 0 12px}
+  body.aba #cena{height:calc(100vh - 170px);height:calc(100dvh - 170px);min-height:380px;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   canvas#o{position:absolute;left:0;top:0;pointer-events:none}
   #topo{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;background:linear-gradient(#000c,#0000);z-index:3}
@@ -27,8 +34,8 @@ const CSS = `
 export const paginaSerial = (token, comMenu = false) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Consulta Serial · Automacao IOT Amaury</title><style>${CSS}</style>${comMenu ? CSS_MENU : ""}${FAVICON}</head><body data-token="${token}">
-${comMenu ? menuHtml("/serial") : ""}
+<title>Consulta Serial · Automacao IOT Amaury</title><style>${CSS}</style>${comMenu ? CSS_MENU : ""}${FAVICON}</head><body data-token="${token}"${comMenu ? ' class="aba"' : ""}>
+${comMenu ? menuHtml("/serial") + '<h1>Consulta Serial</h1><div class="sub">Aponte a câmera para o código de barras ou QR: lê sozinho. Moldura vermelha = procurando, verde = detectou.</div>' : ""}
 <div id="cena">
   <video id="v" playsinline muted autoplay></video>
   <canvas id="o"></canvas>
