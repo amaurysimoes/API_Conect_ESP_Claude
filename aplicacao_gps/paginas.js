@@ -34,16 +34,23 @@ export const CSS_MENU = `<style>
   html[data-tema=claro] button.principal{background:#dcebff}
   html[data-tema=claro] .mini.perigo.clique:hover{background:#ffe9ee}
   html[data-tema=claro] .led{background:#d1d1d6;border-color:#b4b4ba}
-  nav{display:flex;gap:6px;align-items:center;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:15px system-ui,sans-serif}
-  nav a{padding:7px 14px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
-  nav button#tema{margin-left:auto;padding:7px 14px;font:600 13px system-ui,sans-serif;background:transparent;color:var(--azul);border:2px solid var(--azul);border-radius:8px;cursor:pointer}
+  nav{display:flex;gap:6px;align-items:center;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:13px system-ui,sans-serif}
+  nav #abas{display:flex;gap:6px;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth} nav #abas::-webkit-scrollbar{display:none}
+  nav a{flex:none;white-space:nowrap;padding:7px 12px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}
+  nav button.seta{flex:none;display:none;padding:5px 9px;font:700 15px system-ui,sans-serif;line-height:1;background:transparent;color:var(--azul);border:1px solid var(--borda);border-radius:6px;cursor:pointer} nav button.seta.on{display:block} nav button.seta:hover{border-color:var(--azul)}
+  nav button#tema{flex:none;margin-left:auto;padding:7px 12px;font:600 12px system-ui,sans-serif;white-space:nowrap;background:transparent;color:var(--azul);border:2px solid var(--azul);border-radius:8px;cursor:pointer}
   nav button#tema:hover{background:var(--azul);color:#08111f}
 </style>`;
 const SCRIPT_TEMA = `<script>(function(){var h=document.documentElement,k='tema_site',b=document.getElementById('tema'),claro=false;
 try{claro=sessionStorage.getItem(k)==='claro'}catch(e){}
 function aplicar(){if(claro)h.setAttribute('data-tema','claro');else h.removeAttribute('data-tema');b.textContent=claro?'☾  Dark':'☀  Light'}
 b.addEventListener('click',function(){claro=!claro;try{sessionStorage.setItem(k,claro?'claro':'escuro')}catch(e){}aplicar()});aplicar()})()</script>`;
-export const menuHtml = (ativo) => `<nav>${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}<button id="tema" type="button" title="Trocar entre escuro e claro">☀  Light</button></nav>${SCRIPT_TEMA}`;
+// Muitas abas: a lista rola de lado e as setas ‹ › aparecem só quando há abas escondidas naquele lado
+const SCRIPT_ABAS = `<script>(function(){var a=document.getElementById('abas'),e=document.getElementById('seta-e'),d=document.getElementById('seta-d');if(!a)return;
+function ver(){e.classList.toggle('on',a.scrollLeft>2);d.classList.toggle('on',a.scrollLeft+a.clientWidth<a.scrollWidth-2)}
+e.onclick=function(){a.scrollBy({left:-160})};d.onclick=function(){a.scrollBy({left:160})};a.addEventListener('scroll',ver);window.addEventListener('resize',ver);
+var on=a.querySelector('a.on');if(on){a.style.scrollBehavior='auto';a.scrollLeft=Math.max(0,on.offsetLeft-a.clientWidth/2+on.offsetWidth/2);a.style.scrollBehavior=''}ver()})()</script>`;
+export const menuHtml = (ativo) => `<nav><button id="seta-e" class="seta" type="button" title="Mais abas">‹</button><div id="abas">${LINKS.map(([h, t]) => `<a href="${h}"${h === ativo ? ' class="on"' : ""}>${t}</a>`).join("")}</div><button id="seta-d" class="seta" type="button" title="Mais abas">›</button><button id="tema" type="button" title="Trocar entre escuro e claro">☀  Light</button></nav>${SCRIPT_TEMA}${SCRIPT_ABAS}`;
 
 const pagina = (titulo, ativo, corpo, script) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

@@ -7,7 +7,7 @@ const CSS = `
   :root{--fundo:#0f1115;--card:#171a21;--borda:#2a2f3a;--texto:#e6e8ee;--suave:#9aa3b2;--azul:#4c8dff;--verde:#3ddc84;--verm:#ff5c5c}
   html,body{margin:0;height:100%;background:#0f1115;color:#e6e8ee;font:15px system-ui,-apple-system,sans-serif;overflow:hidden}
   body{display:flex;flex-direction:column}
-  nav{flex:none;overflow-x:auto;white-space:nowrap;margin:0 !important;padding:8px 10px !important}
+  nav{flex:none;margin:0 !important;padding:8px 10px !important}
   #cena{position:relative;flex:1;min-height:0;background:#000}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   canvas#o{position:absolute;left:0;top:0;pointer-events:none}
