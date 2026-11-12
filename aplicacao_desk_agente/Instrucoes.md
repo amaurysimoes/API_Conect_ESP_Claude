@@ -55,6 +55,12 @@ Windows: o que abre vem para a frente. Linux: sem isso; programas do Windows nã
 - Dois tipos na aba (seletor **Tipo de conexão**): EtherNet/IP (CLP com EDS) ou TCP/IP (Modbus TCP nas memórias M). FX3U não fala EtherNet/IP.
 - Teste (CLP simulado): `.venv\Scripts\python.exe teste_clp.py` em `agente_python`.
 
+### Documentos (Aiven)
+- Clique direito no ícone da bandeja → **Upload Documentos** → escolha os arquivos → vão para o banco (aba **Documentos Database**). Resultado em notificação.
+- Usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://ponte-casa.onrender.com`).
+- Pela IA: "abre o Relatorio.xlsx" (abre no Excel/Word/leitor de PDF do PC), "baixa o x.pdf", "envia C:\...\x.xlsx para o banco". Programas e scripts (`.exe`, `.bat`...) são recusados.
+- Detalhes: `DocumentacaoTecnica/ProjetosAmaury_Adicionado.md` (Projeto Documentos Database).
+
 ## 8. Segurança
 - Só comandos com assinatura HMAC-SHA256; comando com mais de 60 s ou ID repetido é descartado (relógio do PC certo).
 - Processos do sistema não são fechados.
@@ -84,5 +90,6 @@ wsl -d Ubuntu-22.04 -u root -- bash /mnt/c/Dev-AHS/api_conect/aplicacao_desk_age
 | "fora da validade" | relógio do PC errado |
 | "não consegui abrir" | programa não instalado ou nome errado |
 | Render demora ~30 s | plano grátis acordando |
+| Upload Documentos: "chave do agente inválida" | `chave` do agente diferente da `AGENTE_CHAVE`/`MCP_TOKEN` do Render |
 | Aba CLP: "marque Ativar Conexao CLP" | checkbox desmarcado na bandeja |
 | CLP: erro `0x0106` | outro scanner conectado ao CLP; esperar alguns segundos |

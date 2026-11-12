@@ -15,6 +15,7 @@ Claude / navegador ──► Ponte (Render) ──► Firebase ──► ESP32 �
 | Agente do PC + aba Desk | `aplicacao_desk_agente/` |
 | App Android | `aplicacao_android/` |
 | Aba CLP EtherNet/IP | `aplicacao_clp/` (+ `clp_eip.py` e `acoes_clp.py` no agente) |
+| Aba Documentos Database (Aiven MySQL) | `aplicacao_docs_mysqlaiven/` (+ `acoes_docs.py` no agente) |
 | Manuais | `DocumentacaoTecnica/` |
 
 ## 1. Instalar
@@ -92,7 +93,25 @@ python -m venv .venv
 8. Cadastrar o conector no Claude e pedir: "liga a luz da frente".
 9. Agente do PC: `aplicacao_desk_agente/Instrucoes.md`. App Android: `aplicacao_android/Instrucoes.md`.
 
-## 7. Problemas
+## 7. Documentos Database (Aiven MySQL)
+Aba **Documentos Database** (`/docs`): guarda **qualquer documento** (`.xls .xlsx .doc .docx .pdf .txt`, imagens, etc.; programas/scripts não) no MySQL do Aiven. A IA lê o texto, baixa e abre no PC pelo conector. Projeto original (app Python): `C:\Dev-AHS\AIVEN_DATABASE`.
+
+Criar do zero:
+1. Aiven: serviço MySQL; baixar o **CA certificate** (`ca.pem`); anotar host, porta, usuário, senha e banco. **Allowed IP addresses**: `0.0.0.0/0` (o Render grátis não tem IP fixo; a proteção é SSL + senha).
+2. Pasta `aplicacao_docs_mysqlaiven/` com `ca.pem` e:
+   - `banco.js`: conecta (mysql2, SSL com o `ca.pem`) e cria a tabela `ia_documentacao_tecnica` se faltar.
+   - `documentos.js`: enviar/listar/baixar/ler/excluir. `fflate` abre o zip (xlsx, xlsm, docx, docm, pptx); `sharp` converte as imagens png/jpeg de dentro para WebP (qualidade 75, lado máx. 1280 px). Outros tipos são guardados inteiros. Executáveis são recusados.
+   - `texto.js`: texto de xlsx/docx (XML do zip), xls (`xlsx`), doc (`word-extractor`), pdf (`pdf-parse@1.1.1`, importar `pdf-parse/lib/pdf-parse.js`), txt/csv/json/etc.
+   - `paginas.js` + `http.js`: aba `/docs`, `/api/docs/*`. `trabalhos.js` + `mcpDocs.js`: ferramentas do Claude e token de uso único do agente.
+3. `npm install mysql2 fflate sharp xlsx word-extractor pdf-parse@1.1.1`
+4. Somar nos arquivos antigos (1 importação + 1 chamada cada): `iot_automacao_esp/ferramentas.js` (`instalarDocs(server)`), `iot_automacao_esp/servidor.js` (`docsAgenteHttp` ANTES de `painelAutorizado`; `docsHttp` depois) e o link no menu em `aplicacao_gps/paginas.js`.
+5. Agente (`aplicacao_desk_agente/agente_python/`): `acoes_docs.py` (ações `docs_enviar`, `docs_baixar`, `docs_abrir`; menu **Upload Documentos**) + linhas somadas em `agente.py` (import, `or acoes_docs.ACOES.get(acao)`, nomes em `status.acoes`), `main.py` (import, `acoes_docs.iniciar(cfg)`, `acoes_docs.item_menu(pystray)`) e `config.py` (`servidor`). Refazer o `Render_Agente.exe`.
+6. `.env` local e **Render → Environment**: `DOCS_DB_HOST`, `DOCS_DB_PORT`, `DOCS_DB_USER`, `DOCS_DB_PASSWORD`, `DOCS_DB_NAME`. Salvar = redeploy.
+7. Testar: `node --env-file=.env aplicacao_docs_mysqlaiven/teste.mjs` (usa o Aiven real; só mexe em `__teste_docs__*` e apaga).
+
+Formato no banco (igual ao app Python; os dois lêem o mesmo banco): linha `doc` (nome, tamanho, sha256, nº de partes), linhas `parte` (arquivo SEM as imagens, em pedaços de 8 MB por causa do `max_allowed_packet`), linhas `img` (WebP por imagem, chave = caminho no zip). O Render não grava as linhas `pos` (posição na tela do app Python).
+
+## 8. Problemas
 | Sintoma | Solução |
 |---|---|
 | "nenhum pino combina" | cadastre só o nome (`led`, `luz frente`), sem verbo |
@@ -104,3 +123,5 @@ python -m venv .venv
 | Sem porta COM | driver ausente ou cabo só de carga |
 | `pip` falha no PyYAML | Python 3.14: use 3.11 ou 3.12 |
 | `No Python at ...` | `.venv` de outro PC: apague e recrie |
+| `Banco do Aiven não configurado` | faltam `DOCS_DB_*` no Render (Environment) |
+| Documentos: timeout/ECONNREFUSED | Aiven sem `0.0.0.0/0` em Allowed IP addresses, ou serviço MySQL desligado |

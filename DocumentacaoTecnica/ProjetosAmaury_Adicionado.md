@@ -85,4 +85,23 @@ Notas:
 
 ---
 
+# Projeto Documentos Database (Aiven MySQL)
+
+Aba **Documentos Database** (`/docs`). Guarda **qualquer documento** (planilha, Word, PDF, texto, imagem...; programas/scripts não) no MySQL do Aiven; imagens png/jpeg dentro de xlsx/docx viram WebP. Pasta: `aplicacao_docs_mysqlaiven/` + `acoes_docs.py` no agente. Origem: app Python `AIVEN_DATABASE`.
+
+Passos:
+1. Render → Environment: `DOCS_DB_HOST`, `DOCS_DB_PORT`, `DOCS_DB_USER`, `DOCS_DB_PASSWORD`, `DOCS_DB_NAME` (valores do `.env` do AIVEN_DATABASE). Aiven → Allowed IP addresses: `0.0.0.0/0`.
+2. Aba → botão do tipo (**.xls .xlsx .doc .docx .pdf** ou **Todos**; tipos novos aparecem sozinhos) lista os arquivos; **Enviar arquivo** grava; **Ler / Baixar / Excluir** por linha.
+3. Agente: trocar o `Render_Agente.exe` pelo novo. Ícone da bandeja → botão direito → **Upload Documentos** abre o seletor de arquivos e envia.
+4. Claude: "quais documentos eu tenho?" · "leia o Relatorio.xlsx" · "procure XPTO nos documentos" · "abre o Relatorio.xlsx" (abre no Excel/Word/leitor de PDF do PC) · "baixe o x.pdf para o PC" · "envie C:\...\x.xlsx para o banco".
+
+Notas:
+- A IA lê texto de xls/xlsx/doc/docx/pdf/txt/csv etc.; imagens e PDF escaneado não. Outros tipos: só baixar/abrir.
+- Abrir/baixar remonta o arquivo com as imagens (planilha com centenas de imagens leva dezenas de segundos). Ler baixa só o arquivo sem imagens (rápido).
+- IA só lê/envia/baixa/abre; **excluir só na aba**. Limite 40 MB por arquivo. Mesmo nome = substitui.
+- O menu da bandeja usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://ponte-casa.onrender.com`). Nas ações da IA o agente recebe do servidor um token de uso único (15 min) dentro do comando assinado.
+- Testes: `node --env-file=.env aplicacao_docs_mysqlaiven/teste.mjs` (Aiven real, apaga o que cria).
+
+---
+
 # Próximo projeto

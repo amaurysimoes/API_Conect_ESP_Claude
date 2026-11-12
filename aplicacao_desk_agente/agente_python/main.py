@@ -17,6 +17,7 @@ import threading
 import time
 
 import acoes_clp
+import acoes_docs   # módulo "Documentos Database": menu "Upload Documentos"
 import config
 import recursos
 from agente import Agente
@@ -88,6 +89,7 @@ def bandeja(agente):
     verde, vermelho = imagem((46, 204, 113, 255)), imagem((231, 76, 60, 255))
     icone = pystray.Icon("agente", vermelho, "Agente: conectando…", menu=pystray.Menu(
         acoes_clp.item_menu(pystray),   # checkbox "Ativar Conexao CLP: EtherNet/IP"
+        acoes_docs.item_menu(pystray),  # "Upload Documentos": abre o seletor de arquivos
         pystray.MenuItem("Sair", lambda i, _: i.stop())))
 
     def atualizar():
@@ -126,6 +128,7 @@ def main():
         config.salvar(cfg, a.config)
 
     acoes_clp.iniciar(cfg, a.config)
+    acoes_docs.iniciar(cfg)
     agente = Agente(cfg)
     agente.iniciar()
     try:

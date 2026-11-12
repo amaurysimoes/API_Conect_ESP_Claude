@@ -10,6 +10,7 @@ import { criarServidorMcp } from "./ferramentas.js";
 import { listarEsps, gravarPalavras } from "./firebase.js";
 import { gpsHttp } from "../aplicacao_gps/http.js"; // módulo maps/GPS (pasta própria)
 import { deskHttp } from "../aplicacao_desk_agente/agente/http.js"; // módulo agente/Desk (pasta própria)
+import { docsHttp, docsAgenteHttp } from "../aplicacao_docs_mysqlaiven/http.js"; // módulo Documentos Database (pasta própria)
 import { clpHttp } from "../aplicacao_clp/servidor/http.js"; // módulo Conexao Socket-TCP/IP (pasta própria)
 
 const NA_NUVEM = Boolean(process.env.PORT);
@@ -111,9 +112,11 @@ http.createServer(async (req, res) => {
       return await transporte.handleRequest(req, res, await corpoJson(req));
     }
 
+    if (await docsAgenteHttp(req, res, caminho, { json })) return; // agente do PC (token de uso único, antes da senha)
     if (!painelAutorizado(req, res)) return;
     if (await gpsHttp(req, res, caminho, { json, corpoJson })) return; // páginas /enderecos e /gps
     if (await deskHttp(req, res, caminho, { json, corpoJson })) return; // aba /desk
+    if (await docsHttp(req, res, caminho, { json, corpoJson })) return; // aba /docs
     if (await clpHttp(req, res, caminho, { json, corpoJson })) return; // aba /clp
 
     if (req.method === "GET" && caminho === "/") {
