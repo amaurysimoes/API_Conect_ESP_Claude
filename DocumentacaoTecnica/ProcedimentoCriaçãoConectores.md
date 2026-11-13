@@ -3,7 +3,7 @@
 Servidor: `https://automation-ahs.onrender.com` · Token: variável `MCP_TOKEN` (Render → Environment).
 
 ## Antes
-1. `https://automation-ahs.onrender.com/saude` → `{"ok":true}`.
+1. **Acordar o servidor imediatamente antes de cada tentativa:** abrir `https://automation-ahs.onrender.com/saude` e esperar `{"ok":true}` (o Render grátis dorme após ~15 min; acordar leva ~20-30 s e o Claude desiste antes disso).
 2. Navegador: `https://automation-ahs.onrender.com/mcp/SEU_MCP_TOKEN` → `{"erro":"use POST"}` = token certo.
 3. Token só com letras e números (sem `=`, `+`, `/`). Gerar no PowerShell:
    ```powershell
