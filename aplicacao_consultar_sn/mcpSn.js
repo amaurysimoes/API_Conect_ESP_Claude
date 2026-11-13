@@ -8,6 +8,7 @@ import { urlPublica } from "../aplicacao_docs_mysqlaiven/trabalhos.js";
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
 export function instalarSn(server) {
+  console.log(`[conector] requisição MCP atendida ${new Date().toISOString()}`);   // aparece nos Logs do Render a cada chamada do Claude
   server.registerTool(
     "consultar_serial",
     {

@@ -29,6 +29,13 @@ export async function snPainelHttp(req, res, caminho) {
 }
 
 export async function snHttp(req, res, caminho, { json }) {
+  // Descoberta de login OAuth (o Claude pergunta antes de cadastrar o conector). Este servidor NÃO usa OAuth (usa o token na URL):
+  // o correto é 404. Sem isto cairia na senha do painel (401) e o Claude não consegue "determinar como o servidor faz login".
+  if (caminho.startsWith("/.well-known/") || ["/register", "/authorize", "/token"].includes(caminho)) {
+    console.log(`[conector] sondagem de login ${req.method} ${caminho} (${String(req.headers["user-agent"] ?? "").slice(0, 60)}) -> 404`);
+    json(res, 404, { erro: "este servidor não usa OAuth: o token vai na URL (/mcp/<token>)" });
+    return true;
+  }
   if (req.method === "GET" && caminho === "/serial/zxing.js") return js(res, ZXING);
   if (req.method === "GET" && caminho === "/serial/zxing_reader.wasm") return js(res, ZXING_WASM, "application/wasm");
   if (req.method === "GET" && caminho === "/serial/cliente.js") return js(res, CLIENTE);
