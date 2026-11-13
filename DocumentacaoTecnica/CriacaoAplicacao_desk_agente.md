@@ -7,6 +7,8 @@ Feche o agente antes. Rode de qualquer pasta no PowerShell.
 ```powershell
 C:\Dev_AHS\api_conect\aplicacao_desk_agente\agente_python\build_windows.ps1
 ```
+
+# Buid Nivel a Nivel com cd
 Se entrou na pasta nível a nível (`cd`), use `.\` na frente:
 ```powershell
 cd C:\Dev_AHS\api_conect\aplicacao_desk_agente\agente_python
