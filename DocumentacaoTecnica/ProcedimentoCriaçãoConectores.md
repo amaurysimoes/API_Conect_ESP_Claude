@@ -14,14 +14,20 @@ Servidor: `https://automation-ahs.onrender.com` · Token: variável `MCP_TOKEN` 
 ## Abrir a tela
 claude.ai → Configurações → **Plugins** → **Adicionar conector personalizado**.
 
-## Opção A: sem cabeçalho (token na URL)
+=============================CRIAÇÃO SEM CABEÇALHO (RECOMENDADO)=========
+
+Token na URL. É o formato que já funcionou no conector antigo; o Claude não mostra aviso de login.
+
 1. Nome: `Automacao IOT`
 2. URL do servidor MCP: `https://automation-ahs.onrender.com/mcp/SEU_MCP_TOKEN`
 3. Autenticação: **Sem login**
 4. Cabeçalhos de requisição: vazio
 5. **Adicionar**
 
-## Opção B: com cabeçalho (URL sem token)
+=============================CRIAÇÃO COM CABEÇALHO=========
+
+URL sem token; o token vai no cabeçalho. Usar se a criação sem cabeçalho falhar.
+
 1. Nome: `Automacao IOT`
 2. URL do servidor MCP: `https://automation-ahs.onrender.com/mcp`
 3. Aviso "Não foi possível verificar o servidor": **Continuar mesmo assim**
@@ -29,7 +35,9 @@ claude.ai → Configurações → **Plugins** → **Adicionar conector personali
 5. Cabeçalhos de requisição → adicionar:
    - Nome: `Authorization`
    - Valor: `Bearer SEU_MCP_TOKEN`
-6. **Adicionar**
+6. **Adicionar** (o botão do final, não o "Adicionar cabeçalho")
+
+=============================FIM DA CRIAÇÃO=========
 
 ## Depois
 - Celular: app Claude → Configurações → Conectores → conferir se está ligado.
