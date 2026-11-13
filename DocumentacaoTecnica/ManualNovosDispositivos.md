@@ -1,6 +1,6 @@
 # Novo dispositivo (ESP)
 
-Painel: https://ponte-casa.onrender.com/
+Painel: https://automation-ahs.onrender.com/
 
 ## 1. Instalar no PC (uma vez)
 - Driver USB do ESP (CH340 ou CP210x).
@@ -40,7 +40,7 @@ Firebase: `esps/<nome>` com `ip`, `modelo`, `pinos`, `visto_em` (muda a cada ~10
 ## 6. Usar no Claude
 - "liga a luz da frente de casa" · "desliga a luz da frente" · "dá um pulso no portão"
 - Vários ESPs: o Claude pergunta "Qual dispositivo você quer acionar?". Responda o nome.
-- Conector: `https://ponte-casa.onrender.com/mcp/<MCP_TOKEN>`
+- Conector: `https://automation-ahs.onrender.com/mcp/<MCP_TOKEN>`
 
 ## 7. Pinos
 - Evite 0, 2, 5, 12, 15 para relé (boot). Preferidos: 4, 13, 14, 16–19, 23, 25–27, 32, 33.

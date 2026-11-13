@@ -16,7 +16,7 @@ Rota com trânsito ao vivo (Google Routes API). Pasta: `aplicacao_gps/`.
 5. Chave → **Restrições de API** → só **Routes API**.
 6. **Faturamento → Orçamentos e alertas** → orçamento (ex.: R$ 20/mês).
 
-Chave só no Render (`ponte-casa` → **Environment**) e no `.env`. Nunca no git nem no chat.
+Chave só no Render (`automation-ahs` → **Environment**) e no `.env`. Nunca no git nem no chat.
 
 | Variável | Valor |
 |---|---|
@@ -99,7 +99,7 @@ Notas:
 - A IA lê texto de xls/xlsx/doc/docx/pdf/txt/csv etc.; imagens e PDF escaneado não. Outros tipos: só baixar/abrir.
 - Abrir/baixar remonta o arquivo com as imagens (planilha com centenas de imagens leva dezenas de segundos). Ler baixa só o arquivo sem imagens (rápido).
 - IA só lê/envia/baixa/abre; **excluir só na aba**. Limite 40 MB por arquivo. Mesmo nome = substitui.
-- O menu da bandeja usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://ponte-casa.onrender.com`). Nas ações da IA o agente recebe do servidor um token de uso único (15 min) dentro do comando assinado.
+- O menu da bandeja usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://automation-ahs.onrender.com`). Nas ações da IA o agente recebe do servidor um token de uso único (15 min) dentro do comando assinado.
 - Testes: `node --env-file=.env aplicacao_docs_mysqlaiven/teste.mjs` (Aiven real, apaga o que cria).
 
 ---
@@ -109,7 +109,7 @@ Notas:
 Lê o serial pela câmera do celular (iPhone e Android): código de barras de qualquer padrão e QR. Aba **Consulta Serial** (depois de Documentos Database) e ferramenta do conector. Pasta: `aplicacao_consultar_sn/`. 1ª parte: só ler. 2ª parte (futuro): consultar o serial no banco.
 
 Passos:
-1. Aba: abrir `https://ponte-casa.onrender.com/serial` no celular (senha do painel), permitir a câmera e apontar para o código.
+1. Aba: abrir `https://automation-ahs.onrender.com/serial` no celular (senha do painel), permitir a câmera e apontar para o código.
 2. Moldura **vermelha** = procurando; **verde** + nome do padrão = detectou; lê sozinho. Botões: **Escanear agora**, **Foto** (plano B), **Lanterna** (Android), **Ler outro**, **Copiar**.
 3. Pela IA: dizer "Consultar Serial" → a IA manda um link → abrir no celular e escanear → dizer "escaneei" → a IA responde "Código lido: ...".
 

@@ -1,5 +1,5 @@
 # IOT
-https://ponte-casa.onrender.com
+https://automation-ahs.onrender.com
 
 # GPS:
-https://ponte-casa.onrender.com/enderecos
+https://automation-ahs.onrender.com/enderecos

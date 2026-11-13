@@ -1,6 +1,6 @@
 # Criar o serviço no Render (Blueprint)
 
-Serviço: `ponte-casa` · plano Free · `node iot_automacao_esp/servidor.js` · health `/saude`.
+Serviço: `automation-ahs` · plano Free · `node iot_automacao_esp/servidor.js` · health `/saude`.
 Nenhuma senha fica aqui. Os valores ficam só no Render (Environment) e no `.env` local.
 
 ## 1. Subir o código no GitHub
@@ -10,7 +10,7 @@ Nenhuma senha fica aqui. Os valores ficam só no Render (Environment) e no `.env
 ## 2. Criar o Blueprint
 1. https://dashboard.render.com → **New → Blueprint**.
 2. Conectar a conta do GitHub e escolher o repositório.
-3. O Render lê o `render.yaml` e mostra o serviço `ponte-casa`.
+3. O Render lê o `render.yaml` e mostra o serviço `automation-ahs`.
 4. **Apply**. Ele faz `npm install` e liga `node iot_automacao_esp/servidor.js`.
 5. Auto Sync = Yes: cada `git push` faz deploy sozinho (1-3 min).
 
@@ -20,12 +20,12 @@ Você não digitou nenhuma. Ao criar o Blueprint, o Render leu o `render.yaml`:
 - `MCP_TOKEN`: `generateValue: true`, então o Render sorteou.
 - `NODE_VERSION`: `value: 20`, valor copiado do arquivo.
 
-Para ver os valores: Render → ponte-casa → **Environment** → olho ao lado da variável.
+Para ver os valores: Render → automation-ahs → **Environment** → olho ao lado da variável.
 
 Só funciona como **Blueprint**. Um Web Service comum não gera nada.
 
 ## 4. Variáveis colocadas à mão
-Render → ponte-casa → **Environment → Add Environment Variable**:
+Render → automation-ahs → **Environment → Add Environment Variable**:
 - `GOOGLE_MAPS_KEY`: Google Cloud (projeto `ProjetoAmauryExpert`) → APIs e serviços → Credenciais → Criar chave de API (Routes API ativada).
 - `AGENTE_CHAVE`: tem de ser igual à do agente do PC. Sem ela, vale o `MCP_TOKEN`.
 - `CIDADE_PADRAO` (ex.: `Rio Claro - SP`).
@@ -39,6 +39,6 @@ Salvar → o Render reinicia sozinho.
 - Para usar a mesma do Render: copiar o valor do Render para o `.env` e reiniciar `npm run local`.
 
 ## 6. Conferir
-1. `https://ponte-casa.onrender.com/saude` → `{"ok":true}` (1ª vez demora ~30 s: o plano grátis dorme).
-2. `https://ponte-casa.onrender.com/` → usuário qualquer, senha = `PAINEL_SENHA` do Render.
-3. Conector do claude.ai: `https://ponte-casa.onrender.com/mcp/<MCP_TOKEN>`.
+1. `https://automation-ahs.onrender.com/saude` → `{"ok":true}` (1ª vez demora ~30 s: o plano grátis dorme).
+2. `https://automation-ahs.onrender.com/` → usuário qualquer, senha = `PAINEL_SENHA` do Render.
+3. Conector do claude.ai: `https://automation-ahs.onrender.com/mcp/<MCP_TOKEN>`.

@@ -57,7 +57,7 @@ Windows: o que abre vem para a frente. Linux: sem isso; programas do Windows nã
 
 ### Documentos (Aiven)
 - Clique direito no ícone da bandeja → **Upload Documentos** → escolha os arquivos → vão para o banco (aba **Documentos Database**). Resultado em notificação.
-- Usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://ponte-casa.onrender.com`).
+- Usa a chave do agente e o campo `servidor` do `config.json` (padrão `https://automation-ahs.onrender.com`).
 - Pela IA: "abre o Relatorio.xlsx" (abre no Excel/Word/leitor de PDF do PC), "baixa o x.pdf", "envia C:\...\x.xlsx para o banco". Programas e scripts (`.exe`, `.bat`...) são recusados.
 - Detalhes: `DocumentacaoTecnica/ProjetosAmaury_Adicionado.md` (Projeto Documentos Database).
 

@@ -112,7 +112,7 @@ async function resolverOrigem(texto) {
   throw new Error(
     pos
       ? `O GPS está desatualizado (${Math.round(idade)} min). Peça ao usuário para abrir a página /gps no celular, ou perguntar de onde ele sai.`
-      : "Não tenho o GPS do usuário. Peça para abrir a página /gps no celular (https://ponte-casa.onrender.com/gps) e tocar em compartilhar, ou pergunte de onde ele sai."
+      : "Não tenho o GPS do usuário. Peça para abrir a página /gps no celular (https://automation-ahs.onrender.com/gps) e tocar em compartilhar, ou pergunte de onde ele sai."
   );
 }
 

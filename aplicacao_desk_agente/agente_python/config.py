@@ -9,7 +9,7 @@ PADRAO = {
     "firebase": "https://amauryesp-active-default-rtdb.firebaseio.com",
     "broker": "AMAURY_01",   # onde a máquina se cadastra: brokers/<broker>/maquinas/<maquina>
     "maquina": "",           # nome desta máquina (vazio = nome do Windows)
-    "servidor": "https://ponte-casa.onrender.com",   # endereço do Render (menu Upload Documentos)
+    "servidor": "https://automation-ahs.onrender.com",   # endereço do Render (menu Upload Documentos)
     "chave": "",             # a MESMA AGENTE_CHAVE do Render: só comandos assinados com ela são obedecidos
 }
 

@@ -91,7 +91,7 @@ python -m venv .venv
 5. Gravar o ESP (`ManualNovosDispositivos.md`); conferir `esps/<nome>` no Firebase.
 6. Publicar no Render (`CriarServico_bluePrint.md`).
 7. No painel, escrever as palavras de cada pino e **Salvar**.
-8. Cadastrar o conector no Claude e pedir: "liga a luz da frente".
+8. Cadastrar o conector no Claude (`ProcedimentoCriaçãoConectores.md`) e pedir: "liga a luz da frente".
 9. Agente do PC: `aplicacao_desk_agente/Instrucoes.md`. App Android: `aplicacao_android/Instrucoes.md`.
 
 ## 7. Documentos Database (Aiven MySQL)
