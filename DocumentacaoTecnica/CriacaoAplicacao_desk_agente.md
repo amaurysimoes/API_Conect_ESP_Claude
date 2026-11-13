@@ -5,7 +5,7 @@ Pasta: `aplicacao_desk_agente/agente_python`. Saída: `dist\Windows\Render_Agent
 ## Neste PC (Windows) — as duas versões
 Feche o agente antes (o Windows não deixa sobrescrever o `.exe` em uso).
 
-1ª vez (cria a `.venv`):
+1ª vez, ou se der `No Python at ...` (a `.venv` veio de outro PC; apague a pasta `.venv` antes):
 ```powershell
 cd C:\Dev_AHS\api_conect\aplicacao_desk_agente\agente_python
 python -m venv .venv
