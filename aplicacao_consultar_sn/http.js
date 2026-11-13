@@ -6,6 +6,9 @@
 import fs from "node:fs";
 import { paginaSerial, paginaExpirada } from "./pagina.js";
 import { sessao, gravarLeitura, criarSessao } from "./sessao.js";
+import { ligarRegistro, relatorio } from "./registro.js";
+
+ligarRegistro();   // diagnóstico do conector: passa a anotar as requisições que chegam (só memória, tokens escondidos)
 
 const ZXING = new URL("../node_modules/zxing-wasm/dist/iife/reader/index.js", import.meta.url);        // leitor (ZXing-C++ em WebAssembly)
 const ZXING_WASM = new URL("../node_modules/zxing-wasm/dist/reader/zxing_reader.wasm", import.meta.url);
@@ -20,6 +23,11 @@ const js = (res, url, tipo = "text/javascript; charset=utf-8") => {
 
 // Aba "Consulta Serial" do site (DEPOIS da senha do painel): abre a câmera na própria página; cada abertura cria uma sessão
 export async function snPainelHttp(req, res, caminho) {
+  if (req.method === "GET" && caminho === "/diagnostico") {   // depois da senha do painel: últimas chamadas ao servidor (para achar por que o Claude não cadastra o conector)
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" });
+    res.end(relatorio());
+    return true;
+  }
   if (req.method === "GET" && caminho === "/serial") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Permissions-Policy": "camera=(self)" });
     res.end(paginaSerial(criarSessao(), true));

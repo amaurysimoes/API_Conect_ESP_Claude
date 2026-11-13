@@ -2,13 +2,33 @@
 // Fluxo: 1) sem 'token' gera o link da câmera e devolve NA HORA (a IA mostra o link ao usuário);
 //        2) com 'token' espera a leitura e devolve o código lido (sem token gera sempre um link novo).
 import { z } from "zod";
+import { InitializeRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { criarSessao, sessao, aguardarLeitura } from "./sessao.js";
 import { urlPublica } from "../aplicacao_docs_mysqlaiven/trabalhos.js";
 
 const texto = (t, erro = false) => ({ content: [{ type: "text", text: t }], isError: erro });
 
+// Diagnóstico (só anota nos Logs do Render, não muda nenhuma resposta): o que o Claude manda e que etapas do cadastro ele faz
+function anotarEtapas(server) {
+  try {
+    const baixo = server.server;
+    baixo.setRequestHandler(InitializeRequestSchema, async (req) => {
+      const p = req.params ?? {};
+      console.log(`[conector] initialize: protocolo=${p.protocolVersion} cliente=${JSON.stringify(p.clientInfo)} capacidades=${Object.keys(p.capabilities ?? {}).join(",") || "-"}`);
+      return baixo._oninitialize(req);
+    });
+    baixo.oninitialized = () => console.log("[conector] notifications/initialized recebido (o Claude confirmou a inicialização)");
+    baixo.onerror = (e) => console.log(`[conector] erro do protocolo: ${e?.message ?? e}`);
+    for (const metodo of ["tools/list", "tools/call", "resources/list", "prompts/list"]) {
+      const f = baixo._requestHandlers?.get(metodo);
+      if (f) baixo._requestHandlers.set(metodo, (req, extra) => { console.log(`[conector] ${metodo}${req.params?.name ? " " + req.params.name : ""}`); return f(req, extra); });
+    }
+  } catch (e) { console.log(`[conector] não consegui instrumentar: ${e.message}`); }
+}
+
 export function instalarSn(server) {
   console.log(`[conector] requisição MCP atendida ${new Date().toISOString()}`);   // aparece nos Logs do Render a cada chamada do Claude
+  anotarEtapas(server);
   server.registerTool(
     "consultar_serial",
     {
