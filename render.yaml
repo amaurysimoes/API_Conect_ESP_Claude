@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ponte-casa
+    name: automation-ahs
     runtime: node
     plan: free
     buildCommand: npm install
