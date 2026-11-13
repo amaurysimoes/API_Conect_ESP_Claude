@@ -71,7 +71,11 @@ export function instalarSn(server) {
         const l = await aguardarLeitura(id, (esperar_segundos ?? 45) * 1000);
         if (!l) return texto(`Ainda não foi lido nenhum código neste link. Peça ao usuário para abrir ${base}/serial/${id} e apontar a câmera; depois chame consultar_serial de novo (token: ${id}).`);
         // 2ª parte: a página já pediu a busca no back-end ao ficar verde; junta o histórico à resposta (até ~50 s no total)
-        const b = await aguardarBusca(id, l.texto, Math.max(4000, 50000 - (Date.now() - t0)));
+        let b = await aguardarBusca(id, l.texto, Math.max(4000, 50000 - (Date.now() - t0)));
+        if (!b) {   // a página fechou antes de pedir a busca: a própria ferramenta pede
+          try { await iniciarBusca(id, l.texto); b = await aguardarBusca(id, l.texto, Math.max(4000, 50000 - (Date.now() - t0))); }
+          catch (e) { return texto(`Código lido: ${l.texto}\nPadrão: ${l.formato || "não informado"}\n\nHistórico no back-end: ${e.message || e}`); }
+        }
         return texto(`Código lido: ${l.texto}\nPadrão: ${l.formato || "não informado"}${textoBusca(b, id)}`);
       } catch (e) { return texto(String(e.message || e), true); }
     }

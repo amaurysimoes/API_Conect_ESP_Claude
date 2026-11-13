@@ -44,9 +44,23 @@
       .catch(function () { /* bloqueado pelo navegador ou fora da rede: vale o agente */ });
   }
 
-  function buscar(sn) {
+  // link aberto pela IA (tela cheia): só entrega o serial, pede a busca ao servidor e libera o celular; quem mostra o histórico é a IA
+  function entregar(sn) {
+    var minha = ++vez;
+    pede('POST', '/api/serial/' + token + '/buscar', { sn: sn }).catch(function () { /* sem IP/porta salvos: a IA avisa */ });
+    hist.innerHTML = '<h2>✓ Serial enviado</h2><p class="mono" style="font-size:20px">' + esc(sn) + '</p>' +
+      '<p>Pode fechar esta página e voltar ao Claude: ele traz o histórico.</p>' +
+      '<p><button type="button" class="prim" id="hist-aqui">Ver o histórico aqui</button> <button type="button" id="hist-outro">Ler outro</button></p>';
+    hist.classList.add('on');
+    $('hist-aqui').onclick = function () { buscar(sn, true); };
+    $('hist-outro').onclick = function () { limpar(); var o = $('outro'); if (o) o.click(); };
+    setTimeout(function () { if (minha === vez) { try { window.close(); } catch (e) { /* o navegador só fecha abas abertas por script */ } } }, 2500);
+  }
+
+  function buscar(sn, aqui) {
     sn = String(sn || '').trim();
     if (!sn) return;
+    if (!aqui && !document.body.classList.contains('aba')) return entregar(sn);
     var minha = ++vez, t0 = Date.now(), link = '';
     var andamento = function () { hist.innerHTML = '<h2>Histórico do serial <span class="mono">' + esc(sn) + '</span></h2><p>Buscando no back-end… ' + Math.round((Date.now() - t0) / 1000) + ' s</p>'; hist.classList.add('on'); };
     andamento();
