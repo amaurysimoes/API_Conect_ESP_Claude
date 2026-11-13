@@ -8,7 +8,9 @@ import { paginaSerial, paginaExpirada } from "./pagina.js";
 import { sessao, gravarLeitura, criarSessao } from "./sessao.js";
 import { ligarRegistro, relatorio } from "./registro.js";
 
-ligarRegistro();   // diagnóstico do conector: passa a anotar as requisições que chegam (só memória, tokens escondidos)
+import { buscaHttp, buscaPainelHttp } from "./buscaHttp.js";   // 2ª parte: busca o serial no back-end da rede local
+
+ligarRegistro();// diagnóstico do conector: passa a anotar as requisições que chegam (só memória, tokens escondidos)
 
 const ZXING = new URL("../node_modules/zxing-wasm/dist/iife/reader/index.js", import.meta.url);        // leitor (ZXing-C++ em WebAssembly)
 const ZXING_WASM = new URL("../node_modules/zxing-wasm/dist/reader/zxing_reader.wasm", import.meta.url);
@@ -28,6 +30,7 @@ export async function snPainelHttp(req, res, caminho) {
     res.end(relatorio());
     return true;
   }
+  if (await buscaPainelHttp(req, res, caminho)) return true;   // IP/porta do back-end (aba)
   if (req.method === "GET" && caminho === "/serial") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Permissions-Policy": "camera=(self)" });
     res.end(paginaSerial(criarSessao(), true));
@@ -44,6 +47,7 @@ export async function snHttp(req, res, caminho, { json }) {
     json(res, 404, { erro: "este servidor não usa OAuth: o token vai na URL (/mcp/<token>)" });
     return true;
   }
+  if (await buscaHttp(req, res, caminho)) return true;         // busca do serial no back-end (token da sessão ou do agente)
   if (req.method === "GET" && caminho === "/serial/zxing.js") return js(res, ZXING);
   if (req.method === "GET" && caminho === "/serial/zxing_reader.wasm") return js(res, ZXING_WASM, "application/wasm");
   if (req.method === "GET" && caminho === "/serial/cliente.js") return js(res, CLIENTE);

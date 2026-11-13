@@ -106,7 +106,14 @@ Notas:
 
 # Projeto Consulta Serial
 
-Lê o serial pela câmera do celular (iPhone e Android): código de barras de qualquer padrão e QR. Aba **Consulta Serial** (depois de Documentos Database) e ferramenta do conector. Pasta: `aplicacao_consultar_sn/`. 1ª parte: só ler. 2ª parte (futuro): consultar o serial no banco.
+Lê o serial pela câmera do celular (iPhone e Android): código de barras de qualquer padrão e QR. Aba **Consulta Serial** (depois de Documentos Database) e ferramenta do conector. Pasta: `aplicacao_consultar_sn/`. Ao ler, busca o histórico do serial no back-end da rede local (`GET http://IP:PORTA/busca?sn=`).
+
+Busca no back-end:
+1. PC na mesma rede do back com o `Render_Agente` novo aberto (ícone verde).
+2. Aba **Consulta Serial** → **Back-end (rede local)**: IP, Porta, Máquina (ou Automático) → **Salvar**.
+3. Escanear (ou digitar em **Serial digitado** → **Buscar**): o histórico aparece abaixo da câmera.
+4. Pela IA: "Consultar Serial" (link da câmera) ou "consulte o serial XXXX" (sem câmera); a resposta traz o histórico.
+5. Erro "nenhum agente...": abrir/trocar o `Render_Agente`. Celular na rede do back: usar o link "abra direto" do aviso.
 
 Passos:
 1. Aba: abrir `https://automation-ahs.onrender.com/serial` no celular (senha do painel), permitir a câmera e apontar para o código.
@@ -116,7 +123,7 @@ Passos:
 Notas:
 - Link vale 10 minutos e é de uso único. Nenhuma variável nova no Render.
 - Lê Code 128/39/93, Codabar, ITF, EAN/UPC, GS1 DataBar, QR, Data Matrix, Aztec, PDF417, MaxiCode.
-- Testes: `node aplicacao_consultar_sn/teste.mjs` · `node aplicacao_consultar_sn/teste_navegador.mjs` (precisa `npm i --no-save playwright-core`). Não testado no iPhone/Android de verdade.
+- Testes: `node aplicacao_consultar_sn/teste.mjs` · `node aplicacao_consultar_sn/teste_navegador.mjs` (precisa `npm i --no-save playwright-core`) · `node aplicacao_consultar_sn/teste_busca.mjs`. Não testado no iPhone/Android de verdade nem no back real.
 
 ---
 

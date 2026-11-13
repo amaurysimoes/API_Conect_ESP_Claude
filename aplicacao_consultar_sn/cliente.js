@@ -86,6 +86,7 @@
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.erro || 'erro ' + r.status); }); })
       .then(function () { $('envio').textContent = '✓ Enviado para a IA'; $('envio').className = 'ok'; })
       .catch(function (e) { $('envio').textContent = '✗ Não enviou: ' + e.message; $('envio').className = 'erro'; });
+    if (window.buscarSerial) window.buscarSerial(achado.texto);   // 2ª parte: já busca o histórico no back-end (busca_cliente.js)
   }
 
   function laco() {
@@ -109,6 +110,7 @@
 
   function recomecar() {
     $('painel').classList.remove('on');
+    if (window.limparBusca) window.limparBusca();
     ultimo = ''; repeticoes = 0; ativo = true; desenhar(null); laco();
   }
 

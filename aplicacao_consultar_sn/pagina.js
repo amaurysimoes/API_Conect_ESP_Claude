@@ -12,10 +12,24 @@ const CSS = `
   body:not(.aba) nav{flex:none;margin:0 !important;padding:8px 10px !important}
   #cena{position:relative;flex:1;min-height:0;background:#000}
   /* aba do site: igual às outras (fundo com a imagem, menu, câmera dentro de um quadro) */
-  body.aba{display:block;height:auto;min-height:100%;overflow:auto;background:transparent;max-width:960px;margin:0 auto;padding:0 16px 24px}
+  body.aba{display:block;height:auto;min-height:100%;overflow:auto;background:transparent;max-width:960px;margin:0 auto;padding:0 16px 24px;box-sizing:content-box}
   body.aba #topo b{display:none}
   body.aba h1{font-size:20px;margin:0} body.aba .sub{color:var(--suave);font-size:13px;margin:6px 0 12px}
-  body.aba #cena{flex:none;width:100%;max-width:560px;height:min(60vh,460px);min-height:340px;border:1px solid var(--borda);border-radius:8px;overflow:hidden;margin:12px 0}
+  body.aba #cena{flex:none;width:100%;max-width:640px;height:min(60vh,460px);min-height:340px;border:1px solid var(--borda);border-radius:8px;overflow:hidden;margin:12px auto}
+  /* 2ª parte: back-end (IP/porta), busca digitada e histórico */
+  .bloco{max-width:640px;margin:12px auto;background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:12px 14px}
+  .bloco b.t{display:block;margin-bottom:8px} .campos{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+  .campos label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--suave);flex:1 1 120px}
+  .campos input,.campos select{font:15px system-ui,sans-serif;color:var(--texto);background:var(--fundo);border:1px solid var(--borda);border-radius:8px;padding:9px 10px;min-width:0;width:100%}
+  .campos button{padding:9px 16px} #cfg-msg{margin-top:8px;font-size:13px} .suave{color:var(--suave);font-size:13px} .aviso{color:#f59e0b}
+  #hist{display:none} #hist.on{display:block}
+  #hist h2{font-size:17px;margin:0 0 4px} #hist h3{font-size:14px;margin:16px 0 6px} .mono{font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+  #hist a{color:var(--azul);word-break:break-all} .selo{border:1px solid var(--azul);color:var(--azul);border-radius:20px;padding:1px 9px;font-size:12px}
+  .rolar{overflow:auto;max-height:340px;border:1px solid var(--borda);border-radius:8px}
+  #hist table{border-collapse:collapse;font-size:12px;white-space:nowrap} #hist th,#hist td{padding:5px 9px;border-bottom:1px solid var(--borda);text-align:left}
+  #hist th{position:sticky;top:0;background:var(--card);color:var(--suave)}
+  body.aba #hist{margin:12px 0;background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:14px}
+  body:not(.aba) #hist{position:fixed;inset:0;z-index:9;overflow:auto;background:var(--fundo);padding:calc(env(safe-area-inset-top) + 14px) 14px 24px}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   canvas#o{position:absolute;left:0;top:0;pointer-events:none}
   #topo{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;background:linear-gradient(#000c,#0000);z-index:3}
@@ -31,11 +45,26 @@ const CSS = `
   .linha{display:flex;gap:10px;flex-wrap:wrap}
 `;
 
-export const paginaSerial = (token, comMenu = false) => `<!doctype html>
+// só na aba do site: IP e porta do back-end (rede local) e busca digitada
+const BLOCOS_ABA = `
+<div class="bloco" id="cfg"><b class="t">Back-end (rede local)</b>
+  <div class="campos">
+    <label>IP<input id="cfg-ip" inputmode="decimal" placeholder="192.168.0.10" autocomplete="off"></label>
+    <label style="flex:0 1 110px">Porta<input id="cfg-porta" type="number" min="1" max="65535" placeholder="4012"></label>
+    <label>Máquina com o agente (ponte)<select id="cfg-maq"><option value="">Automático (qualquer agente ativo)</option></select></label>
+    <button class="prim" id="cfg-salvar" type="button">Salvar</button>
+  </div><div id="cfg-msg" class="suave"></div>
+</div>
+<form class="bloco" id="manual"><div class="campos">
+  <label>Serial digitado<input id="manual-sn" placeholder="digite ou escaneie abaixo" autocomplete="off"></label>
+  <button class="prim" type="submit">Buscar</button>
+</div></form>`;
+
+export const paginaSerial =(token, comMenu = false) => `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Consulta Serial · Automacao IOT Amaury</title><style>${CSS}</style>${comMenu ? CSS_MENU : ""}${FAVICON}</head><body data-token="${token}"${comMenu ? ' class="aba"' : ""}>
-${comMenu ? menuHtml("/serial") + '<h1>Consulta Serial</h1><div class="sub">Aponte a câmera para o código de barras ou QR: lê sozinho. Moldura vermelha = procurando, verde = detectou.</div>' : ""}
+${comMenu ? menuHtml("/serial") + '<h1>Consulta Serial</h1><div class="sub">Aponte a câmera para o código de barras ou QR: lê sozinho. Moldura vermelha = procurando, verde = detectou e já busca o histórico no back-end.</div>' + BLOCOS_ABA : ""}
 <div id="cena">
   <video id="v" playsinline muted autoplay></video>
   <canvas id="o"></canvas>
@@ -53,6 +82,8 @@ ${comMenu ? menuHtml("/serial") + '<h1>Consulta Serial</h1><div class="sub">Apon
     <div class="linha"><button class="prim" id="outro" type="button">Ler outro</button><button id="copiar" type="button">Copiar</button></div>
   </div>
 </div>
+<div id="hist"></div>
+<script src="/serial/busca.js"></script>
 <script src="/serial/zxing.js"></script>
 <script src="/serial/cliente.js"></script>
 </body></html>`;

@@ -34,6 +34,7 @@ export const CSS_MENU = `<style>
   html[data-tema=claro] button.principal{background:#dcebff}
   html[data-tema=claro] .mini.perigo.clique:hover{background:#ffe9ee}
   html[data-tema=claro] .led{background:#d1d1d6;border-color:#b4b4ba}
+  body{max-width:960px !important}   /* todas as abas com a largura da mais larga (pedido do usuário, 13/11/2026) */
   nav{display:flex;gap:6px;align-items:center;padding:14px 0;border-bottom:1px solid var(--borda);margin-bottom:18px;font:13px system-ui,sans-serif}
   nav #abas{display:flex;gap:6px;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth} nav #abas::-webkit-scrollbar{display:none}
   nav a{flex:none;white-space:nowrap;padding:7px 12px;border-radius:6px;color:var(--suave);text-decoration:none} nav a.on{background:var(--card);color:var(--texto);border:1px solid var(--borda)}

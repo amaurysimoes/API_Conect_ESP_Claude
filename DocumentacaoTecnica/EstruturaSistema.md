@@ -123,6 +123,16 @@ Criar do zero:
 5. Usa o endereço do servidor (`RENDER_EXTERNAL_URL`, o Render já define; local: `DOCS_URL_PUBLICA`). Nenhuma variável nova.
 6. Testar: `node aplicacao_consultar_sn/teste.mjs` · `npm i --no-save playwright-core` e `node aplicacao_consultar_sn/teste_navegador.mjs`.
 
+Busca do serial no back-end da rede local (`GET http://IP:PORTA/busca?sn=<serial>`, só leitura):
+1. `busca.js`: IP/porta/máquina cifrados em `brokers/<broker>/serial_config` (`cifrar`/`decifrar` de `aplicacao_gps/cripto.js`; só IP de rede local); `iniciarBusca(token, sn)` manda o comando assinado `serial_buscar` `{ip, porta, sn, url, token}` a cada agente ativo que anuncia a ação (ou só à máquina escolhida) com `enviarComando`; guarda o resultado na sessão (máx. 20 linhas por tabela).
+2. `buscaHttp.js`: antes da senha `GET /serial/busca.js`, `POST /api/serial/<token>/buscar {sn}` → `{ip, porta}`, `GET|POST /api/serial/<token>/historico`, `POST /api/serial/agente/<token>/historico`; depois da senha `GET|POST /api/serial/config`. Ligado por 1 linha em `snHttp` e 1 em `snPainelHttp` (`http.js`).
+3. `busca_cliente.js` (navegador): `window.buscarSerial(sn)` → `POST .../buscar`, tenta também `fetch('http://IP:PORTA/busca?sn=')` direto, consulta `.../historico` a cada 1,5 s e desenha as tabelas em `#hist`. `cliente.js` chama `window.buscarSerial(achado.texto)` ao confirmar a leitura.
+4. `pagina.js`: na aba, blocos **Back-end (rede local)** (IP, Porta, Máquina, Salvar) e **Serial digitado**; `<div id="hist">`; `<script src="/serial/busca.js">` antes do `cliente.js`.
+5. Agente: `aplicacao_desk_agente/agente_python/acoes_serial.py` (ação `serial_buscar`: thread faz o GET no back e devolve por `POST <url>/api/serial/agente/<token>/historico`). Somar em `agente.py`: `import acoes_serial`, `or acoes_serial.ACOES.get(acao)`, `+ sorted(acoes_serial.ACOES)` no `status.acoes`. Refazer o `Render_Agente.exe`.
+6. `mcpSn.js`: o passo 2 junta o histórico (`aguardarBusca` + `resumoTexto`); parâmetro `serial` busca sem câmera.
+7. Largura igual em todas as abas: `body{max-width:960px !important}` em `CSS_MENU` (`aplicacao_gps/paginas.js`).
+8. Testar: `node aplicacao_consultar_sn/teste_busca.mjs` (Firebase falso + back falso + agente real).
+
 ## 9. Problemas
 | Sintoma | Solução |
 |---|---|
